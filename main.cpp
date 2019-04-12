@@ -10,8 +10,6 @@
 
 #include <Publisher.h>
 #include <Subscriber.h>
-#include <Sensor.h>
-#include <TestClassPto.h>
 #include <json.hpp>
 
 #define DFLT_ADDRESS "tcp://localhost:1883"
@@ -35,14 +33,7 @@ void callback(map<int,int> axes, map<int,int>buttons)
 int main(int argc, const char *argv[])
 {
     Joystick *joystick;
-    Publisher pub("ciao", "ciao");
-
-    Subscriber sub("127.0.0.1:1883", "ciao_t", "ciao_p");
-
-    sub.connect();
-
-    sub.listen();
-    /*
+    
     try {
         joystick = new Joystick(JS_DEV);
 
@@ -53,7 +44,7 @@ int main(int argc, const char *argv[])
         cerr << e.what() << endl;
     } catch (mqtt::exception& e) {
         cerr << e.what() << endl;
-    }*/
+    }
 
     return 0;
 }
