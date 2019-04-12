@@ -10,8 +10,6 @@
 
 #include <Publisher.h>
 #include <Subscriber.h>
-#include <Sensor.h>
-#include <TestClassPto.h>
 #include <json.hpp>
 
 #define DFLT_ADDRESS "tcp://localhost:1883"
