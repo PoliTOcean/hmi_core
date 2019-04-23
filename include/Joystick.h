@@ -32,7 +32,7 @@ public:
      * Opens the joystick file descriptor @fd.
      * It throws a @JoystickException if the open fails.
      */
-    
+
     Joystick();
     explicit Joystick(const std::string& device);
     /**
@@ -46,7 +46,8 @@ public:
     void readData();
     /**
      * Returns a thread which is listening to the joystick.
-     * @pFunction is a pointer to a (optional) function to execute within the listening thread.
+     * @fp is a pointer to the method function
+     * @obj is the pointer to the instance object
      */
     template<class M, class T>
     std::thread* startListening(void (T::*fp)(std::map<int,int>axes, std::map<int,int> buttons), M *obj)
