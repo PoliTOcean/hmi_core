@@ -4,7 +4,7 @@
 #include <iostream>
 
 using namespace std;
-
+using namespace Politocean;
 
 int main(int argc, const char *argv[])
 {

@@ -13,6 +13,8 @@
 #include <exception>
 #include <functional>
 
+namespace Politocean {
+
 class Joystick
 {
     int fd, num_of_axes, num_of_buttons;
@@ -100,3 +102,5 @@ public:
 };
 
 #endif //JOYSTICKPUBLISHER_JOYSTICK_H
+
+}

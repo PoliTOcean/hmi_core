@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 
+namespace Politocean {
+
 const std::string Joystick::DFLT_DEVICE { "/dev/input/js0" };
 
 Joystick::Joystick()
@@ -83,3 +85,5 @@ bool Joystick::getButton(int button)
 }
 
 bool Joystick::isListening() { return _isListening; }
+
+}

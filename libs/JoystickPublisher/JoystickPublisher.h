@@ -11,6 +11,9 @@
 
 #include <Publisher.h>
 
+
+namespace Politocean {
+
 class JoystickPublisher : public Publisher {
 public:
     static const std::string DFLT_ADDRESS, DFLT_CLIENT_ID, DFLT_TOPIC;
@@ -22,3 +25,5 @@ public:
 
 
 #endif //JOYSTICKPUBLISHER_JOYSTICKPUBLISHER_H
+
+}

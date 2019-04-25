@@ -6,6 +6,9 @@
 
 #include "json.hpp"
 
+
+namespace Politocean {
+
 using namespace std;
 
 const string JoystickPublisher::DFLT_ADDRESS    { "tcp://localhost:1883" };
@@ -17,4 +20,6 @@ void JoystickPublisher::callback(std::map<int,int> axes, std::map<int,int>button
     nlohmann::json j_map(c_map);
 
     this->publish(DFLT_TOPIC, j_map.dump());
+}
+
 }
