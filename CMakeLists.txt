@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 # Add politocean common libs
 add_subdirectory(politocean_common)
+include_directories(politocean_common/include)
 
 # Add vision libs
 #add_subdirectory(vision)

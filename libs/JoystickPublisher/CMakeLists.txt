@@ -14,7 +14,7 @@ target_include_directories(JoystickPublisher
             ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(JoystickPublisher PolitoceanCommon::json PolitoceanCommon::Publisher)
+target_link_libraries(JoystickPublisher PolitoceanCommon::Publisher)
 
 target_compile_features(JoystickPublisher PRIVATE cxx_auto_type)
 target_compile_options(JoystickPublisher PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)
