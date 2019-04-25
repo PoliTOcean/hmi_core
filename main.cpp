@@ -1,24 +1,10 @@
-//
-// Created by pettinz.
-//
 
 #include "JoystickPublisher.h"
 #include "Joystick.h"
-
-#include "json.hpp"
+#include <iostream>
 
 using namespace std;
 
-const string JoystickPublisher::DFLT_ADDRESS    { "tcp://localhost:1883" };
-const string JoystickPublisher::DFLT_CLIENT_ID  { "JoystickPublisher" };
-const string JoystickPublisher::DFLT_TOPIC      { "JoystickTopic" };
-
-void JoystickPublisher::callback(std::map<int,int> axes, std::map<int,int>buttons) {
-    map<string, map<int,int>> c_map { {"axes", axes}, {"buttons", buttons} };
-    nlohmann::json j_map(c_map);
-
-    this->publish(DFLT_TOPIC, j_map.dump());
-}
 
 int main(int argc, const char *argv[])
 {
@@ -27,7 +13,15 @@ int main(int argc, const char *argv[])
     try {
         Joystick joystick;
 
-        publisher.connect();
+        cout << "Connecting to the publisher..." << endl;
+        try{
+            publisher.connect();
+        }
+        catch(exception e){
+            cout << e.what() << endl;
+            exit(EXIT_FAILURE);
+        }
+
         joystick.startListening(&JoystickPublisher::callback, &publisher)->join();
         publisher.disconnect();
     } catch (Joystick::JoystickException& e) {

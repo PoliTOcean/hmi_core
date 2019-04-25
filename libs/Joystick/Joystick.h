@@ -57,12 +57,14 @@ public:
 
         _isListening = true;
 
-        return new std::thread([this, fp, obj]() {
+        auto callbackFunction = std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2);
+
+        return new std::thread([this, callbackFunction]() {
             while (isListening())
             {
                 readData();
                 
-                std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2)(axes, buttons);
+                callbackFunction(axes, buttons);
             }
         });
     }
