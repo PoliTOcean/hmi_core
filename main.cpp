@@ -2,6 +2,7 @@
 #include "JoystickPublisher.h"
 #include "Joystick.h"
 #include <iostream>
+#include "PolitoceanExceptions.hpp"
 
 using namespace std;
 using namespace Politocean;
@@ -17,7 +18,7 @@ int main(int argc, const char *argv[])
         try{
             publisher.connect();
         }
-        catch(exception e){
+        catch(Politocean::mqttException& e){
             cout << e.what() << endl;
             exit(EXIT_FAILURE);
         }
@@ -26,7 +27,7 @@ int main(int argc, const char *argv[])
         publisher.disconnect();
     } catch (Joystick::JoystickException& e) {
         cerr << e.what() << endl;
-    } catch (mqtt::exception& e) {
+    } catch (Politocean::mqttException& e) {
         cerr << e.what() << endl;
     }
 
