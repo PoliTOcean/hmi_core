@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 11)
 add_subdirectory(politocean_common)
 
 # Add vision libs
-add_subdirectory(vision)
+#add_subdirectory(vision)
 
 # Add project internal libs
 add_subdirectory(libs)
