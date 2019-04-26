@@ -101,6 +101,7 @@ public:
     };
 };
 
-#endif //JOYSTICKPUBLISHER_JOYSTICK_H
-
 }
+
+
+#endif //JOYSTICKPUBLISHER_JOYSTICK_H

@@ -3,6 +3,7 @@
 #include "Joystick.h"
 #include <iostream>
 #include "PolitoceanExceptions.hpp"
+#include "mqttLogger.h"
 
 #define MAX_TRIES 10
 

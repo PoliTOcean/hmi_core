@@ -8,8 +8,7 @@
 #include <string>
 #include <map>
 #include "json.hpp"
-
-#include <Publisher.h>
+#include "Publisher.h"
 
 
 namespace Politocean {
@@ -24,6 +23,8 @@ public:
 };
 
 
-#endif //JOYSTICKPUBLISHER_JOYSTICKPUBLISHER_H
 
 }
+
+
+#endif //JOYSTICKPUBLISHER_JOYSTICKPUBLISHER_H
