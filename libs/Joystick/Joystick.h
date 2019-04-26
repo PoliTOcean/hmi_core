@@ -7,9 +7,13 @@
 
 #include <linux/joystick.h>
 
+#include <string>
 #include <map>
 #include <thread>
 #include <exception>
+#include <functional>
+
+namespace Politocean {
 
 class Joystick
 {
@@ -25,11 +29,14 @@ class Joystick
     std::map<int,int> axes, buttons;
 
 public:
+    static const std::string DFLT_DEVICE;
     /**
      * Opens the joystick file descriptor @fd.
      * It throws a @JoystickException if the open fails.
      */
-    explicit Joystick(const char *JOYSTICK_DEVICE);
+
+    Joystick();
+    explicit Joystick(const std::string& device);
     /**
      * Closes the joystick file descriptor @fd.
      */
@@ -41,9 +48,28 @@ public:
     void readData();
     /**
      * Returns a thread which is listening to the joystick.
-     * @pFunction is a pointer to a (optional) function to execute within the listening thread.
+     * @fp is a pointer to the method function
+     * @obj is the pointer to the instance object
      */
-    std::thread* startListening(void (*pFunction)(std::map<int,int>axes, std::map<int,int> buttons) = nullptr);
+    template<class M, class T>
+    std::thread* startListening(void (T::*fp)(std::map<int,int>axes, std::map<int,int> buttons), M *obj)
+    {
+        if (isListening())
+            return nullptr;
+
+        _isListening = true;
+
+        auto callbackFunction = std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2);
+
+        return new std::thread([this, callbackFunction]() {
+            while (isListening())
+            {
+                readData();
+                
+                callbackFunction(axes, buttons);
+            }
+        });
+    }
     /**
      * It stops the listening thread by setting @_isListening to false.
      */
@@ -74,5 +100,8 @@ public:
         }
     };
 };
+
+}
+
 
 #endif //JOYSTICKPUBLISHER_JOYSTICK_H

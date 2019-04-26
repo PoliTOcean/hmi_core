@@ -1,15 +1,26 @@
 cmake_minimum_required(VERSION 3.5)
-project(JoystickPublisher)
+project(PolitoceanHmi)
 
 set(CMAKE_CXX_STANDARD 11)
 
+# Add politocean common libs
 add_subdirectory(politocean_common)
+include_directories(politocean_common/include)
 
-include_directories(include)
+# Add vision libs
+#add_subdirectory(vision)
 
-add_library(joystick
-        src/Joystick.cpp)
-target_link_libraries(joystick -lpthread)
+# Add project internal libs
+add_subdirectory(libs)
 
-add_executable(JoystickPublisher main.cpp src/JoystickPublisher.cpp include/JoystickPublisher.h)
-target_link_libraries(JoystickPublisher joystick -lpaho-mqttpp3 Politocean::Publisher Politocean::Subscriber)
+# Add executable
+add_executable(HmiCore main.cpp)
+
+# Linking the libraries
+target_link_libraries(HmiCore 
+    # Add here all the libraries as:
+    # Name_of_the_library       --- if it's internal (e.g. Publisher)
+    # -lname_of_the_library     --- if it's a standard c++ library (e.g. -lpthread)
+    PolitoceanHmi::Joystick 
+    PolitoceanHmi::JoystickPublisher
+    PolitoceanCommon::mqttLogger)

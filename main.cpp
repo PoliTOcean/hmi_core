@@ -1,49 +1,43 @@
-//
-// Created by pettinz.
-//
-
-#include <iostream>
-#include <map>
 
 #include "JoystickPublisher.h"
 #include "Joystick.h"
+#include <iostream>
+#include "PolitoceanExceptions.hpp"
+#include "mqttLogger.h"
 
-#include <Publisher.h>
-#include <Subscriber.h>
-#include <json.hpp>
-
-#define DFLT_ADDRESS "tcp://localhost:1883"
-#define DFLT_CLIENT_ID "JoystickPublisher"
-#define TOPIC "JoystickTopic"
-
-#define JS_DEV "/dev/input/js0"
+#define MAX_TRIES 10
 
 using namespace std;
-
-JoystickPublisher joystickPublisher(DFLT_ADDRESS, DFLT_CLIENT_ID);
-
-void callback(map<int,int> axes, map<int,int>buttons)
-{
-    map<string, map<int,int>> c_map { {"axes", axes}, {"buttons", buttons} };
-    nlohmann::json j_map(c_map);
-
-    joystickPublisher.sendMessage(TOPIC, j_map.dump());
-}
+using namespace Politocean;
 
 int main(int argc, const char *argv[])
 {
-    Joystick *joystick;
-    
-    try {
-        joystick = new Joystick(JS_DEV);
+    JoystickPublisher publisher(JoystickPublisher::DFLT_ADDRESS, JoystickPublisher::DFLT_CLIENT_ID);
+    bool connected = false;
 
-        joystickPublisher.connect();
-        joystick->startListening(callback)->join();
-        joystickPublisher.disconnect();
-    } catch (Joystick::JoystickException& e) {
-        cerr << e.what() << endl;
-    } catch (mqtt::exception& e) {
-        cerr << e.what() << endl;
+    try {
+        Joystick joystick;
+
+        cout << "Connecting to the publisher..." << endl;
+        int n_tries = 0;
+        while (!connected && n_tries < MAX_TRIES){
+            ++n_tries;
+            cout << "Attempt " << n_tries << " to connect..." << endl;
+            try{
+                publisher.connect();
+                connected = true;
+            }
+            catch(Politocean::mqttException& e){
+                cout << "MQTT error: " << e.what() << endl;
+                connected = false;
+            }
+        }
+
+        joystick.startListening(&JoystickPublisher::callback, &publisher)->join();
+        publisher.disconnect();
+    } catch (std::exception& e) {
+        cout << e.what() << endl;
+        exit(EXIT_FAILURE);
     }
 
     return 0;
