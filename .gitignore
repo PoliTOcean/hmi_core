@@ -12,3 +12,5 @@ CTestTestfile.cmake
 HmiCore
 *.a
 *.cmake
+logs
+*.orig
