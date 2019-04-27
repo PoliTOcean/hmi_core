@@ -4,7 +4,6 @@
 
 #include "JoystickPublisher.h"
 
-#include "json.hpp"
 
 
 namespace Politocean {
