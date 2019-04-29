@@ -15,6 +15,8 @@ int main(int argc, const char *argv[])
     JoystickPublisher publisher(JoystickPublisher::DFLT_ADDRESS, JoystickPublisher::DFLT_CLIENT_ID);
     bool connected = false;
 
+    logger::enableLevel(logger::DEBUG, true);
+
     try {
         Joystick joystick;
 
