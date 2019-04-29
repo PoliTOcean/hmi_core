@@ -23,4 +23,5 @@ target_link_libraries(HmiCore
     # -lname_of_the_library     --- if it's a standard c++ library (e.g. -lpthread)
     PolitoceanHmi::Joystick 
     PolitoceanHmi::JoystickPublisher
-    PolitoceanCommon::mqttLogger)
+    PolitoceanCommon::mqttLogger
+    PolitoceanCommon::Publisher)

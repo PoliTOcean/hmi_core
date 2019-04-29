@@ -1,5 +1,6 @@
 
 #include "JoystickPublisher.h"
+#include "Publisher.h"
 #include "Joystick.h"
 #include <iostream>
 #include "PolitoceanConstants.h"
@@ -13,12 +14,12 @@ using namespace std;
 using namespace Politocean;
 using namespace Politocean::Constants;
 
-mqttLogger ptoLogger(Hmi::CLIENT_ID);
+Publisher pub("127.0.0.1", Hmi::CLIENT_ID);
+mqttLogger ptoLogger(&pub);
 
 int main(int argc, const char *argv[])
 {
     logger::enableLevel(logger::DEBUG, true);
-    
 
     JoystickPublisher joystickPub;
     bool connected = false;
@@ -47,7 +48,6 @@ int main(int argc, const char *argv[])
         cout << e.what() << endl;
         exit(EXIT_FAILURE);
     }
-
 
     return 0;
 }
