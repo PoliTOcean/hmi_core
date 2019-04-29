@@ -3,8 +3,9 @@
 //
 
 #include "Joystick.h"
-
+#include "logger.h"
 #include <fcntl.h>
+#include <sstream>
 #include <unistd.h>
 #include <sys/ioctl.h>
 
@@ -13,20 +14,8 @@ namespace Politocean {
 const std::string Joystick::DFLT_DEVICE { "/dev/input/js0" };
 
 Joystick::Joystick()
-    : num_of_axes(0), num_of_buttons(0), _isListening(false)
+    : Joystick(DFLT_DEVICE)
 {
-    if ((fd = open(DFLT_DEVICE.c_str(), O_RDONLY)) == -1) throw JoystickException("Joystick device not found.");
-
-    ioctl(fd, JSIOCGAXES, &num_of_axes);
-    ioctl(fd, JSIOCGBUTTONS, &num_of_buttons);
-    ioctl(fd, JSIOCGNAME(80), name_of_joystick);
-
-    printf("Joystick detected: %s\n\t%d axis\n\t%d buttons\n\n"
-            , name_of_joystick
-            , num_of_axes
-            , num_of_buttons );
-
-    fcntl(fd, F_SETFL, O_NONBLOCK);
 }
 
 Joystick::Joystick(const std::string& device)
@@ -38,10 +27,11 @@ Joystick::Joystick(const std::string& device)
     ioctl(fd, JSIOCGBUTTONS, &num_of_buttons);
     ioctl(fd, JSIOCGNAME(80), name_of_joystick);
 
-    printf("Joystick detected: %s\n\t%d axis\n\t%d buttons\n\n"
-            , name_of_joystick
-            , num_of_axes
-            , num_of_buttons );
+    std::stringstream info;
+    info << "Joystick detected: " << name_of_joystick << "\n\t";
+    info << num_of_axes << " axis\n\t";
+    info << num_of_buttons << "buttons";
+    logger::log(logger::DEBUG, info.str());
 
     fcntl(fd, F_SETFL, O_NONBLOCK);
 }
