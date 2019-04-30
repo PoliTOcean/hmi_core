@@ -6,7 +6,8 @@
 #define JOYSTICKPUBLISHER_JOYSTICKPUBLISHER_H
 
 #include <string>
-#include <map>
+#include <vector>
+
 #include "json.hpp"
 #include "Publisher.h"
 
@@ -19,7 +20,7 @@ public:
 
     JoystickPublisher(const std::string& address, const std::string& clientID) : Publisher(address, clientID) {}
 
-    void callback(std::map<int,int> axes, std::map<int,int>buttons);
+    void callback(std::vector<int>& axes, std::vector<int>& buttons);
 };
 
 
