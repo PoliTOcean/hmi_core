@@ -27,6 +27,7 @@ Joystick::Joystick(const std::string& device)
     axes.resize(num_of_axes, 0);
     buttons.resize(num_of_axes, 0);
 
+    // Logging
     std::stringstream info;
     info << "Joystick detected: " << name_of_joystick << "\n\t";
     info << num_of_axes << " axis\n\t";
