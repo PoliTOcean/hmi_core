@@ -24,4 +24,5 @@ target_link_libraries(HmiCore
     PolitoceanHmi::Joystick 
     PolitoceanHmi::JoystickPublisher
     PolitoceanCommon::mqttLogger
-    PolitoceanCommon::Publisher)
+    PolitoceanCommon::Publisher
+    PolitoceanCommon::Subscriber)
