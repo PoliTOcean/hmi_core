@@ -21,6 +21,9 @@ Joystick::Joystick()
     ioctl(fd, JSIOCGBUTTONS, &num_of_buttons);
     ioctl(fd, JSIOCGNAME(80), name_of_joystick);
 
+    axes.resize(num_of_axes, 0);
+    buttons.resize(num_of_axes, 0);
+
     printf("Joystick detected: %s\n\t%d axis\n\t%d buttons\n\n"
             , name_of_joystick
             , num_of_axes
@@ -37,6 +40,9 @@ Joystick::Joystick(const std::string& device)
     ioctl(fd, JSIOCGAXES, &num_of_axes);
     ioctl(fd, JSIOCGBUTTONS, &num_of_buttons);
     ioctl(fd, JSIOCGNAME(80), name_of_joystick);
+
+    axes.resize(num_of_axes, 0);
+    buttons.resize(num_of_axes, 0);
 
     printf("Joystick detected: %s\n\t%d axis\n\t%d buttons\n\n"
             , name_of_joystick
