@@ -7,6 +7,7 @@
 #include "PolitoceanExceptions.hpp"
 #include "mqttLogger.h"
 #include <unistd.h>
+#include "Subscriber.h"
 
 #define MAX_TRIES 10
 
@@ -16,6 +17,11 @@ using namespace Politocean::Constants;
 
 Publisher pub("127.0.0.1", Hmi::CLIENT_ID);
 mqttLogger ptoLogger(&pub);
+
+void testcb(const std::string& payload){
+    cout << payload << endl;
+}
+Subscriber sub("127.0.0.1", "testhmi", "common/test", &testcb);
 
 int main(int argc, const char *argv[])
 {
@@ -48,6 +54,8 @@ int main(int argc, const char *argv[])
         cout << e.what() << endl;
         exit(EXIT_FAILURE);
     }
+
+    sub.wait();
 
     return 0;
 }
