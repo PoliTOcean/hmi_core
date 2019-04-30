@@ -18,6 +18,8 @@ class JoystickPublisher : public Publisher {
 public:
     static const std::string DFLT_ADDRESS, DFLT_CLIENT_ID, DFLT_TOPIC;
 
+    JoystickPublisher() : JoystickPublisher(DFLT_ADDRESS, DFLT_CLIENT_ID) {}
+
     JoystickPublisher(const std::string& address, const std::string& clientID) : Publisher(address, clientID) {}
 
     void callback(std::vector<int>& axes, std::vector<int>& buttons);
