@@ -1,13 +1,14 @@
-
-#include "JoystickPublisher.h"
-#include "Publisher.h"
-#include "Joystick.h"
 #include <iostream>
+#include <unistd.h>
+
+#include "Joystick.h"
+#include "Publisher.h"
+#include "Subscriber.h"
+#include "JoystickPublisher.h"
+
 #include "PolitoceanConstants.h"
 #include "PolitoceanExceptions.hpp"
 #include "mqttLogger.h"
-#include <unistd.h>
-#include "Subscriber.h"
 
 #define MAX_TRIES 10
 
@@ -25,6 +26,7 @@ Subscriber sub("127.0.0.1", "testhmi", "common/test", &testcb);
 
 int main(int argc, const char *argv[])
 {
+    sub.connect();
     logger::enableLevel(logger::DEBUG, true);
 
     JoystickPublisher joystickPub;
