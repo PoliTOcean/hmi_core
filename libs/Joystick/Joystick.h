@@ -1,9 +1,9 @@
-//
-// Created by pettinz.
-//
+/**
+ * @author: pettinz
+ */
 
-#ifndef JOYSTICKPUBLISHER_JOYSTICK_H
-#define JOYSTICKPUBLISHER_JOYSTICK_H
+#ifndef JOYSTICK_H
+#define JOYSTICK_H
 
 #include <linux/joystick.h>
 
@@ -104,4 +104,4 @@ public:
 }
 
 
-#endif //JOYSTICKPUBLISHER_JOYSTICK_H
+#endif //JOYSTICK_H
