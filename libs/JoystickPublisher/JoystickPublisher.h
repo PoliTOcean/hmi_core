@@ -12,7 +12,8 @@
 #include "Publisher.h"
 
 
-namespace Politocean {
+namespace Politocean
+{
 
 class JoystickPublisher : public Publisher {
 public:
@@ -22,10 +23,8 @@ public:
 
     JoystickPublisher(const std::string& address, const std::string& clientID) : Publisher(address, clientID) {}
 
-    void callback(std::vector<int>& axes, std::vector<int>& buttons);
+    void callback(std::vector<int>& axes, unsigned char button);
 };
-
-
 
 }
 
