@@ -26,7 +26,8 @@ class Joystick
     /**
      * @axes and @buttons maps store respectively values for joystick axes and buttons.
      */
-    std::vector<int> axes, buttons;
+    std::vector<int> axes;
+    unsigned char button;
 
 public:
     static const std::string DFLT_DEVICE;
@@ -52,7 +53,7 @@ public:
      * @obj is the pointer to the instance object
      */
     template<class M, class T>
-    std::thread* startListening(void (T::*fp)(std::vector<int>& axes, std::vector<int>& buttons), M *obj)
+    std::thread* startListening(void (T::*fp)(std::vector<int>& axes, unsigned char button), M *obj)
     {
         if (isListening())
             return nullptr;
@@ -66,7 +67,7 @@ public:
             {
                 readData();
                 
-                callbackFunction(axes, buttons);
+                callbackFunction(axes, button);
             }
         });
     }

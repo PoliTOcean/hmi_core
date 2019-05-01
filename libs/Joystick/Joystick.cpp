@@ -1,6 +1,6 @@
-//
-// Created by pettinz.
-//
+/**
+ * @author pettinz
+ */
 
 #include "Joystick.h"
 #include "logger.h"
@@ -16,7 +16,7 @@ const std::string Joystick::DFLT_DEVICE { "/dev/input/js0" };
 Joystick::Joystick() : Joystick(DFLT_DEVICE) {}
 
 Joystick::Joystick(const std::string& device)
-    : num_of_axes(0), num_of_buttons(0), _isListening(false)
+    : num_of_axes(0), num_of_buttons(0), _isListening(false), button(0)
 {
     if ((fd = open(device.c_str(), O_RDONLY)) == -1) throw JoystickException("Joystick device not found.");
 
@@ -25,7 +25,6 @@ Joystick::Joystick(const std::string& device)
     ioctl(fd, JSIOCGNAME(80), name_of_joystick);
 
     axes.resize(num_of_axes, 0);
-    buttons.resize(num_of_axes, 0);
 
     // Logging
     std::stringstream info;
@@ -60,19 +59,9 @@ void Joystick::readData()
             axes[js.number] = js.value;
             break;
         case JS_EVENT_BUTTON:
-            buttons[js.number] = js.value;
+            button = (js.value << 7) | js.number;
             break;
     }
-}
-
-int Joystick::getAxis(int axis)
-{
-    return axes[axis];
-}
-
-bool Joystick::getButton(int button)
-{
-    return (bool)buttons[button];
 }
 
 bool Joystick::isListening() { return _isListening; }
