@@ -84,10 +84,7 @@ void JoystickPublisher::stopPublishing()
     isPublishingButtons_    = false;
 
     publishAxes_->join();
-    delete publishAxes_;
-
     publishButtons_->join();
-    delete publishButtons_;
 }
 
 }
