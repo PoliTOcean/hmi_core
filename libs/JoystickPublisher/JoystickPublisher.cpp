@@ -25,13 +25,13 @@ void JoystickPublisher::callback(const vector<int>& axes, unsigned char button)
 
 thread *JoystickPublisher::publishAxes()
 {
-    if (isPublishingAxis_)
+    if (isPublishingAxes_)
         return nullptr;
     
-    isPublishingAxis_ = true;
+    isPublishingAxes_ = true;
 
     return new thread([this] {
-        while (isPublishingAxis_)
+        while (isPublishingAxes_)
         {
             nlohmann::json j_map({ {"axes", axes_} });
 
@@ -55,7 +55,16 @@ thread *JoystickPublisher::publishButtons()
     });
 }
 
+void JoystickPublisher::stopPublish(thread *publishAxes, thread *publishButtons)
+{
+    isPublishingAxes_       = false;
+    isPublishingButtons_    = false;
+
+    publishAxes->join();
+    publishButtons->join();
+}
+
 bool JoystickPublisher::isPublishingButtons() { return isPublishingButtons_; }
-bool JoystickPublisher::isPublishingAxes() { return isPublishingAxis_; }
+bool JoystickPublisher::isPublishingAxes() { return isPublishingAxes_; }
 
 }
