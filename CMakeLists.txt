@@ -14,8 +14,8 @@ include_directories(politocean_common/include)
 add_subdirectory(libs)
 
 # Add executable
-add_executable(MainJoystick joystick.cpp)
-add_executable(Gui gui.cpp)
+add_executable(MainJoystick src/joystick.cpp)
+add_executable(Gui src/gui.cpp)
 
 # Linking the libraries
 target_link_libraries(MainJoystick
