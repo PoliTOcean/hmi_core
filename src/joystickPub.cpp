@@ -39,13 +39,13 @@ int main(int argc, const char *argv[])
         int n_tries = 0;
         while (!connected && n_tries < MAX_TRIES){
             ++n_tries;
-            cout << "Attempt " << n_tries << " to connect..." << endl;
+            ptoLogger.logInfo(string("Attempt ") + to_string(n_tries) + string(" to connect..."));
             try{
                 joystickPub.connect();
                 connected = true;
             }
             catch(Politocean::mqttException& e){
-                cout << "MQTT error: " << e.what() << endl;
+                logger::log(logger::ERROR, e);
                 connected = false;
             }
         }
@@ -53,7 +53,7 @@ int main(int argc, const char *argv[])
         joystick.startListening(&JoystickPublisher::updateValues, &joystickPub)->join();
         joystickPub.disconnect();
     } catch (std::exception& e) {
-        cout << e.what() << endl;
+        logger::log(logger::ERROR, e);
         exit(EXIT_FAILURE);
     }
 
