@@ -12,10 +12,6 @@ using namespace std;
 
 const string JoystickPublisher::DFLT_ADDRESS    { "tcp://localhost:1883" };
 const string JoystickPublisher::DFLT_CLIENT_ID  { "JoystickPublisher" };
-const string JoystickPublisher::DFLT_TOPIC      { "JoystickTopic" };
-
-const string JoystickPublisher::DFLT_TOPIC_AXIS     { JoystickPublisher::DFLT_TOPIC+"Axis" };
-const string JoystickPublisher::DFLT_TOPIC_BUTTON   { JoystickPublisher::DFLT_TOPIC+"Button" };
 
 void JoystickPublisher::updateValues(const vector<int>& axes, unsigned char button)
 {
@@ -35,7 +31,7 @@ thread *JoystickPublisher::publishAxes()
         {
             nlohmann::json j_map({ {"axes", axes_} });
 
-            publish(DFLT_TOPIC_AXIS, j_map.dump());
+            publish(Constants::Topics::JOYSTICK_AXES, j_map.dump());
 
             this_thread::sleep_for(chrono::milliseconds(50));
         }
@@ -59,7 +55,7 @@ thread *JoystickPublisher::publishButtons()
                 continue;
 
             lastButton = button_;
-            publish(DFLT_TOPIC_BUTTON, to_string(button_));
+            publish(Constants::Topics::JOYSTICK_BUTTONS, to_string(button_));
         }
         isPublishingButtons_ = false;
     });

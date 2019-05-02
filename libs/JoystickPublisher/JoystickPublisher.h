@@ -12,6 +12,7 @@
 #include "json.hpp"
 #include "Publisher.h"
 
+#include "PolitoceanConstants.h"
 
 namespace Politocean
 {
@@ -38,8 +39,8 @@ class JoystickPublisher : public Publisher {
 
     std::thread *publishAxes_, *publishButtons_;
     /**
-     * @publishAxes() returns a new thread that publishes every 50ns @axes_ vector on @DFLT_TOPIC_AXES
-     * @publishButtons() returns a new thread that publishes @buttons_ value on @DFLT_TOPIC_BUTTONS
+     * @publishAxes() returns a new thread that publishes every 50ns @axes_ vector on axes topic
+     * @publishButtons() returns a new thread that publishes @buttons_ value on buttons topic
      */
     std::thread *publishAxes(), *publishButtons();
 
@@ -47,14 +48,8 @@ public:
     /**
      * @DFLT_ADDRESS    : default mosquitto address
      * @DFLT_CLIENT_ID  : default publisher client id
-     * @DFLT_TOPIC      : default topic for publishing
      */
-    static const std::string DFLT_ADDRESS, DFLT_CLIENT_ID, DFLT_TOPIC;
-    /**
-     * @DFLT_TOPIC_AXES     : default topic for publishing axes
-     * @DFLT_TOPIC_BUTTONS  : default topic for publishing buttons
-     */
-    static const std::string DFLT_TOPIC_AXIS, DFLT_TOPIC_BUTTON;
+    static const std::string DFLT_ADDRESS, DFLT_CLIENT_ID;
 
     JoystickPublisher() : JoystickPublisher(DFLT_ADDRESS, DFLT_CLIENT_ID) {}
 
