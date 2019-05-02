@@ -50,8 +50,16 @@ thread *JoystickPublisher::publishButtons()
     isPublishingButtons_ = true;
 
     return new thread([this]() {
+        unsigned char lastButton = -1;
+
         while (isPublishingButtons_)
+        {
+            if (button_ == lastButton)
+                continue;
+
+            lastButton = button_;
             publish(DFLT_TOPIC_BUTTON, to_string(button_));
+        }
     });
 }
 
