@@ -12,6 +12,7 @@ CTestTestfile.cmake
 HmiCore
 Gui
 MainJoystick
+JoystickPub
 *.a
 *.cmake
 logs
