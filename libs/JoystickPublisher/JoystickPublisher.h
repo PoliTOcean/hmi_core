@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <thread>
 
 #include "json.hpp"
 #include "Publisher.h"
@@ -16,9 +17,10 @@ namespace Politocean
 {
 
 class JoystickPublisher : public Publisher {
-    unsigned char lastButton_;
+    unsigned char button_;
     std::vector<int> axes_;
-    bool publishingAxis;
+
+    bool isPublishingAxis_, isPublishingButtons_;
 
 public:
     static const std::string DFLT_ADDRESS, DFLT_CLIENT_ID, DFLT_TOPIC;
@@ -26,9 +28,16 @@ public:
 
     JoystickPublisher() : JoystickPublisher(DFLT_ADDRESS, DFLT_CLIENT_ID) {}
 
-    JoystickPublisher(const std::string& address, const std::string& clientID) : Publisher(address, clientID), lastButton_(0), publishingAxis(false) {}
+    JoystickPublisher(const std::string& address, const std::string& clientID)
+        : Publisher(address, clientID), isPublishingAxis_(false), isPublishingButtons_(false) {}
 
     void callback(const std::vector<int>& axes, unsigned char button);
+
+    std::thread *publishAxes();
+    std::thread *publishButtons();
+
+    bool isPublishingAxes();
+    bool isPublishingButtons();
 };
 
 }

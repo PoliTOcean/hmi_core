@@ -17,19 +17,45 @@ const string JoystickPublisher::DFLT_TOPIC      { "JoystickTopic" };
 const string JoystickPublisher::DFLT_TOPIC_AXIS     { JoystickPublisher::DFLT_TOPIC+"Axis" };
 const string JoystickPublisher::DFLT_TOPIC_BUTTON   { JoystickPublisher::DFLT_TOPIC+"Button" };
 
-void JoystickPublisher::callback(const vector<int>& axes, unsigned char button) {
-    nlohmann::json j_map({ {"axes", axes}, {"button", button} });
-
-    axes_ = j_map["axes"].get<std::vector<int>>();
-
-    if(!publishingAxis){
-        //start thread to publish axes_ every 50ms
-        publishingAxis = true;
-    }
-    
-    if (lastButton_ != button)
-        this->publish(DFLT_TOPIC_BUTTON, ""+button);
+void JoystickPublisher::callback(const vector<int>& axes, unsigned char button)
+{
+    axes_ = axes;
+    button_ = button;
 }
 
+thread *JoystickPublisher::publishAxes()
+{
+    if (isPublishingAxis_)
+        return nullptr;
+    
+    isPublishingAxis_ = true;
+
+    return new thread([this] {
+        while (isPublishingAxis_)
+        {
+            nlohmann::json j_map({ {"axes", axes_} });
+
+            publish(DFLT_TOPIC_AXIS, j_map.dump());
+
+            this_thread::sleep_for(chrono::milliseconds(50));
+        }
+    });
+}
+
+thread *JoystickPublisher::publishButtons()
+{
+    if (isPublishingButtons_)
+        return nullptr;
+    
+    isPublishingButtons_ = true;
+
+    return new thread([this]() {
+        while (isPublishingButtons_)
+            publish(DFLT_TOPIC_BUTTON, to_string(button_));
+    });
+}
+
+bool JoystickPublisher::isPublishingButtons() { return isPublishingButtons_; }
+bool JoystickPublisher::isPublishingAxes() { return isPublishingAxis_; }
 
 }
