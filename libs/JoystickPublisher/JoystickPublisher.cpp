@@ -31,7 +31,7 @@ thread *JoystickPublisher::publishAxes()
     isPublishingAxes_ = true;
 
     return new thread([this] {
-        while (isPublishingAxes_)
+        while (isPublishing_)
         {
             nlohmann::json j_map({ {"axes", axes_} });
 
@@ -52,7 +52,7 @@ thread *JoystickPublisher::publishButtons()
     return new thread([this]() {
         unsigned char lastButton = -1;
 
-        while (isPublishingButtons_)
+        while (isPublishing_)
         {
             if (button_ == lastButton)
                 continue;
@@ -63,16 +63,31 @@ thread *JoystickPublisher::publishButtons()
     });
 }
 
-void JoystickPublisher::stopPublish(thread *publishAxes, thread *publishButtons)
+void JoystickPublisher::startPublishing()
 {
+    if (isPublishing_)
+        return ;
+
+    isPublishing_ = true;
+
+    publishAxes_    = publishAxes();
+    publishButtons_ = publishButtons();
+}
+
+void JoystickPublisher::stopPublishing()
+{
+    if (!isPublishing_)
+        return;
+
+    isPublishing_           = false;
     isPublishingAxes_       = false;
     isPublishingButtons_    = false;
 
-    publishAxes->join();
-    publishButtons->join();
-}
+    publishAxes_->join();
+    delete publishAxes_;
 
-bool JoystickPublisher::isPublishingButtons() { return isPublishingButtons_; }
-bool JoystickPublisher::isPublishingAxes() { return isPublishingAxes_; }
+    publishButtons_->join();
+    delete publishButtons_;
+}
 
 }

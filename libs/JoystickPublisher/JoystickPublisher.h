@@ -20,7 +20,10 @@ class JoystickPublisher : public Publisher {
     unsigned char button_;
     std::vector<int> axes_;
 
-    bool isPublishingAxes_, isPublishingButtons_;
+    bool isPublishingAxes_, isPublishingButtons_, isPublishing_;
+
+    std::thread *publishAxes_, *publishButtons_;
+    std::thread *publishAxes(), *publishButtons();
 
 public:
     static const std::string DFLT_ADDRESS, DFLT_CLIENT_ID, DFLT_TOPIC;
@@ -29,17 +32,14 @@ public:
     JoystickPublisher() : JoystickPublisher(DFLT_ADDRESS, DFLT_CLIENT_ID) {}
 
     JoystickPublisher(const std::string& address, const std::string& clientID)
-        : Publisher(address, clientID), isPublishingAxes_(false), isPublishingButtons_(false) {}
+        : Publisher(address, clientID), isPublishingAxes_(false), isPublishingButtons_(false), isPublishing_(false) {}
 
     void callback(const std::vector<int>& axes, unsigned char button);
 
-    std::thread *publishAxes();
-    std::thread *publishButtons();
+    void startPublishing();
+    void stopPublishing();
 
-    void stopPublish(std::thread *publisAxes, std::thread *publishButtons);
-
-    bool isPublishingAxes();
-    bool isPublishingButtons();
+    bool isPublishing();
 };
 
 }
