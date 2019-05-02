@@ -12,10 +12,10 @@ using namespace std;
 
 const string JoystickPublisher::DFLT_ADDRESS    { "tcp://localhost:1883" };
 const string JoystickPublisher::DFLT_CLIENT_ID  { "JoystickPublisher" };
-const string JoystickPublisher::DFLT_TOPIC      { "JoystickTopic" };
+const string JoystickPublisher::DFLT_TOPIC      { "joystick" };
 
-const string JoystickPublisher::DFLT_TOPIC_AXIS     { JoystickPublisher::DFLT_TOPIC+"Axis" };
-const string JoystickPublisher::DFLT_TOPIC_BUTTON   { JoystickPublisher::DFLT_TOPIC+"Button" };
+const string JoystickPublisher::DFLT_TOPIC_AXIS     { JoystickPublisher::DFLT_TOPIC+"/axes" };
+const string JoystickPublisher::DFLT_TOPIC_BUTTON   { JoystickPublisher::DFLT_TOPIC+"/buttons" };
 
 void JoystickPublisher::updateValues(const vector<int>& axes, unsigned char button)
 {
