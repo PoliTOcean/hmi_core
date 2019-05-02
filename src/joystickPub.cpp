@@ -39,7 +39,7 @@ int main(int argc, const char *argv[])
         int n_tries = 0;
         while (!connected && n_tries < MAX_TRIES){
             ++n_tries;
-            ptoLogger.logInfo(string("Attempt ") + string(n_tries) + string(" to connect..."));
+            ptoLogger.logInfo(string("Attempt ") + to_string(n_tries) + string(" to connect..."));
             try{
                 joystickPub.connect();
                 connected = true;
