@@ -10,6 +10,8 @@ compile_commands.json
 CTestTestfile.cmake
 .vscode
 HmiCore
+Gui
+MainJoystick
 *.a
 *.cmake
 logs

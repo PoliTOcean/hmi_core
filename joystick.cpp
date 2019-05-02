@@ -32,8 +32,6 @@ int main(int argc, const char *argv[])
     JoystickPublisher joystickPub;
     bool connected = false;
 
-    logger::enableLevel(logger::DEBUG, true);
-
     try {
         Joystick joystick;
 
