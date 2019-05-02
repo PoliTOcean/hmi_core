@@ -16,6 +16,7 @@ add_subdirectory(libs)
 # Add executable
 add_executable(JoystickPub src/joystickPub.cpp)
 add_executable(Gui src/gui.cpp)
+add_executable(Main src/main.cpp)
 
 # Linking the libraries
 target_link_libraries(JoystickPub
@@ -35,3 +36,10 @@ target_link_libraries(Gui
     PolitoceanCommon::mqttLogger
     PolitoceanCommon::Publisher
     PolitoceanCommon::Subscriber)
+
+target_link_libraries(Main
+        PolitoceanHmi::Joystick
+        PolitoceanHmi::JoystickPublisher
+        PolitoceanCommon::mqttLogger
+        PolitoceanCommon::Publisher
+        PolitoceanCommon::Subscriber)
