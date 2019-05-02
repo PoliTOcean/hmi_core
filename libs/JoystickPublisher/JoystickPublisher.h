@@ -64,7 +64,7 @@ public:
     /**
      * Reads @axes and @button values from joystick and stores them in the @axes_ and @buttons_ variables.
      */
-    void callback(const std::vector<int>& axes, unsigned char button);
+    void updateValues(const std::vector<int>& axes, unsigned char button);
 
     /**
      * Starts publishing axes values on @DFLT_TOPIC_AXES every 50ms and starts publishing buttons values

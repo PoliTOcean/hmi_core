@@ -50,7 +50,7 @@ int main(int argc, const char *argv[])
             }
         }
 
-        joystick.startListening(&JoystickPublisher::callback, &joystickPub)->join();
+        joystick.startListening(&JoystickPublisher::updateValues, &joystickPub)->join();
         joystickPub.disconnect();
     } catch (std::exception& e) {
         cout << e.what() << endl;

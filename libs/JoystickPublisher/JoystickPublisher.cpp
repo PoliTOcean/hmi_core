@@ -17,7 +17,7 @@ const string JoystickPublisher::DFLT_TOPIC      { "JoystickTopic" };
 const string JoystickPublisher::DFLT_TOPIC_AXIS     { JoystickPublisher::DFLT_TOPIC+"Axis" };
 const string JoystickPublisher::DFLT_TOPIC_BUTTON   { JoystickPublisher::DFLT_TOPIC+"Button" };
 
-void JoystickPublisher::callback(const vector<int>& axes, unsigned char button)
+void JoystickPublisher::updateValues(const vector<int>& axes, unsigned char button)
 {
     axes_ = axes;
     button_ = button;
@@ -31,7 +31,7 @@ thread *JoystickPublisher::publishAxes()
     isPublishingAxes_ = true;
 
     return new thread([this] {
-        while (isPublishing_)
+        while (isPublishing())
         {
             nlohmann::json j_map({ {"axes", axes_} });
 
@@ -39,6 +39,7 @@ thread *JoystickPublisher::publishAxes()
 
             this_thread::sleep_for(chrono::milliseconds(50));
         }
+        isPublishingAxes_ = false;
     });
 }
 
@@ -52,7 +53,7 @@ thread *JoystickPublisher::publishButtons()
     return new thread([this]() {
         unsigned char lastButton = -1;
 
-        while (isPublishing_)
+        while (isPublishing())
         {
             if (button_ == lastButton)
                 continue;
@@ -60,12 +61,13 @@ thread *JoystickPublisher::publishButtons()
             lastButton = button_;
             publish(DFLT_TOPIC_BUTTON, to_string(button_));
         }
+        isPublishingButtons_ = false;
     });
 }
 
 void JoystickPublisher::startPublishing()
 {
-    if (isPublishing_)
+    if (isPublishing_ || !(this->is_connected()))
         return ;
 
     isPublishing_ = true;
@@ -85,6 +87,10 @@ void JoystickPublisher::stopPublishing()
 
     publishAxes_->join();
     publishButtons_->join();
+}
+
+bool JoystickPublisher::isPublishing(){
+    return isPublishing_ && this->is_connected();
 }
 
 }
