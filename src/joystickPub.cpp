@@ -22,7 +22,7 @@ mqttLogger ptoLogger(&pub);
 void testcb(const std::string& payload){
     cout << payload << endl;
 }
-Subscriber sub("127.0.0.1", "testhmi", "common/test", &testcb);
+Subscriber sub("127.0.0.1", "testhmi");
 
 int main(int argc, const char *argv[])
 {
