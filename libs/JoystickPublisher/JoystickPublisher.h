@@ -17,6 +17,8 @@ namespace Politocean
 
 class JoystickPublisher : public Publisher {
     unsigned char lastButton_;
+    std::vector<int> axes_;
+    bool publishingAxis;
 
 public:
     static const std::string DFLT_ADDRESS, DFLT_CLIENT_ID, DFLT_TOPIC;
@@ -24,7 +26,7 @@ public:
 
     JoystickPublisher() : JoystickPublisher(DFLT_ADDRESS, DFLT_CLIENT_ID) {}
 
-    JoystickPublisher(const std::string& address, const std::string& clientID) : Publisher(address, clientID), lastButton_(0) {}
+    JoystickPublisher(const std::string& address, const std::string& clientID) : Publisher(address, clientID), lastButton_(0), publishingAxis(false) {}
 
     void callback(const std::vector<int>& axes, unsigned char button);
 };

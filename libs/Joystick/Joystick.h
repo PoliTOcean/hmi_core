@@ -53,7 +53,7 @@ public:
      * @obj is the pointer to the instance object
      */
     template<class M, class T>
-    std::thread* startListening(void (T::*fp)(std::vector<int>& axes, unsigned char button), M *obj)
+    std::thread* startListening(void (T::*fp)(const std::vector<int>& axes, const unsigned char button), M *obj)
     {
         if (isListening())
             return nullptr;
