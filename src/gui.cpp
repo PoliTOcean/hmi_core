@@ -28,5 +28,7 @@ int main(int argc, char *argv[])
 
     sub.connect();
 
+    sub.connect();
+
     return a.exec();
 }
