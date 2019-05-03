@@ -290,6 +290,6 @@ void MainWindow::startMeasure()
     snap_b = true;
 }
 
-void MainWindow::messageArrivedTest(const std::string& payload){
-    std::cout << payload << std::endl;
+void MainWindow::messageArrivedTest(const std::string& payload, const std::string& topic){
+    std::cout << topic << ":\t" << payload << std::endl;
 }

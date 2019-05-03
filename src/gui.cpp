@@ -26,5 +26,7 @@ int main(int argc, char *argv[])
     gui.show();
     sub.subscribeTo("topicTest", &MainWindow::messageArrivedTest, &gui);
 
+    sub.connect();
+
     return a.exec();
 }
