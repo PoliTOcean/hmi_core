@@ -14,16 +14,15 @@ using namespace std;
 using namespace Politocean;
 using namespace Politocean::Constants;
 
-Publisher pub("127.0.0.1", Hmi::CLIENT_ID);
-mqttLogger ptoLogger(&pub);
-
-void testcb(const std::string& payload){
-    cout << payload << endl;
-}
-Subscriber sub("127.0.0.1", "testhmi", "common/test", &testcb);
-
 int main(int argc, char *argv[])
 {
+    Publisher pub("127.0.0.1", Hmi::CLIENT_ID);
+    mqttLogger ptoLogger(&pub);
+    
     QApplication a(argc, argv);
+    MainWindow gui;
+
+    gui.show();
+
     return a.exec();
 }

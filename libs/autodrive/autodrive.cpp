@@ -42,7 +42,7 @@ Direction AutoDrive::updateDirection(Mat frame)
             ss << "{\"X\":"<< -K << ", \"Y\":0, \"MOTORS_ON\":0, \"MOTOROS_OFF\":0}";
             out_string = ss.str();
 
-            publisher.publish(Hmi::Topics::AUTODRIVE,out_string);
+            publisher.publish(Topics::AUTODRIVE,out_string);
             // TO DO: mqttLogger: publisher.publish(MESSAGE_TOPIC,"AUTODRIVE: direction left");
             /** TO DO: implement JSON **/
 
@@ -57,7 +57,7 @@ Direction AutoDrive::updateDirection(Mat frame)
             ss << "{\"X\":0, \"Y\":0, \"MOTORS_ON\":"<< 1 <<", \"MOTOROS_OFF\":0}";
             out_string = ss.str();
 
-            publisher.publish(Hmi::Topics::AUTODRIVE,out_string);
+            publisher.publish(Topics::AUTODRIVE,out_string);
             // TO DO: mqttLogger: publisher.publish(MESSAGE_TOPIC,"AUTODRIVE: direction right");
             /** TO DO: implement JSON **/
 
@@ -76,7 +76,7 @@ Direction AutoDrive::updateDirection(Mat frame)
             ss << "{\"X\":0, \"Y\":0, \"MOTORS_ON\":0, \"MOTOROS_OFF\":"<< 1 <<"}";
             out_string = ss.str();
 
-            publisher.publish(Hmi::Topics::AUTODRIVE,out_string);
+            publisher.publish(Topics::AUTODRIVE,out_string);
             // TODO: mqttLogger: publisher.publish(MESSAGE_TOPIC,"AUTODRIVE: direction up");
             /** TO DO: implement JSON **/
 
@@ -91,7 +91,7 @@ Direction AutoDrive::updateDirection(Mat frame)
             ss << "{\"X\":0, \"Y\":0, \"MOTORS_ON\":"<< 1 <<", \"MOTOROS_OFF\":0}";
             out_string = ss.str();
 
-            publisher.publish(Hmi::Topics::AUTODRIVE,out_string);
+            publisher.publish(Topics::AUTODRIVE,out_string);
             // TODO: mqttLogger: publisher.publish(MESSAGE_TOPIC,"AUTODRIVE: direction down");
             /** TO DO: implement JSON **/
 
