@@ -31,7 +31,7 @@ thread *JoystickPublisher::publishAxes()
         {
             nlohmann::json j_map({ {"axes", axes_} });
 
-            publish(Constants::Topics::JOYSTICK_AXIS, j_map.dump());
+            publish(Constants::Topics::JOYSTICK_AXES, j_map.dump());
 
             this_thread::sleep_for(chrono::milliseconds(50));
         }
