@@ -1,0 +1,6 @@
+-I/home/roberto/pto_repos/hmi_core/politocean_common/include
+-I/home/roberto/pto_repos/hmi_core/libs/mainwindow
+-I/home/roberto/pto_repos/hmi_core/libs/mainwindow
+-o
+/home/roberto/pto_repos/hmi_core/libs/mainwindow/moc_mainwindow.cpp
+/home/roberto/pto_repos/hmi_core/libs/mainwindow/mainwindow.h

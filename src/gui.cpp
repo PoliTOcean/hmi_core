@@ -7,26 +7,24 @@
 #include "PolitoceanConstants.h"
 #include "PolitoceanExceptions.hpp"
 #include "mqttLogger.h"
+#include "mainwindow.h"
+#include <QApplication>
 
 using namespace std;
 using namespace Politocean;
 using namespace Politocean::Constants;
 
-Publisher pub("127.0.0.1", Hmi::CLIENT_ID);
-mqttLogger ptoLogger(&pub);
-
-void testcb(const std::string& payload){
-    cout << payload << endl;
-}
-Subscriber sub("127.0.0.1", "testhmi", "common/test", &testcb);
-
-int main(int argc, const char *argv[])
+int main(int argc, char *argv[])
 {
-    sub.connect();
-    logger::enableLevel(logger::DEBUG, true);
+    Publisher pub("127.0.0.1", Hmi::CLIENT_ID);
+    mqttLogger ptoLogger(&pub);
+    Subscriber sub("127.0.0.1", Hmi::CLIENT_ID+"1");
+    
+    QApplication a(argc, argv);
+    MainWindow gui;
 
-    bool connected = false;
-    sub.wait();
+    gui.show();
+    sub.subscribeTo("topic1", &MainWindow::messageArrived), &gui);
 
-    return 0;
+    return a.exec();
 }
