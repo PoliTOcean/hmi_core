@@ -289,3 +289,7 @@ void MainWindow::startMeasure()
 {
     snap_b = true;
 }
+
+void MainWindow::messageArrivedTest(const std::string& payload){
+    std::cout << payload << std::endl;
+}

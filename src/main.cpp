@@ -28,7 +28,7 @@ string map_button(int button);
 
 Publisher publisher("127.0.0.1", Hmi::CLIENT_ID);
 
-Subscriber subscriber("127.0.0.1",Hmi::CLIENT_ID,Hmi::Topics::JOYSTICK_BUTTON,&button_callback);
+Subscriber subscriber("127.0.0.1",Hmi::CLIENT_ID,Topics::JOYSTICK_BUTTON,&button_callback);
 //ToDo: aggiungere metodo per aggiungere topic
 
 int main(int argc, char* argv[])
@@ -73,7 +73,7 @@ void axis_callback(const std::string& payload)
         //Publish
         try
         {
-            publisher.publish(Hmi::Topics::JOYSTICK_AXES,payload);
+            publisher.publish(Topics::JOYSTICK_AXES,payload);
         }
         catch (Politocean::mqttException& e)
         {
@@ -190,7 +190,7 @@ void button_callback(const string& payload)
         {
             try
             {
-                publisher.publish(Hmi::Topics::JOYSTICK_BUTTONS,out);
+                publisher.publish(Topics::JOYSTICK_BUTTONS,out);
             }
             catch (Politocean::mqttException& e)
             {

@@ -16,7 +16,7 @@ using namespace std;
 using namespace Politocean;
 using namespace Politocean::Constants;
 
-Publisher pub("127.0.0.1", Hmi::CLIENT_ID);
+Publisher pub("127.0.0.1", "Joystick_client");
 mqttLogger ptoLogger(&pub);
 
 void testcb(const std::string& payload){
