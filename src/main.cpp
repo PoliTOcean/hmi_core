@@ -26,10 +26,9 @@ void button_callback(const string& payload);
 
 string map_button(int button);
 
-Publisher publisher("127.0.0.1", Hmi::CLIENT_ID);
+Publisher publisher("127.0.0.1", Hmi::CMD_ID_PUB);
 
-Subscriber subscriber("127.0.0.1",Hmi::CLIENT_ID,Hmi::Topics::JOYSTICK_BUTTON,&button_callback);
-//ToDo: aggiungere metodo per aggiungere topic
+Subscriber subscriber("127.0.0.1",Hmi::CMD_ID_SUB);
 
 int main(int argc, char* argv[])
 {
@@ -41,6 +40,8 @@ int main(int argc, char* argv[])
         {
             ++n_tries;
             try {
+                subscriber.subscribeTo(Topics::JOYSTICK_AXES,&axis_callback);
+                subscriber.subscribeTo(Topics::JOYSTICK_BUTTONS,&button_callback);
                 publisher.connect();
                 subscriber.connect();
                 connected=true;
@@ -73,7 +74,7 @@ void axis_callback(const std::string& payload)
         //Publish
         try
         {
-            publisher.publish(Hmi::Topics::JOYSTICK_AXES,payload);
+            publisher.publish(Topics::AXES,payload);
         }
         catch (Politocean::mqttException& e)
         {
@@ -94,84 +95,58 @@ string map_button(int b)
     int msb = b >> 7;
     int button = b < 1;
 
-    static int on[N_BUTTONS]={0,0,0,0,0,0,0,0};
+    static map<string,int> state = {{"MOTORS",0}};
 
     switch(button)
     {
-        case Buttons::MOTOR:
-            if(!on[Buttons::MOTOR] && msb) //MOTOR_ON
+        //statefull buttons
+        case Commands::Buttons::MOTORS:
+            if(msb && !state["MOTORS"])
             {
-                on[Buttons::MOTOR]=1;
-                return "MOTOR_ON";
+                state["MOTORS"]=1;
+                return Commands::Actions::MOTORS_ON;
             }
-            else if(on[Buttons::MOTOR] && !msb) //MOTOR_OFF
+            else if (msb && state["MOTORS"])
             {
-                on[Buttons::MOTOR]=0;
-                return "MOTOR_OFF";
-            }
-            else
-                return "NULL";
-
-        case Buttons::RESET:
-            if(msb) //RESET
-                return "RESET";
-            else
-                return "NULL";
-
-        case Buttons::AUTONOMOUS:
-            if(!on[Buttons::AUTONOMOUS] && msb) //AUTONOMOUS_ON
-            {
-                on[Buttons::AUTONOMOUS]=1;
-                return "AUTONOMOUS_ON";
-            }
-            else if(on[Buttons::AUTONOMOUS] && !msb) //AUTONOMOUS_OFF
-            {
-                on[Buttons::AUTONOMOUS]=0;
-                return "AUTONOMOUS_OFF";
+                state["MOTORS"]=0;
+                return Commands::Actions::MOTORS_OFF;
             }
             else
-                return "NULL";
+                return Commands::Actions::NONE;
 
-        case Buttons::WRIST:
-            if(!on[Buttons::WRIST] && msb) //WRIST_ON
-            {
-                on[Buttons::WRIST]=1;
-                return "WRIST_ON";
-            }
-            else if(on[Buttons::WRIST] && !msb) //WRIST_OFF
-            {
-                on[Buttons::WRIST]=0;
-                return "WRIST_OFF";
-            }
+        //stateless buttons
+        case Commands::Buttons::VDOWN:
+            if(msb) 
+                return Commands::Actions::VDOWN;
             else
-                return "NULL";
+                return Commands::Actions::VDOWN_STOP;
 
-        case Buttons::V_UP:
+        case Commands::Buttons::VUP:
+            if(msb) 
+                return Commands::Actions::VDOWN;
+            else
+                return Commands::Actions::VDOWN_STOP;
+
+        case Commands::Buttons::WRIST:
+            if(msb) 
+                return Commands::Actions::WRIST;
+            else
+                return Commands::Actions::WRIST_STOP;
+
+        case Commands::Buttons::MEDIUM_FAST:
             if(msb)
-                return "V_UP";
+                return Commands::Actions::MEDIUM_FAST;
             else
-                return "NULL";
+                return Commands::Actions::MEDIUM_FAST_STOP;
 
-        case Buttons::V_DOWN:
+        case Commands::Buttons::SLOW:
             if(msb)
-                return "V_DOWN";
+                return Commands::Actions::SLOW;
             else
-                return "NULL";
-
-        case Buttons::SLOW:
-            if(msb)
-                return "SLOW";
-            else
-                return "NULL";
-
-        case Buttons::MEDIUM_FAST:
-            if(msb)
-                return "MEDIUM_FAST";
-            else
-                return "NULL";
+                return Commands::Actions::SLOW_STOP;
 
         default:
-            return "NULL";
+            return Commands::Actions::NONE;
 
     }
 
@@ -186,11 +161,11 @@ void button_callback(const string& payload)
         cout << button << endl;
         out = map_button(button);
 
-        if (out.compare("NULL"))
+        if (out.compare(Commands::Actions::NONE))
         {
             try
             {
-                publisher.publish(Hmi::Topics::JOYSTICK_BUTTONS,out);
+                publisher.publish(Topics::BUTTONS,out);
             }
             catch (Politocean::mqttException& e)
             {
