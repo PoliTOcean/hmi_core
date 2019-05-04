@@ -19,7 +19,7 @@ target_include_directories(ipcamera
 target_link_libraries(ipcamera 
                                 PolitoceanCommon::logger
                                 ${OpenCV_LIBS}
-                                -lFlyCapture2)
+                                -lflycapture)
 
 target_compile_features(ipcamera PRIVATE cxx_auto_type)
 target_compile_options(ipcamera PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)

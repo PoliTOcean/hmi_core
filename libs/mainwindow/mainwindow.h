@@ -5,11 +5,12 @@
 #include <QMainWindow>
 #include <iostream>
 #include <opencv2/opencv.hpp>
-//#include "ipcamera.h"
+#include "ipcamera.h"
 #include "PolitoceanConstants.h"
 //#include "autodrive.h"
 #include "mqttLogger.h"
 #include "Publisher.h"
+
 
 using namespace Politocean;
 
@@ -69,6 +70,7 @@ private:
     Publisher publisher;
     mqttLogger logPublisher;
     int value_track;
+    IpCamera camera;
 };
 
 #endif // MAINWINDOW_H

@@ -103,12 +103,11 @@ void MainWindow::DisplayImage(){
     Mat img_hls,res,frame;
     if(video){
         try{
-            cap >> frame;
+            img = camera.getFrame();
         }
         catch(...){
 
         }
-        img = frame;
         if(!img.empty()){
 
             //cvtColor(img,img_hls,CV_BGR2HLS);

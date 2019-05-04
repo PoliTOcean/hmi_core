@@ -1,6 +1,6 @@
--I/home/gallottino/hmi_core/politocean_common/include
--I/home/gallottino/hmi_core/libs/mainwindow
--I/home/gallottino/hmi_core/libs/mainwindow
+-I/home/pto/pto_src/hmi_core/politocean_common/include
+-I/home/pto/pto_src/hmi_core/libs/mainwindow
+-I/home/pto/pto_src/hmi_core/libs/mainwindow
 -o
-/home/gallottino/hmi_core/libs/mainwindow/moc_mainwindow.cpp
-/home/gallottino/hmi_core/libs/mainwindow/mainwindow.h
+/home/pto/pto_src/hmi_core/libs/mainwindow/moc_mainwindow.cpp
+/home/pto/pto_src/hmi_core/libs/mainwindow/mainwindow.h
