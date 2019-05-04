@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_design.h"
 #include <QTimer>
-#include "vision.h"
+//#include "vision.h"
 #include <iostream>
 #include "PolitoceanConstants.h"
 
@@ -111,8 +111,8 @@ void MainWindow::DisplayImage(){
         img = frame;
         if(!img.empty()){
 
-            cvtColor(img,img_hls,CV_BGR2HLS);
-            cvtColor(img,img,CV_BGR2RGB);
+            //cvtColor(img,img_hls,CV_BGR2HLS);
+            //cvtColor(img,img,CV_BGR2RGB);
 
             if(mode == MODE::MODE_HOME){
 
@@ -122,10 +122,10 @@ void MainWindow::DisplayImage(){
             }
 
             else if(mode  == MODE::MODE_AUTO){
-
-                Mat filtered = Vision::filterRed(img_hls);
+                /*
+                //Mat filtered = Vision::filterRed(img_hls);
                 Mat grid_mat = autodrive.getGrid();
-                autodrive.updateDirection(filtered);
+                //autodrive.updateDirection(filtered);
                 QImage grid((uchar*)grid_mat.data, grid_mat.cols, grid_mat.rows, grid_mat.step, QImage::Format_RGB888);
                 ui->gridLabel->setPixmap(QPixmap::fromImage(grid));
                 if(ui->debugCheck->isChecked()){
@@ -135,22 +135,23 @@ void MainWindow::DisplayImage(){
                 else{
                     QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
                     ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                }
+                }*/
             }
 
             else if(mode == MODE::MODE_SHAPES){
-
-                img = Vision::getImageBlackShape(frame,value_track);
+                /*
+                //img = Vision::getImageBlackShape(frame,value_track);
                 QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_Grayscale8);
                 ui->display_image->setPixmap(QPixmap::fromImage(cam1));
 
                 if(snap_b){
                     ui->display_image_2->setVisible(true);
-                    res = Vision::getshape(img,value_track);
+                    //res = Vision::getshape(img,value_track);
                     QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
                     ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
                     snap_b = false;
                 }
+                */
             }
         }
         else{
@@ -210,7 +211,7 @@ void MainWindow::setMessageConsole(QString msg,int type)
 
 void MainWindow::modeAuto()
 {
-    autodrive.reset();
+    //autodrive.reset();
     mode = MODE::MODE_AUTO;
     ui->auto_drive->setIcon(auto_icon_w);
     ui->auto_drive->setIconSize(QSize(sizeIconMenu,sizeIconMenu));

@@ -36,8 +36,7 @@ target_link_libraries(mainwindow
                                 Qt5::Core
                                 Qt5::Gui
                                 Qt5::Widgets
-                                ${OpenCV_LIBS} 
-                                PolitoceanHmi::autodrive)
+                                ${OpenCV_LIBS})
 
 target_compile_features(mainwindow PRIVATE cxx_auto_type)
 target_compile_options(mainwindow PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)
