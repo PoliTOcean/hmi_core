@@ -14,8 +14,10 @@ using namespace Politocean::Constants;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    publisher(Hmi::IP_ADDRESS, Hmi::UI_ID)
+    publisher(Hmi::IP_ADDRESS, Hmi::GUI_ID_PUB),
+    logPublisher(&publisher)
 {
+
     /* SETUP UI*/
     ui->setupUi(this);
 
@@ -152,8 +154,7 @@ void MainWindow::DisplayImage(){
             }
         }
         else{
-
-            // TO DO: mqttLogger: publisher.publish(ERROR_TOPIC, "Impossibile accedere alla webcam");
+      //      logPublisher.logError("Impossibile accedere alla webcam");
             ui->startVideo->click();
         }
     }

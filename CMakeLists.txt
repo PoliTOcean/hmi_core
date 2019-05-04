@@ -33,10 +33,9 @@ target_link_libraries(Gui
     # Add here all the libraries as:
     # Name_of_the_library       --- if it's internal (e.g. Publisher)
     # -lname_of_the_library     --- if it's a standard c++ library (e.g. -lpthread)
-    PolitoceanCommon::mqttLogger
-    PolitoceanCommon::Publisher
     PolitoceanCommon::Subscriber
-    PolitoceanHmi::mainwindow)
+    PolitoceanHmi::mainwindow
+    PolitoceanCommon::logger)
     
 #target_link_libraries(Main
 #        PolitoceanHmi::Joystick

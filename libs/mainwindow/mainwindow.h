@@ -8,6 +8,8 @@
 //#include "ipcamera.h"
 #include "PolitoceanConstants.h"
 #include "autodrive.h"
+#include "mqttLogger.h"
+#include "Publisher.h"
 
 using namespace Politocean;
 
@@ -65,6 +67,7 @@ private:
     MODE mode = MODE::MODE_HOME;
     AutoDrive autodrive;
     Publisher publisher;
+    mqttLogger logPublisher;
     int value_track;
 };
 

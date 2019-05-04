@@ -193,7 +193,7 @@ void Vision::getLenghtFromCenter(Mat src)
     findContours( blue, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
 
     int perimeter;
-    for( int i = 0; i< contours.size(); i++ )
+    for( unsigned int i = 0; i< contours.size(); i++ )
          {
             perimeter = arcLength(contours[i],true);
             if(perimeter > max){

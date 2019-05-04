@@ -1,7 +1,6 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "Publisher.h"
 #include "Subscriber.h"
 
 #include "PolitoceanConstants.h"
@@ -16,23 +15,16 @@ using namespace Politocean::Constants;
 
 int main(int argc, char *argv[])
 {
-    Publisher pub("127.0.0.1", "testClientPub");
-    mqttLogger ptoLogger(&pub);
-    Subscriber sub_errors("127.0.0.1", "prova");
-    Subscriber sub_components("127.0.0.1", "TOPIC_COMPONENTS");
-    Subscriber sub_messages("127.0.0.1", "TOPIC_MESSAGES");
+    Subscriber subscriber(Hmi::IP_ADDRESS, Hmi::GUI_ID_SUB);
     
     QApplication a(argc, argv);
     MainWindow gui;
 
     gui.show();
-    sub_errors.subscribeTo(Topics::ERRORS, &MainWindow::messageArrived, &gui);
-    sub_components.subscribeTo("topicComponents", &MainWindow::messageArrived, &gui);
-    sub_messages.subscribeTo("topicMessages", &MainWindow::messageArrived, &gui);
-
-    sub_errors.connect();
-    sub_components.connect();
-    sub_messages.connect();
+    subscriber.subscribeTo(Topics::ERRORS, &MainWindow::messageArrived, &gui);
+    subscriber.subscribeTo(Topics::COMPONENTS, &MainWindow::messageArrived, &gui);
+    subscriber.subscribeTo(Topics::INFO, &MainWindow::messageArrived, &gui);
+    subscriber.connect();
 
     return a.exec();
 }
