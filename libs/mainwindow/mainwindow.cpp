@@ -290,6 +290,36 @@ void MainWindow::startMeasure()
     snap_b = true;
 }
 
-void MainWindow::messageArrivedTest(const std::string& payload, const std::string& topic){
+void MainWindow::messageArrived(const std::string& payload, const std::string& topic){
     std::cout << topic << ":\t" << payload << std::endl;
+    if(topic == "TOPIC_COMPONTENTS"){
+        if(payload == "JOYSTICK_ON"){
+            this->setJoystick(true);
+            this->messageArrived("Joystick connected",1);
+
+        }
+        else if(payload == "JOYSTICK_OFF"){
+            this->setJoystick(false);
+            this->messageArrived("Joystick disconnected",1);
+        }
+        if(payload == "ATMEGA_ON"){
+            this->setAtMega(true);
+            this->messageArrived("ATMega connected",1);
+        }
+        else if(payload == "ATMEGA_OFF"){
+            this->setAtMega(false);
+            this->messageArrived("ATMega disconnected",1);
+        }
+
+    }
+
+    /* ERROR MESSAGE */
+    else if(topic == Topics::ERRORS){
+        this->messageArrived(QString::fromStdString(payload),-1);
+    }
+
+    /* COMUNICATION MESSAGE */
+    else if(topic == "TOPIC_MESSAGE"){
+        this->messageArrived(QString::fromStdString(payload),0);
+    }
 }
