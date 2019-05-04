@@ -3,6 +3,7 @@
 //
 
 #include "JoystickPublisher.h"
+#include "logger.h"
 
 
 
@@ -27,6 +28,7 @@ thread *JoystickPublisher::publishAxes()
     isPublishingAxes_ = true;
 
     return new thread([this] {
+        logger::log(logger::DEBUG, "Starting publishing axes...");
         while (isPublishing())
         {
             nlohmann::json j_map({ {"axes", axes_} });
@@ -49,6 +51,7 @@ thread *JoystickPublisher::publishButtons()
     return new thread([this]() {
         unsigned char lastButton = -1;
 
+        logger::log(logger::DEBUG, "Starting publishing buttons...");
         while (isPublishing())
         {
             if (button_ == lastButton)

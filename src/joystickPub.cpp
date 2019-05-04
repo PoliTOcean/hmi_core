@@ -16,20 +16,19 @@ using namespace std;
 using namespace Politocean;
 using namespace Politocean::Constants;
 
-Publisher pub("127.0.0.1", Hmi::CLIENT_ID);
-mqttLogger ptoLogger(&pub);
 
 void testcb(const std::string& payload){
     cout << payload << endl;
 }
-Subscriber sub("127.0.0.1", "testhmi");
 
 int main(int argc, const char *argv[])
 {
-    sub.connect();
-    logger::enableLevel(logger::DEBUG, true);
+    Publisher pub("169.254.98.217", "clientID");
+    pub.connect();
+    mqttLogger ptoLogger(&pub);
+ //   logger::enableLevel(logger::DEBUG, true);
 
-    JoystickPublisher joystickPub;
+    JoystickPublisher joystickPub("169.254.98.217", "joystickPublisher");
     bool connected = false;
 
     try {
@@ -50,14 +49,13 @@ int main(int argc, const char *argv[])
             }
         }
 
+        joystickPub.startPublishing();
         joystick.startListening(&JoystickPublisher::updateValues, &joystickPub)->join();
         joystickPub.disconnect();
     } catch (std::exception& e) {
         logger::log(logger::ERROR, e);
         exit(EXIT_FAILURE);
     }
-
-    sub.wait();
 
     return 0;
 }
