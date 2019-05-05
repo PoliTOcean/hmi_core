@@ -16,6 +16,7 @@ public:
     Mat getFrame();
     Camera camera;
     CameraInfo camInfo;
+
 };
 
 }

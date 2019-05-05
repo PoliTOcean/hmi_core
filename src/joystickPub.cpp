@@ -16,19 +16,20 @@ using namespace std;
 using namespace Politocean;
 using namespace Politocean::Constants;
 
+Publisher pub("127.0.0.1", "Joystick_client");
+mqttLogger ptoLogger(&pub);
 
 void testcb(const std::string& payload){
     cout << payload << endl;
 }
+Subscriber sub("127.0.0.1", "testhmi");
 
 int main(int argc, const char *argv[])
 {
-    Publisher pub("169.254.98.217", "clientID");
-    pub.connect();
-    mqttLogger ptoLogger(&pub);
- //   logger::enableLevel(logger::DEBUG, true);
+    sub.connect();
+    logger::enableLevel(logger::DEBUG, true);
 
-    JoystickPublisher joystickPub("169.254.98.217", "joystickPublisher");
+    JoystickPublisher joystickPub;
     bool connected = false;
 
     try {
@@ -38,24 +39,25 @@ int main(int argc, const char *argv[])
         int n_tries = 0;
         while (!connected && n_tries < MAX_TRIES){
             ++n_tries;
-            ptoLogger.logInfo(string("Attempt ") + to_string(n_tries) + string(" to connect..."));
+            cout << "Attempt " << n_tries << " to connect..." << endl;
             try{
                 joystickPub.connect();
                 connected = true;
             }
             catch(Politocean::mqttException& e){
-                logger::log(logger::ERROR, e);
+                cout << "MQTT error: " << e.what() << endl;
                 connected = false;
             }
         }
 
-        joystickPub.startPublishing();
-        joystick.startListening(&JoystickPublisher::updateValues, &joystickPub)->join();
+        joystick.startListening(&JoystickPublisher::callback, &joystickPub)->join();
         joystickPub.disconnect();
     } catch (std::exception& e) {
-        logger::log(logger::ERROR, e);
+        cout << e.what() << endl;
         exit(EXIT_FAILURE);
     }
+
+    sub.wait();
 
     return 0;
 }

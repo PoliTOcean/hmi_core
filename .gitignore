@@ -1,5 +1,6 @@
 build/
 CMakeCache.txt
+CMakeList.txt.user
 CMakeFiles
 CMakeScripts
 Testing
@@ -17,3 +18,5 @@ JoystickPub
 *.cmake
 logs
 *.orig
+libs/mainwindow/moc_mainwindow.cpp_parameters
+libs/mainwindow/moc_mainwindow.cpp

@@ -5,9 +5,12 @@
 #include <QMainWindow>
 #include <iostream>
 #include <opencv2/opencv.hpp>
-//#include "ipcamera.h"
+#include "ipcamera.h"
 #include "PolitoceanConstants.h"
-#include "autodrive.h"
+//#include "autodrive.h"
+#include "mqttLogger.h"
+#include "Publisher.h"
+
 
 using namespace Politocean;
 
@@ -31,6 +34,9 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     void setJoystick(bool connected);
     void setAtMega(bool connected);
+    void messageArrived(const std::string& payload, const std::string& topic);
+
+    
     QImage imdisplay;  //This will create QImage which is shown in Qt label
     QTimer* Timer;   // A timer is needed in GUI application
     //IpCamera cam;
@@ -60,9 +66,11 @@ private:
     QIcon icon,icon2,video_icon,auto_icon,shapes_icon,home_icon,cannon_icon;
     QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon;
     MODE mode = MODE::MODE_HOME;
-    AutoDrive autodrive;
+    //AutoDrive autodrive;
     Publisher publisher;
+    mqttLogger logPublisher;
     int value_track;
+    IpCamera camera;
 };
 
 #endif // MAINWINDOW_H
