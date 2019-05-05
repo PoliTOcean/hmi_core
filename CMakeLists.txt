@@ -37,8 +37,6 @@ target_link_libraries(Gui
     
 target_link_libraries(CommandParser
         PolitoceanHmi::Joystick
-        PolitoceanHmi::JoystickPublisher
-
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::Publisher
         PolitoceanCommon::Subscriber)

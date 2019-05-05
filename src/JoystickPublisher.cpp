@@ -118,18 +118,16 @@ bool Talker::isTalking()
 #define DFLT_CLIENT_ID "JoystickPublisher"
 #define MAX_JOYSTICK_CONNECTION_RETRY 5
 
-Publisher pub(Constants::Hmi::IP_ADDRESS, Constants::Hmi::CLIENT_ID);
+Publisher pub(Constants::Hmi::IP_ADDRESS, Constants::Hmi::JOYSTICK_ID_PUB);
 mqttLogger ptoLogger(&pub);
 
 void testcb(const std::string& payload){
     cout << payload << endl;
 }
-Subscriber sub(Constants::Hmi::IP_ADDRESS, "testhmi");
 
 int main(int argc, const char *argv[])
 {
     // Enable logging
-    sub.connect();
     logger::enableLevel(logger::DEBUG, true);
 
 	// Create a publisher object and a talker.
@@ -181,8 +179,6 @@ int main(int argc, const char *argv[])
 
 		talker.startTalking(joystickPublisher, listener);
 	}
-
-    sub.wait();
 
 	return 0;
 }
