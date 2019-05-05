@@ -65,14 +65,14 @@ public:
     template<class M, class T>
     void startReading(void (T::*fp)(const std::vector<int>& axes, unsigned char button), M *obj)
     {
-        if (isListening())
-            return nullptr;
+        if (isReading())
+            return;
 
-        _isListening = true;
+        isReading_ = true;
 
         auto callbackFunction = std::bind(fp, obj, std::placeholders::_1, std::placeholders::_2);
 
-        readingThread_ = std::thread([this, callbackFunction]() {
+        readingThread_ = new std::thread([this, callbackFunction]() {
             while (isReading_)
             {
                 readData();
