@@ -4,10 +4,8 @@
 #include <string>
 #include <map>
 
-#include "Joystick.h"
 #include "Publisher.h"
 #include "Subscriber.h"
-#include "JoystickPublisher.h"
 #include "mqttLogger.h"
 
 #include "PolitoceanConstants.h"
