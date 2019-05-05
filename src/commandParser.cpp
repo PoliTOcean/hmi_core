@@ -2,11 +2,13 @@
 #include <unistd.h>
 #include <json.hpp>
 #include <string>
+#include <map>
 
 #include "Joystick.h"
 #include "Publisher.h"
 #include "Subscriber.h"
 #include "JoystickPublisher.h"
+#include "mqttLogger.h"
 
 #include "PolitoceanConstants.h"
 #include "PolitoceanExceptions.hpp"
@@ -17,6 +19,8 @@
 using namespace std;
 using namespace Politocean;
 using namespace Politocean::Constants;
+using namespace Politocean::Constants::Commands;
+
 using json = nlohmann::json;
 
 
@@ -26,14 +30,19 @@ void button_callback(const string& payload);
 
 string map_button(int button);
 
-Publisher publisher("127.0.0.1", Hmi::CLIENT_ID);
+Publisher publisher(Hmi::IP_ADDRESS, Hmi::CMD_PRS_ID_PUB);
 
-Subscriber subscriber("127.0.0.1",Hmi::CLIENT_ID,Topics::JOYSTICK_BUTTON,&button_callback);
-//ToDo: aggiungere metodo per aggiungere topic
+Subscriber subscriber(Hmi::IP_ADDRESS, Hmi::CMD_PRS_ID_SUB);
+
+mqttLogger ptoLogger(&publisher);
 
 int main(int argc, char* argv[])
 {
+    logger::enableLevel(logger::DEBUG, true);
+
     bool connected = false;
+
+    subscriber.subscribeTo(Topics::JOYSTICK_BUTTONS, &button_callback);
 
     try {
         int n_tries=0;
@@ -46,13 +55,13 @@ int main(int argc, char* argv[])
                 connected=true;
             }
             catch(Politocean::mqttException& e){
-                cout << "MQTT error: " << e.what() << endl;
+                ptoLogger.logError(e);
                 connected = false;
             }
 
         }
     } catch (std::exception& e) {
-        cout << e.what() << endl;
+        ptoLogger.logError(e);
         exit(EXIT_FAILURE);
     }
 
@@ -77,16 +86,25 @@ void axis_callback(const std::string& payload)
         }
         catch (Politocean::mqttException& e)
         {
-            cout << "MQTT error: " << e.what() << endl;
+            ptoLogger.logError(e);
         }
     }
     catch (json::exception e)
     {
-        cout << e.what() << endl;
+        ptoLogger.logError(e);
     }
 
 
     return;
+}
+
+map<int, bool> on;
+
+bool isButtonOn(int b){
+    if(on.find(b)!=on.end())
+        return on[b];
+    else
+        return on[b] = false;    
 }
 
 string map_button(int b)
@@ -94,84 +112,82 @@ string map_button(int b)
     int msb = b >> 7;
     int button = b < 1;
 
-    static int on[N_BUTTONS]={0,0,0,0,0,0,0,0};
-
     switch(button)
     {
-        case Buttons::MOTOR:
-            if(!on[Buttons::MOTOR] && msb) //MOTOR_ON
+        case Buttons::MOTORS:
+            if(!isButtonOn(Buttons::MOTORS) && msb) //MOTOR_ON
             {
-                on[Buttons::MOTOR]=1;
-                return "MOTOR_ON";
+                on[Buttons::MOTORS]=1;
+                return Actions::MOTORS_ON;
             }
-            else if(on[Buttons::MOTOR] && !msb) //MOTOR_OFF
+            else if(isButtonOn(Buttons::MOTORS) && !msb) //MOTOR_OFF
             {
-                on[Buttons::MOTOR]=0;
-                return "MOTOR_OFF";
+                on[Buttons::MOTORS]=0;
+                return Actions::MOTORS_OFF;
             }
             else
-                return "NULL";
+                return Actions::NONE;
 
         case Buttons::RESET:
             if(msb) //RESET
-                return "RESET";
+                return Actions::RESET;
             else
-                return "NULL";
+                return Actions::NONE;
 
         case Buttons::AUTONOMOUS:
-            if(!on[Buttons::AUTONOMOUS] && msb) //AUTONOMOUS_ON
+            if(!isButtonOn(Buttons::AUTONOMOUS) && msb) //AUTONOMOUS_ON
             {
                 on[Buttons::AUTONOMOUS]=1;
-                return "AUTONOMOUS_ON";
+                return Actions::AUTONOMOUS_ON;
             }
-            else if(on[Buttons::AUTONOMOUS] && !msb) //AUTONOMOUS_OFF
+            else if(isButtonOn(Buttons::AUTONOMOUS) && !msb) //AUTONOMOUS_OFF
             {
                 on[Buttons::AUTONOMOUS]=0;
-                return "AUTONOMOUS_OFF";
+                return Actions::AUTONOMOUS_OFF;
             }
             else
-                return "NULL";
+                return Actions::NONE;
 
         case Buttons::WRIST:
-            if(!on[Buttons::WRIST] && msb) //WRIST_ON
+            if(!isButtonOn(Buttons::WRIST) && msb) //WRIST_ON
             {
                 on[Buttons::WRIST]=1;
-                return "WRIST_ON";
+                return Actions::WRIST;
             }
-            else if(on[Buttons::WRIST] && !msb) //WRIST_OFF
+            else if(isButtonOn(Buttons::WRIST) && !msb) //WRIST_OFF
             {
                 on[Buttons::WRIST]=0;
-                return "WRIST_OFF";
+                return Actions::WRIST_STOP;
             }
             else
-                return "NULL";
+                return Actions::NONE;
 
-        case Buttons::V_UP:
+        case Buttons::VUP:
             if(msb)
-                return "V_UP";
+                return Actions::VUP;
             else
-                return "NULL";
+                return Actions::VUP_STOP;
 
-        case Buttons::V_DOWN:
+        case Buttons::VDOWN:
             if(msb)
-                return "V_DOWN";
+                return Actions::VDOWN;
             else
-                return "NULL";
+                return Actions::VDOWN_STOP;
 
         case Buttons::SLOW:
             if(msb)
-                return "SLOW";
+                return Actions::SLOW;
             else
-                return "NULL";
+                return Actions::SLOW_STOP;
 
         case Buttons::MEDIUM_FAST:
             if(msb)
-                return "MEDIUM_FAST";
+                return Actions::MEDIUM_FAST;
             else
-                return "NULL";
+                return Actions::MEDIUM_FAST_STOP;
 
         default:
-            return "NULL";
+            return Actions::NONE;
 
     }
 
@@ -194,16 +210,15 @@ void button_callback(const string& payload)
             }
             catch (Politocean::mqttException& e)
             {
-                cout << "MQTT error: " << e.what() << endl;
+                ptoLogger.logError(e);
             }
         }
 
     }
     catch (std::exception e)
     {
-        cout << e.what() << endl;
+        ptoLogger.logError(e);
     }
-
 
     return;
 }
