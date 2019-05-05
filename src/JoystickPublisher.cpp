@@ -165,6 +165,8 @@ int main(int argc, const char *argv[])
 		if (!joystickPublisher.is_connected())
 			break;
 		
+		talker.stopTalking();
+
 		std::cerr << "Joystick device disconnected" << std::endl;
 		while (!joystick.isConnected())
 		{
@@ -177,6 +179,7 @@ int main(int argc, const char *argv[])
 			}
 		}
 
+		talker.startTalking(joystickPublisher, listener);
 	}
 
     sub.wait();
