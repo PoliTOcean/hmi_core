@@ -62,7 +62,7 @@ class Talker {
 	/**
 	 * @isTalking_ : it is true if the talker is talking
 	 */
-	bool isTalking_;
+	bool isTalking_ = false;
 
 public:
 	void startTalking(Publisher& publisher, Listener& listener);
@@ -81,18 +81,29 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
 	axesTalker_ = new std::thread([&]() {
 		while (publisher.is_connected())
 		{
-			nlohmann::json j_map = { listener.axes() };
+			nlohmann::json j_map = listener.axes();
 
 			publisher.publish(Constants::Topics::JOYSTICK_AXES, j_map.dump());
+
+			std::this_thread::sleep_for(std::chrono::milliseconds(50));
 		}
 
 		isTalking_ = false;
 	});
 
 	buttonTalker_ = new std::thread([&]() {
-		while (publisher.is_connected())
+		unsigned char lastButton = -1;
+		unsigned char button;
 
-			publisher.publish(Constants::Topics::JOYSTICK_BUTTONS, std::to_string(listener.button()));
+		while (publisher.is_connected())
+		{
+			if ((button = listener.button()) == lastButton)
+				continue;
+
+			publisher.publish(Constants::Topics::JOYSTICK_BUTTONS, std::to_string(button));
+			lastButton = button;
+		}
+
 		isTalking_ = false;
 	});
 }
@@ -118,7 +129,7 @@ bool Talker::isTalking()
 #define DFLT_CLIENT_ID "JoystickPublisher"
 #define MAX_JOYSTICK_CONNECTION_RETRY 5
 
-Publisher pub(Constants::Hmi::IP_ADDRESS, Constants::Hmi::JOYSTICK_ID_PUB);
+Publisher pub(Constants::Hmi::IP_ADDRESS, "test");
 mqttLogger ptoLogger(&pub);
 
 void testcb(const std::string& payload){
@@ -131,8 +142,19 @@ int main(int argc, const char *argv[])
     logger::enableLevel(logger::DEBUG, true);
 
 	// Create a publisher object and a talker.
-	Publisher joystickPublisher(Constants::Hmi::IP_ADDRESS, DFLT_CLIENT_ID);
+	Publisher joystickPublisher(Constants::Hmi::IP_ADDRESS, Constants::Hmi::JOYSTICK_ID_PUB);
 	Talker talker;
+
+	// Try to connect the publisher
+	try
+	{
+		joystickPublisher.connect();
+	}
+	catch(const mqttException& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
 	
 	// Create a joystick object and a listener.
 	Joystick joystick;
