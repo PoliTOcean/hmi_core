@@ -16,15 +16,19 @@ using namespace Politocean::Constants;
 
 int main(int argc, char *argv[])
 {
-    Publisher pub("127.0.0.1", Hmi::CLIENT_ID);
+    Publisher pub("127.0.0.1", "testClientPub");
     mqttLogger ptoLogger(&pub);
-    Subscriber sub("127.0.0.1", Hmi::CLIENT_ID+"1");
+    Subscriber sub("127.0.0.1", "testClientSub");
     
     QApplication a(argc, argv);
     MainWindow gui;
 
     gui.show();
-    sub.subscribeTo("topic1", &MainWindow::messageArrived), &gui);
+    sub.subscribeTo("topicTest", &MainWindow::messageArrivedTest, &gui);
+
+    sub.connect();
+
+    sub.connect();
 
     return a.exec();
 }
