@@ -129,13 +129,6 @@ bool Talker::isTalking()
 #define DFLT_CLIENT_ID "JoystickPublisher"
 #define MAX_JOYSTICK_CONNECTION_RETRY 5
 
-Publisher pub(Constants::Hmi::IP_ADDRESS, "test");
-mqttLogger ptoLogger(&pub);
-
-void testcb(const std::string& payload){
-    cout << payload << endl;
-}
-
 int main(int argc, const char *argv[])
 {
     // Enable logging

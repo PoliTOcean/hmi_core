@@ -21,7 +21,6 @@ using namespace Politocean;
 
 class Listener {
 	int id_, value_;
-    unsigned char button_;
 
     bool isUpdated_ = false;
 
@@ -34,16 +33,11 @@ public:
 	bool isButtonUpdated();
 };
 
-void Listener::listen(const std::string& paylod)
+void Listener::listen(const std::string& payload)
 {
-    unsigned char button = static_cast<unsigned char>(std::stoi(paylod));
-
-    if (button == button_)
-        return ;
-
-    button_ = button;
-    value_  = (button_ >> 7) & 0x01;
-    id_     = button_ & 0x7F;
+    int button = static_cast<int>(std::stoi(payload));
+    value_  = (button >> 7) & 0x01;
+    id_     = button & 0x7F;
 
     isUpdated_ = true;
 }
@@ -125,12 +119,12 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
 
                 // Parsing vertical up button
                 case Constants::Commands::Buttons::VUP:
-                    value ? action = Constants::Commands::Actions::VUP_ON : Constants::Commands::Actions::VUP_OFF;
+                    value ? action = Constants::Commands::Actions::VUP_ON : action = Constants::Commands::Actions::VUP_OFF;
                 break;
 
                 // Parsing vertical down button
                 case Constants::Commands::Buttons::VDOWN:
-                    value ? action = Constants::Commands::Actions::VDOWN_ON : Constants::Commands::Actions::VDOWN_OFF;
+                    value ? action = Constants::Commands::Actions::VDOWN_ON : action = Constants::Commands::Actions::VDOWN_OFF;
                 break;
 
                 // Parsing wrist button
@@ -172,6 +166,9 @@ int main(int argc, const char* argv[])
 
     Subscriber subscriber(Constants::Hmi::IP_ADDRESS, Constants::Hmi::CMD_PRS_ID_SUB);
     Listener listener;
+
+    mqttLogger ptoLogger(&publisher);
+	logger::enableLevel(logger::DEBUG, true);
 
     subscriber.subscribeTo(Constants::Topics::JOYSTICK_BUTTONS, &Listener::listen, &listener);
 
