@@ -19,11 +19,6 @@ using namespace Politocean;
 using namespace Politocean::Constants;
 using namespace Politocean::Constants::Commands;
 
-using json = nlohmann::json;
-
-
-void axis_callback(const string& payload);
-
 void button_callback(const string& payload);
 
 string map_button(int button);
