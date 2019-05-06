@@ -30,7 +30,6 @@ Mat IpCamera::getFrame()
     Image raw;
     camera.RetrieveBuffer(&raw);
 
-    printf("Frames lost: \n");
     Image rgb;
     raw.Convert( FlyCapture2::PIXEL_FORMAT_RGB, &rgb );
 

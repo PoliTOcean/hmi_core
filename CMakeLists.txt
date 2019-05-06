@@ -16,7 +16,7 @@ add_subdirectory(libs)
 # Add executable
 add_executable(JoystickPub src/joystickPub.cpp)
 add_executable(Gui src/gui.cpp)
-add_executable(Main src/main.cpp)
+add_executable(CommandParser src/commandParser.cpp)
 
 # Linking the libraries
 target_link_libraries(JoystickPub
@@ -33,14 +33,11 @@ target_link_libraries(Gui
     # Add here all the libraries as:
     # Name_of_the_library       --- if it's internal (e.g. Publisher)
     # -lname_of_the_library     --- if it's a standard c++ library (e.g. -lpthread)
-    PolitoceanCommon::mqttLogger
-    PolitoceanCommon::Publisher
     PolitoceanCommon::Subscriber
-    PolitoceanHmi::mainwindow)
+    PolitoceanHmi::mainwindow
+    PolitoceanCommon::logger)
     
-target_link_libraries(Main
-        PolitoceanHmi::Joystick
-        PolitoceanHmi::JoystickPublisher
+target_link_libraries(CommandParser
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::Publisher
         PolitoceanCommon::Subscriber)

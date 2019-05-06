@@ -466,7 +466,7 @@ void Vision::Rectangle( Mat img, int position[4])
                 Scalar(255, 0, 0), 5, 6 );
     }
 }
-    /*
+    
 
 Mat Vision::getImageBlackShape(Mat src,int thresh){
     IplImage copy = src;
@@ -617,7 +617,7 @@ Mat Vision::getshape(Mat image1,int thresh)
      return blank_img;
 
 }
-*/
+
 
 Mat Vision::addCircle(Mat src, int value)
 {
