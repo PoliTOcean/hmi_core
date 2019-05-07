@@ -90,7 +90,6 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
 
 	isTalking_ = true;
 
-    long int counter = 0;
     buttonTalker_ = new std::thread([&]() {
         while (publisher.is_connected())
         {
@@ -100,7 +99,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
             int id      = listener.id();
             int value   = listener.value();
 
-            string action;
+            unsigned char action = Constants::Commands::Actions::NONE;
 
             // Parsing button by identifier
             switch (id)
@@ -137,8 +136,8 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                     break;
             }
 
-            if (!action.empty())
-                publisher.publish(Constants::Topics::BUTTONS, action);
+            if (action != Constants::Commands::Actions::NONE)
+                publisher.publish(Constants::Topics::BUTTONS, std::to_string(action));
         }
 
         isTalking_ = false;
