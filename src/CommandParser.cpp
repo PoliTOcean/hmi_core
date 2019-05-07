@@ -104,6 +104,10 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
             // Parsing button by identifier
             switch (id)
             {
+                case Constants::Commands::Buttons::START_AND_STOP:
+                    if (value)
+                        action = Constants::Commands::Actions::START_AND_STOP;
+                break;
                 // Parsing 12V motors
                 case Constants::Commands::Buttons::MOTORS:
                     if (value)
