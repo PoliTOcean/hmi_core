@@ -19,17 +19,11 @@ using namespace Politocean;
 using namespace Politocean::Constants;
 using namespace Politocean::Constants::Commands;
 
-using json = nlohmann::json;
-
-
-void axis_callback(const string& payload);
-
 void button_callback(const string& payload);
 
 string map_button(int button);
 
 Publisher publisher(Hmi::IP_ADDRESS, Hmi::CMD_PRS_ID_PUB);
-
 Subscriber subscriber(Hmi::IP_ADDRESS, Hmi::CMD_PRS_ID_SUB);
 
 mqttLogger ptoLogger(&publisher);
@@ -68,34 +62,6 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void axis_callback(const std::string& payload)
-{
-    vector<int> axes;
-
-    //check if payload is well serialized
-    try {
-        json j = json::parse(payload);
-        axes = j["axes"].get<vector<int>>();
-
-        //Publish
-        try
-        {
-            publisher.publish(Topics::JOYSTICK_AXES,payload);
-        }
-        catch (Politocean::mqttException& e)
-        {
-            ptoLogger.logError(e);
-        }
-    }
-    catch (json::exception e)
-    {
-        ptoLogger.logError(e);
-    }
-
-
-    return;
-}
-
 map<int, bool> on;
 
 bool isButtonOn(int b){
@@ -105,24 +71,13 @@ bool isButtonOn(int b){
         return on[b] = false;    
 }
 
-string map_button(int b)
+string map_button(int msb, int button)
 {
-    int msb = b >> 7;
-    int button = b < 1;
-
     switch(button)
     {
         case Buttons::MOTORS:
-            if(!isButtonOn(Buttons::MOTORS) && msb) //MOTOR_ON
-            {
-                on[Buttons::MOTORS]=1;
-                return Actions::MOTORS_ON;
-            }
-            else if(isButtonOn(Buttons::MOTORS) && !msb) //MOTOR_OFF
-            {
-                on[Buttons::MOTORS]=0;
-                return Actions::MOTORS_OFF;
-            }
+            if(msb) //MOTOR_ON
+                return Actions::MOTORS_SWAP;
             else
                 return Actions::NONE;
 
@@ -147,16 +102,8 @@ string map_button(int b)
                 return Actions::NONE;
 
         case Buttons::WRIST:
-            if(!isButtonOn(Buttons::WRIST) && msb) //WRIST_ON
-            {
-                on[Buttons::WRIST]=1;
-                return Actions::WRIST;
-            }
-            else if(isButtonOn(Buttons::WRIST) && !msb) //WRIST_OFF
-            {
-                on[Buttons::WRIST]=0;
-                return Actions::WRIST_STOP;
-            }
+            if( msb)
+                return Actions::WRIST_SWAP;
             else
                 return Actions::NONE;
 
@@ -193,25 +140,22 @@ string map_button(int b)
 
 void button_callback(const string& payload)
 {
-    string out;
+    unsigned char data = static_cast<unsigned char>(std::stoi(payload));
+
+    bool value 				= (data >> 7) & 0x01;
+    unsigned short int id 	= data & 0x7F;
+;
     try
     {
-        int button = stoi(payload, nullptr, 2);
-        cout << button << endl;
-        out = map_button(button);
+        string out = map_button(value, id);
 
-        if (out.compare("NULL"))
-        {
-            try
-            {
-                publisher.publish(Topics::JOYSTICK_BUTTONS,out);
-            }
-            catch (Politocean::mqttException& e)
-            {
-                ptoLogger.logError(e);
-            }
-        }
+        if (!out.empty())
+            publisher.publish(Topics::JOYSTICK_BUTTONS,out);
 
+    }
+    catch (Politocean::mqttException& e)
+    {
+        ptoLogger.logError(e);
     }
     catch (std::exception e)
     {

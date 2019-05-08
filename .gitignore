@@ -21,3 +21,4 @@ logs
 libs/mainwindow/moc_mainwindow.cpp_parameters
 libs/mainwindow/moc_mainwindow.cpp
 CommandParser
+JoystickPublisher
