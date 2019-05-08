@@ -132,6 +132,10 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                         action = Constants::Commands::Actions::WRIST_SWAP;
                 break; 
 
+                case Constants::Commands::Buttons::START_AND_STOP:
+                    if (value)
+                        action = Constants::Commands::Actions::START_AND_STOP;
+
                 default:
                     break;
             }
