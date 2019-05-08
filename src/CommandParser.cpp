@@ -137,7 +137,16 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                 break; 
 
                 case Constants::Commands::Buttons::SLOW:
-                    action = Constants:Commands::Actions::
+                    action = Constants::Commands::Actions::SLOW;
+                break;
+                
+                case Constants::Commands::Buttons::MEDIUM:
+                    action = Constants::Commands::Actions::MEDIUM;
+                break;
+
+                case Constants::Commands::Buttons::FAST:
+                    action = Constants::Commands::Actions::FAST;
+                break;
 
                 default:
                     break;
