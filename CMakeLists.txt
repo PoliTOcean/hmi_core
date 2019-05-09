@@ -44,4 +44,5 @@ target_link_libraries(CommandParser -lpthread
 target_link_libraries(SensorsSubscriber -lpthread
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::Publisher
-        PolitoceanCommon::Subscriber)
+        PolitoceanCommon::Subscriber
+        PolitoceanCommon::Sensor)

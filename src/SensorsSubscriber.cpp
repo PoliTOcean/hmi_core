@@ -55,6 +55,7 @@ bool Listener::isSensorsUpdated()
 
 int main(int argc, const char *argv[])
 {
+    logger::enableLevel(logger::DEBUG, true);
     Subscriber subscriber(Constants::Hmi::IP_ADDRESS, Constants::Hmi::SENSORS_ID_SUB);
     Listener listener;
 
@@ -80,11 +81,11 @@ int main(int argc, const char *argv[])
                 switch (sensor_type)
                 {
                     case sensor_t::PITCH:
-                        std::cout << "PITCH: ";
+                        std::cout << "\tPITCH: ";
                         break;
                     
                     case sensor_t::PRESSION:
-                        std::cout << "PRSSURE: ";
+                        std::cout << "\tPRESSURE: ";
                         break;
                     
                     case sensor_t::ROLL:
@@ -92,7 +93,7 @@ int main(int argc, const char *argv[])
                         break;
                     
                     case sensor_t::TEMPERATURE:
-                        std::cout << "TEMPERATURE: ";
+                        std::cout << "\tTEMPERATURE: ";
                         break;
                     
                     default: break;
