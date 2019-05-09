@@ -215,23 +215,23 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                 break;
 
                 case Constants::Commands::Buttons::SHOULDER_ENABLE:
-                    topic = Constants::Topics::BUTTONS;
+                    topic = Constants::Topics::SHOULDER;
                     if(value)
                         action = Constants::Commands::Actions::SHOULDER_ON;
                 break;
                 case Constants::Commands::Buttons::SHOULDER_DISABLE:
-                    topic = Constants::Topics::BUTTONS;
+                    topic = Constants::Topics::SHOULDER;
                     if(value)
                         action = Constants::Commands::Actions::SHOULDER_OFF;
                 break;
 
                 case Constants::Commands::Buttons::WRIST_ENABLE:
-                    topic = Constants::Topics::BUTTONS;
+                    topic = Constants::Topics::WRIST;
                     if(value)
                         action = Constants::Commands::Actions::WRIST_ON;
                 break;
                 case Constants::Commands::Buttons::WRIST_DISABLE:
-                    topic = Constants::Topics::BUTTONS;
+                    topic = Constants::Topics::WRIST;
                     if(value)
                         action = Constants::Commands::Actions::WRIST_OFF;
                 break;
