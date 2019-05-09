@@ -132,21 +132,15 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
             nlohmann::json atmega = atmega_axes;
             publisher.publish(Constants::Topics::JOYSTICK_AXES, atmega.dump());
 
-            std::vector<int> shoulder_axes = {
-                axes[Constants::Commands::Axes::SHOULDER]
-            };
+            int shoulder_axes = axes[Constants::Commands::Axes::SHOULDER];
             nlohmann::json shoulder = shoulder_axes;
             publisher.publish(Constants::Topics::SHOULDER_VELOCITY, shoulder.dump());
 
-            std::vector<int> shoulder_wrist = {
-                axes[Constants::Commands::Axes::WRIST]
-            };
+            int shoulder_wrist = axes[Constants::Commands::Axes::WRIST];
             nlohmann::json wrist = shoulder_wrist;
             publisher.publish(Constants::Topics::WRIST_VELOCITY, wrist.dump());
 
-            std::vector<int> shoulder_hand = {
-                axes[Constants::Commands::Axes::HAND]
-            };
+            int shoulder_hand = axes[Constants::Commands::Axes::HAND];
             nlohmann::json hand = shoulder_hand;
             publisher.publish(Constants::Topics::HAND_VELOCITY, hand.dump());
 
