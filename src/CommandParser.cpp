@@ -14,7 +14,8 @@
 #include "mqttLogger.h"
 
 using namespace Politocean;
-
+using namespace Politocean::Constants;
+using namespace Politocean::Constants::Commands;
 /**************************************************************
  * Listener class for Joystick device
  *************************************************************/
@@ -125,24 +126,24 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
             std::vector<int> axes = listener.axes();
 
             std::vector<int> atmega_axes = {
-                axes[Constants::Commands::Axes::X],
-                axes[Constants::Commands::Axes::Y],
-                axes[Constants::Commands::Axes::RZ]
+                axes[Axes::X],
+                axes[Axes::Y],
+                axes[Axes::RZ]
             };
             nlohmann::json atmega = atmega_axes;
-            publisher.publish(Constants::Topics::JOYSTICK_AXES, atmega.dump());
+            publisher.publish(Topics::JOYSTICK_AXES, atmega.dump());
 
-            int shoulder_axes = axes[Constants::Commands::Axes::SHOULDER];
+            int shoulder_axes = axes[Axes::SHOULDER];
             nlohmann::json shoulder = shoulder_axes;
-            publisher.publish(Constants::Topics::SHOULDER_VELOCITY, shoulder.dump());
+            publisher.publish(Topics::SHOULDER_VELOCITY, shoulder.dump());
 
-            int shoulder_wrist = axes[Constants::Commands::Axes::WRIST];
+            int shoulder_wrist = axes[Axes::WRIST];
             nlohmann::json wrist = shoulder_wrist;
-            publisher.publish(Constants::Topics::WRIST_VELOCITY, wrist.dump());
+            publisher.publish(Topics::WRIST_VELOCITY, wrist.dump());
 
-            int shoulder_hand = axes[Constants::Commands::Axes::HAND];
+            int shoulder_hand = axes[Axes::HAND];
             nlohmann::json hand = shoulder_hand;
-            publisher.publish(Constants::Topics::HAND_VELOCITY, hand.dump());
+            publisher.publish(Topics::HAND_VELOCITY, hand.dump());
 
         }
     });
@@ -156,109 +157,117 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
             int id      = listener.id();
             int value   = listener.value();
 
-            unsigned char action = Constants::Commands::Actions::NONE;
+            unsigned char action = Actions::NONE;
 
             string topic = "";
 
             // Parsing button by identifier
             switch (id)
             {
-                case Constants::Commands::Buttons::START_AND_STOP:
-                    topic = Constants::Topics::BUTTONS;
+                case Buttons::START_AND_STOP:
+                    topic = Topics::BUTTONS;
                     if (value)
-                        action = Constants::Commands::Actions::START_AND_STOP;
+                        action = Actions::START_AND_STOP;
                 break;
                 // Parsing 12V motors
-                case Constants::Commands::Buttons::MOTORS:
-                    topic = Constants::Topics::BUTTONS;
+                case Buttons::MOTORS:
+                    topic = Topics::BUTTONS;
                     if (value)
-                        action = Constants::Commands::Actions::MOTORS_SWAP;
+                        action = Actions::MOTORS_SWAP;
                 break;
 
                 // Parsing reset button
-                case Constants::Commands::Buttons::RESET:
-                    topic = Constants::Topics::BUTTONS;
+                case Buttons::RESET:
+                    topic = Topics::BUTTONS;
                     if (value)
-                        action = Constants::Commands::Actions::RESET;
+                        action = Actions::RESET;
                 break;
 
                 // Parsing vertical up button
-                case Constants::Commands::Buttons::VUP:
-                    topic = Constants::Topics::BUTTONS;
-                    value ? action = Constants::Commands::Actions::VUP_ON : action = Constants::Commands::Actions::VUP_OFF;
+                case Buttons::VUP:
+                    topic = Topics::BUTTONS;
+                    value ? action = Actions::VUP_ON : action = Actions::VUP_OFF;
                 break;
 
                 // Parsing vertical down button
-                case Constants::Commands::Buttons::VDOWN:
-                    topic = Constants::Topics::BUTTONS;
-                    value ? action = Constants::Commands::Actions::VDOWN_ON : action = Constants::Commands::Actions::VDOWN_OFF;
+                case Buttons::VDOWN:
+                    topic = Topics::BUTTONS;
+                    value ? action = Actions::VDOWN_ON : action = Actions::VDOWN_OFF;
                 break;
 
-                case Constants::Commands::Buttons::SLOW:
-                    topic = Constants::Topics::BUTTONS;
+                case Buttons::SLOW:
+                    topic = Topics::BUTTONS;
                     if(value)
-                        action = Constants::Commands::Actions::SLOW;
+                        action = Actions::SLOW;
                 break;
                 
-                case Constants::Commands::Buttons::MEDIUM_FAST:
-                    topic = Constants::Topics::BUTTONS;
+                case Buttons::MEDIUM_FAST:
+                    topic = Topics::BUTTONS;
                     if(value)
-                        action = Constants::Commands::Actions::MEDIUM;
+                        action = Actions::MEDIUM;
                     else
-                        action = Constants::Commands::Actions::FAST;
+                        action = Actions::FAST;
                 break;
 
-                case Constants::Commands::Buttons::SHOULDER_ENABLE:
-                    topic = Constants::Topics::SHOULDER;
+                case Buttons::SHOULDER_ENABLE:
+                    topic = Topics::SHOULDER;
                     if(value)
-                        action = Constants::Commands::Actions::SHOULDER_ON;
+                        action = Actions::SHOULDER_ON;
                 break;
-                case Constants::Commands::Buttons::SHOULDER_DISABLE:
-                    topic = Constants::Topics::SHOULDER;
+                case Buttons::SHOULDER_DISABLE:
+                    topic = Topics::SHOULDER;
                     if(value)
-                        action = Constants::Commands::Actions::SHOULDER_OFF;
-                break;
-
-                case Constants::Commands::Buttons::WRIST_ENABLE:
-                    topic = Constants::Topics::WRIST;
-                    if(value)
-                        action = Constants::Commands::Actions::WRIST_ON;
-                break;
-                case Constants::Commands::Buttons::WRIST_DISABLE:
-                    topic = Constants::Topics::WRIST;
-                    if(value)
-                        action = Constants::Commands::Actions::WRIST_OFF;
+                        action = Actions::SHOULDER_OFF;
                 break;
 
-                case Constants::Commands::Buttons::WRIST:
-                    topic = Constants::Topics::WRIST;
+                case Buttons::WRIST_ENABLE:
+                    topic = Topics::WRIST;
                     if(value)
-                        action = Constants::Commands::Actions::WRIST_START;
+                        action = Actions::WRIST_ON;
+                break;
+                case Buttons::WRIST_DISABLE:
+                    topic = Topics::WRIST;
+                    if(value)
+                        action = Actions::WRIST_OFF;
+                break;
+
+                case Buttons::WRIST:
+                    topic = Topics::WRIST;
+                    if(value)
+                        action = Actions::WRIST_START;
                     else
-                        action = Constants::Commands::Actions::WRIST_STOP;
+                        action = Actions::WRIST_STOP;
                 break;
 
-                case Constants::Commands::Buttons::SHOULDER_UP:
-                    topic = Constants::Topics::SHOULDER;
+                case Buttons::SHOULDER_UP:
+                    topic = Topics::SHOULDER;
                     if(value)
-                        action = Constants::Commands::Actions::SHOULDER_UP;
+                        action = Actions::SHOULDER_UP;
                     else
-                        action = Constants::Commands::Actions::SHOULDER_STOP;
+                        action = Actions::SHOULDER_STOP;
                 break;
 
-                case Constants::Commands::Buttons::SHOULDER_DOWN:
-                    topic = Constants::Topics::SHOULDER;
+                case Buttons::SHOULDER_DOWN:
+                    topic = Topics::SHOULDER;
                     if(value)
-                        action = Constants::Commands::Actions::SHOULDER_DOWN;
+                        action = Actions::SHOULDER_DOWN;
                     else
-                        action = Constants::Commands::Actions::SHOULDER_STOP;
+                        action = Actions::SHOULDER_STOP;
                 break;
+
+                case Buttons::HAND:
+                    topic = Topics::HAND;
+                    if(value)
+                        action = Actions::HAND_START;
+                    else
+                        action = Actions::HAND_STOP;
+                break;                    
 
                 default:
                 break;
             }
 
-            if (action != Constants::Commands::Actions::NONE)
+            if (action != Actions::NONE)
                 publisher.publish(topic, std::to_string(action));
         }
 
@@ -292,8 +301,8 @@ int main(int argc, const char* argv[])
     mqttLogger ptoLogger(&publisher);
 //	logger::enableLevel(logger::DEBUG, true);
 
-    subscriber.subscribeTo(Constants::Topics::JOYSTICK_BUTTONS, &Listener::listenForButtons, &listener);
-    subscriber.subscribeTo(Constants::Topics::JOYSTICK_AXES, &Listener::listenForAxes, &listener);
+    subscriber.subscribeTo(Topics::JOYSTICK_BUTTONS, &Listener::listenForButtons, &listener);
+    subscriber.subscribeTo(Topics::JOYSTICK_AXES, &Listener::listenForAxes, &listener);
 
     try
     {
