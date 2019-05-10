@@ -283,10 +283,10 @@ bool Talker::isTalking()
 int main(int argc, const char* argv[])
 {
 
-    Publisher publisher(Constants::Rov::IP_ADDRESS, Constants::Hmi::CMD_PRS_ID_PUB);
+    Publisher publisher(Constants::Rov::IP_ADDRESS, Constants::Hmi::CMD_ID);
     Talker talker;
 
-    Subscriber subscriber(Constants::Hmi::IP_ADDRESS, Constants::Hmi::CMD_PRS_ID_SUB);
+    Subscriber subscriber(Constants::Hmi::IP_ADDRESS, Constants::Hmi::CMD_ID);
     Listener listener;
 
     mqttLogger ptoLogger(&publisher);

@@ -56,7 +56,7 @@ bool Listener::isSensorsUpdated()
 int main(int argc, const char *argv[])
 {
     logger::enableLevel(logger::DEBUG, true);
-    Subscriber subscriber(Constants::Hmi::IP_ADDRESS, Constants::Hmi::SENSORS_ID_SUB);
+    Subscriber subscriber(Constants::Hmi::IP_ADDRESS, Constants::Hmi::SENSORS_ID);
     Listener listener;
 
     subscriber.subscribeTo(Constants::Topics::SENSORS, &Listener::listen, &listener);
