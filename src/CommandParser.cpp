@@ -252,18 +252,6 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                         action = Constants::Commands::Actions::SHOULDER_DOWN;
                     else
                         action = Constants::Commands::Actions::SHOULDER_STOP;
-                break;    
-
-                case Constants::Commands::Buttons::SLOW:
-                    action = Constants::Commands::Actions::SLOW;
-                break;
-                
-                case Constants::Commands::Buttons::MEDIUM:
-                    action = Constants::Commands::Actions::MEDIUM;
-                break;
-
-                case Constants::Commands::Buttons::FAST:
-                    action = Constants::Commands::Actions::FAST;
                 break;
 
                 default:
@@ -302,7 +290,7 @@ int main(int argc, const char* argv[])
     Listener listener;
 
     mqttLogger ptoLogger(&publisher);
-	logger::enableLevel(logger::DEBUG, true);
+//	logger::enableLevel(logger::DEBUG, true);
 
     subscriber.subscribeTo(Constants::Topics::JOYSTICK_BUTTONS, &Listener::listenForButtons, &listener);
     subscriber.subscribeTo(Constants::Topics::JOYSTICK_AXES, &Listener::listenForAxes, &listener);
