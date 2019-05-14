@@ -15,7 +15,7 @@ using namespace Politocean::Constants;
 
 int main(int argc, char *argv[])
 {
-    Subscriber subscriber(Hmi::IP_ADDRESS, Hmi::GUI_ID_SUB);
+    Subscriber subscriber(Hmi::IP_ADDRESS, Hmi::GUI_ID);
     
     QApplication a(argc, argv);
     MainWindow gui;

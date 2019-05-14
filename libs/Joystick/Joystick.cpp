@@ -9,22 +9,19 @@
 #include <unistd.h>
 #include <sys/ioctl.h>
 
+#include "PolitoceanExceptions.hpp"
+
 namespace Politocean {
 
 const std::string Joystick::DFLT_DEVICE { "/dev/input/js0" };
 
-Joystick::Joystick() : Joystick(DFLT_DEVICE) {}
-
-Joystick::Joystick(const std::string& device)
-    : num_of_axes(0), num_of_buttons(0), _isListening(false), button(0)
+void Joystick::connect()
 {
-    if ((fd = open(device.c_str(), O_RDONLY)) == -1) throw JoystickException("Joystick device not found.");
+    if ((fd = open(device_.c_str(), O_RDONLY)) == -1) throw JoystickException("Joystick device not found.");
 
     ioctl(fd, JSIOCGAXES, &num_of_axes);
     ioctl(fd, JSIOCGBUTTONS, &num_of_buttons);
     ioctl(fd, JSIOCGNAME(80), name_of_joystick);
-
-    axes.resize(num_of_axes, 0);
 
     // Logging
     std::stringstream info;
@@ -32,8 +29,13 @@ Joystick::Joystick(const std::string& device)
     info << num_of_axes << " axis\n\t";
     info << num_of_buttons << "buttons";
     logger::log(logger::DEBUG, info.str());
+    // End logging
+
+    axes_.resize(num_of_axes, 0);
 
     fcntl(fd, F_SETFL, O_NONBLOCK);
+
+    isConnected_ = true;
 }
 
 Joystick::~Joystick()
@@ -41,29 +43,49 @@ Joystick::~Joystick()
     close(fd);
 }
 
-void Joystick::stopListening()
+void Joystick::stopReading()
 {
-    if (!isListening())
+    if (!isReading_)
         return ;
 
-    _isListening = false;
+    isReading_ = false;
+    readingThread_->join();
 }
 
 void Joystick::readData()
 {
-    read(fd, &js, sizeof(struct js_event));
+    if ((read(fd, &js, sizeof(struct js_event))) == -1 && errno == ENODEV)
+        isConnected_ = false;
 
     switch (js.type & ~JS_EVENT_INIT)
     {
         case JS_EVENT_AXIS:
-            axes[js.number] = js.value;
+            axes_[js.number] = js.value;
             break;
         case JS_EVENT_BUTTON:
-            button = (js.value << 7) | js.number;
+            button_ = (js.value << 7) | js.number;
             break;
     }
 }
 
-bool Joystick::isListening() { return _isListening; }
+int Joystick::getAxis(int axis)
+{
+    return axes_[axis];
+}
+
+unsigned char Joystick::getButton()
+{
+    return button_;
+}
+
+bool Joystick::isReading()
+{
+    return isReading_;
+}
+
+bool Joystick::isConnected()
+{
+    return isConnected_;
+}
 
 }
