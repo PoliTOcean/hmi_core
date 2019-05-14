@@ -131,11 +131,11 @@ bool Talker::isTalking()
 
 int main(int argc, const char *argv[])
 {
-    // Enable logging
-    logger::enableLevel(logger::DEBUG, true);
+  // Enable logging
+  //  logger::enableLevel(logger::DEBUG, true);
 
 	// Create a publisher object and a talker.
-	Publisher joystickPublisher(Constants::Hmi::IP_ADDRESS, Constants::Hmi::JOYSTICK_ID_PUB);
+	Publisher joystickPublisher(Constants::Hmi::IP_ADDRESS, Constants::Hmi::JOYSTICK_ID);
 	Talker talker;
 
 	// Try to connect the publisher

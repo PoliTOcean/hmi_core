@@ -14,7 +14,8 @@
 #include "mqttLogger.h"
 
 using namespace Politocean;
-
+using namespace Politocean::Constants;
+using namespace Politocean::Constants::Commands;
 /**************************************************************
  * Listener class for Joystick device
  *************************************************************/
@@ -22,43 +23,69 @@ using namespace Politocean;
 class Listener {
 	int id_, value_;
 
-    bool isUpdated_ = false;
+    bool isButtonUpdated_ = false;
+    bool isAxesUpdated_ = false;
+
+    std::vector<int> axes_;
+
 
 public:
-	void listen(const std::string& payload);
+	void listenForButtons(const std::string& payload);
+    void listenForAxes(const std::string& payload);
 
 	int id();
     int value();
 
+    std::vector<int> axes();
+
 	bool isButtonUpdated();
+	bool isAxesUpdated();
 };
 
-void Listener::listen(const std::string& payload)
+void Listener::listenForButtons(const std::string& payload)
 {
     int button = static_cast<int>(std::stoi(payload));
     value_  = (button >> 7) & 0x01;
     id_     = button & 0x7F;
 
-    isUpdated_ = true;
+    isButtonUpdated_ = true;
 }
 
 int Listener::id()
 {
-    isUpdated_ = false;
+    isButtonUpdated_ = false;
 
     return id_;
 }
 
 int Listener::value()
 {
-    isUpdated_ = false;
+    isButtonUpdated_ = false;
 
     return value_;
 }
 
 bool Listener::isButtonUpdated()
 {
-    return isUpdated_;
+    return isButtonUpdated_;
+}
+
+bool Listener::isAxesUpdated()
+{
+    return isAxesUpdated_;
+}
+
+void Listener::listenForAxes(const std::string& payload)
+{
+	auto c_map = nlohmann::json::parse(payload);
+	axes_ = c_map.get<std::vector<int>>();
+	
+	isAxesUpdated_ = true;
+}
+
+std::vector<int> Listener::axes(){
+    isAxesUpdated_ = false;
+    return axes_;
 }
 
 /**************************************************************
@@ -69,7 +96,7 @@ class Talker {
 	/**
 	 * @buttonTalker	: talker thread for button value
 	 */
-	std::thread *buttonTalker_;
+	std::thread *buttonTalker_, *axesTalker_;
 
 	/**
 	 * @isTalking_ : it is true if the talker is talking
@@ -90,6 +117,37 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
 
 	isTalking_ = true;
 
+    axesTalker_ = new std::thread([&](){
+        while(publisher.is_connected())
+        {
+            if(!listener.isAxesUpdated())
+                continue;
+            
+            std::vector<int> axes = listener.axes();
+
+            std::vector<int> atmega_axes = {
+                axes[Axes::X],
+                axes[Axes::Y],
+                axes[Axes::RZ]
+            };
+            nlohmann::json atmega = atmega_axes;
+            publisher.publish(Topics::JOYSTICK_AXES, atmega.dump());
+
+            int shoulder_axes = axes[Axes::SHOULDER];
+            nlohmann::json shoulder = shoulder_axes;
+            publisher.publish(Topics::SHOULDER_VELOCITY, shoulder.dump());
+
+            int shoulder_wrist = axes[Axes::WRIST];
+            nlohmann::json wrist = shoulder_wrist;
+            publisher.publish(Topics::WRIST_VELOCITY, wrist.dump());
+
+            int shoulder_hand = axes[Axes::HAND];
+            nlohmann::json hand = shoulder_hand;
+            publisher.publish(Topics::HAND_VELOCITY, hand.dump());
+
+        }
+    });
+
     buttonTalker_ = new std::thread([&]() {
         while (publisher.is_connected())
         {
@@ -99,49 +157,118 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
             int id      = listener.id();
             int value   = listener.value();
 
-            unsigned char action = Constants::Commands::Actions::NONE;
+            unsigned char action = Actions::NONE;
+
+            string topic = "";
 
             // Parsing button by identifier
             switch (id)
             {
-                case Constants::Commands::Buttons::START_AND_STOP:
+                case Buttons::START_AND_STOP:
+                    topic = Topics::BUTTONS;
                     if (value)
-                        action = Constants::Commands::Actions::START_AND_STOP;
+                        action = Actions::START_AND_STOP;
                 break;
                 // Parsing 12V motors
-                case Constants::Commands::Buttons::MOTORS:
+                case Buttons::MOTORS:
+                    topic = Topics::BUTTONS;
                     if (value)
-                        action = Constants::Commands::Actions::MOTORS_SWAP;
+                        action = Actions::MOTORS_SWAP;
                 break;
 
                 // Parsing reset button
-                case Constants::Commands::Buttons::RESET:
+                case Buttons::RESET:
+                    topic = Topics::BUTTONS;
                     if (value)
-                        action = Constants::Commands::Actions::RESET;
+                        action = Actions::RESET;
                 break;
 
                 // Parsing vertical up button
-                case Constants::Commands::Buttons::VUP:
-                    value ? action = Constants::Commands::Actions::VUP_ON : action = Constants::Commands::Actions::VUP_OFF;
+                case Buttons::VUP:
+                    topic = Topics::BUTTONS;
+                    value ? action = Actions::VUP_ON : action = Actions::VUP_OFF;
                 break;
 
                 // Parsing vertical down button
-                case Constants::Commands::Buttons::VDOWN:
-                    value ? action = Constants::Commands::Actions::VDOWN_ON : action = Constants::Commands::Actions::VDOWN_OFF;
+                case Buttons::VDOWN:
+                    topic = Topics::BUTTONS;
+                    value ? action = Actions::VDOWN_ON : action = Actions::VDOWN_OFF;
                 break;
 
-                // Parsing wrist button
-                case Constants::Commands::Buttons::WRIST:
-                    if (value)
-                        action = Constants::Commands::Actions::WRIST_SWAP;
-                break; 
+                case Buttons::SLOW:
+                    topic = Topics::BUTTONS;
+                    if(value)
+                        action = Actions::SLOW;
+                break;
+                
+                case Buttons::MEDIUM_FAST:
+                    topic = Topics::BUTTONS;
+                    if(value)
+                        action = Actions::MEDIUM;
+                    else
+                        action = Actions::FAST;
+                break;
+
+                case Buttons::SHOULDER_ENABLE:
+                    topic = Topics::SHOULDER;
+                    if(value)
+                        action = Actions::SHOULDER_ON;
+                break;
+                case Buttons::SHOULDER_DISABLE:
+                    topic = Topics::SHOULDER;
+                    if(value)
+                        action = Actions::SHOULDER_OFF;
+                break;
+
+                case Buttons::WRIST_ENABLE:
+                    topic = Topics::WRIST;
+                    if(value)
+                        action = Actions::WRIST_ON;
+                break;
+                case Buttons::WRIST_DISABLE:
+                    topic = Topics::WRIST;
+                    if(value)
+                        action = Actions::WRIST_OFF;
+                break;
+
+                case Buttons::WRIST:
+                    topic = Topics::WRIST;
+                    if(value)
+                        action = Actions::WRIST_START;
+                    else
+                        action = Actions::WRIST_STOP;
+                break;
+
+                case Buttons::SHOULDER_UP:
+                    topic = Topics::SHOULDER;
+                    if(value)
+                        action = Actions::SHOULDER_UP;
+                    else
+                        action = Actions::SHOULDER_STOP;
+                break;
+
+                case Buttons::SHOULDER_DOWN:
+                    topic = Topics::SHOULDER;
+                    if(value)
+                        action = Actions::SHOULDER_DOWN;
+                    else
+                        action = Actions::SHOULDER_STOP;
+                break;
+
+                case Buttons::HAND:
+                    topic = Topics::HAND;
+                    if(value)
+                        action = Actions::HAND_START;
+                    else
+                        action = Actions::HAND_STOP;
+                break;                    
 
                 default:
-                    break;
+                break;
             }
 
-            if (action != Constants::Commands::Actions::NONE)
-                publisher.publish(Constants::Topics::BUTTONS, std::to_string(action));
+            if (action != Actions::NONE)
+                publisher.publish(topic, std::to_string(action));
         }
 
         isTalking_ = false;
@@ -164,16 +291,18 @@ bool Talker::isTalking()
 
 int main(int argc, const char* argv[])
 {
-    Publisher publisher(Constants::Hmi::IP_ADDRESS, Constants::Hmi::CMD_PRS_ID_PUB);
+
+    Publisher publisher(Constants::Rov::IP_ADDRESS, Constants::Hmi::CMD_ID);
     Talker talker;
 
-    Subscriber subscriber(Constants::Hmi::IP_ADDRESS, Constants::Hmi::CMD_PRS_ID_SUB);
+    Subscriber subscriber(Constants::Hmi::IP_ADDRESS, Constants::Hmi::CMD_ID);
     Listener listener;
 
     mqttLogger ptoLogger(&publisher);
-	logger::enableLevel(logger::DEBUG, true);
+//	logger::enableLevel(logger::DEBUG, true);
 
-    subscriber.subscribeTo(Constants::Topics::JOYSTICK_BUTTONS, &Listener::listen, &listener);
+    subscriber.subscribeTo(Topics::JOYSTICK_BUTTONS, &Listener::listenForButtons, &listener);
+    subscriber.subscribeTo(Topics::JOYSTICK_AXES, &Listener::listenForAxes, &listener);
 
     try
     {

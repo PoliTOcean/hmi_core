@@ -14,7 +14,7 @@ using namespace Politocean::Constants;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    publisher(Hmi::IP_ADDRESS, Hmi::GUI_ID_PUB),
+    publisher(Hmi::IP_ADDRESS, Hmi::GUI_ID),
     logPublisher(&publisher)
 {
 
