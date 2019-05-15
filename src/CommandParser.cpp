@@ -157,7 +157,9 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
             int id      = listener.id();
             int value   = listener.value();
 
-            unsigned char action = Actions::NONE;
+            map<int, bool> state = {{Buttons::MOTORS,false}};
+
+            string action = Actions::NONE;
 
             string topic = "";
 
@@ -165,102 +167,109 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
             switch (id)
             {
                 case Buttons::START_AND_STOP:
-                    topic = Topics::BUTTONS;
+                    topic = Topics::COMMANDS;
                     if (value)
-                        action = Actions::START_AND_STOP;
+                        action = Actions::AtMega::START_AND_STOP;
                 break;
                 // Parsing 12V motors
                 case Buttons::MOTORS:
-                    topic = Topics::BUTTONS;
-                    if (value)
-                        action = Actions::MOTORS_SWAP;
+                    topic = Topics::COMMANDS;
+                    if (value && !state[id])
+                    {
+                        action = Actions::ON;
+                        state[id] = true;
+                    }
+                    else if (value && state[id])
+                    {
+                        action = Actions::OFF;
+                        state[id] = false;
+                    }
                 break;
 
                 // Parsing reset button
                 case Buttons::RESET:
-                    topic = Topics::BUTTONS;
+                    topic = Topics::COMMANDS;
                     if (value)
                         action = Actions::RESET;
                 break;
 
                 // Parsing vertical up button
                 case Buttons::VUP:
-                    topic = Topics::BUTTONS;
-                    value ? action = Actions::VUP_ON : action = Actions::VUP_OFF;
+                    topic = Topics::COMMANDS;
+                    value ? action = Actions::AtMega::VUP_ON : action = Actions::AtMega::VUP_OFF;
                 break;
 
                 // Parsing vertical down button
                 case Buttons::VDOWN:
-                    topic = Topics::BUTTONS;
-                    value ? action = Actions::VDOWN_ON : action = Actions::VDOWN_OFF;
+                    topic = Topics::COMMANDS;
+                    value ? action = Actions::AtMega::VDOWN_ON : action = Actions::AtMega::VDOWN_OFF;
                 break;
 
                 case Buttons::SLOW:
-                    topic = Topics::BUTTONS;
+                    topic = Topics::COMMANDS;
                     if(value)
-                        action = Actions::SLOW;
+                        action = Actions::AtMega::SLOW;
                 break;
                 
                 case Buttons::MEDIUM_FAST:
-                    topic = Topics::BUTTONS;
+                    topic = Topics::COMMANDS;
                     if(value)
-                        action = Actions::MEDIUM;
+                        action = Actions::AtMega::MEDIUM;
                     else
-                        action = Actions::FAST;
+                        action = Actions::AtMega::FAST;
                 break;
 
                 case Buttons::SHOULDER_ENABLE:
                     topic = Topics::SHOULDER;
                     if(value)
-                        action = Actions::SHOULDER_ON;
+                        action = Actions::ON;
                 break;
                 case Buttons::SHOULDER_DISABLE:
                     topic = Topics::SHOULDER;
                     if(value)
-                        action = Actions::SHOULDER_OFF;
-                break;
+                        action = Actions::OFF;
 
                 case Buttons::WRIST_ENABLE:
                     topic = Topics::WRIST;
                     if(value)
-                        action = Actions::WRIST_ON;
+                        action = Actions::ON;
                 break;
                 case Buttons::WRIST_DISABLE:
                     topic = Topics::WRIST;
                     if(value)
-                        action = Actions::WRIST_OFF;
+                        action = Actions::OFF;
                 break;
 
                 case Buttons::WRIST:
                     topic = Topics::WRIST;
                     if(value)
-                        action = Actions::WRIST_START;
+                        action = Actions::START;
                     else
-                        action = Actions::WRIST_STOP;
+                        action = Actions::STOP;
                 break;
 
                 case Buttons::SHOULDER_UP:
                     topic = Topics::SHOULDER;
                     if(value)
-                        action = Actions::SHOULDER_UP;
+                        action = Actions::Arm::SHOULDER_UP;
                     else
-                        action = Actions::SHOULDER_STOP;
+                        action = Actions::Arm::SHOULDER_DOWN;
                 break;
 
                 case Buttons::SHOULDER_DOWN:
                     topic = Topics::SHOULDER;
                     if(value)
-                        action = Actions::SHOULDER_DOWN;
+                        action = Actions::Arm::SHOULDER_DOWN;
                     else
-                        action = Actions::SHOULDER_STOP;
+                        action = Actions::Arm::SHOULDER_UP;
                 break;
 
                 case Buttons::HAND:
                     topic = Topics::HAND;
                     if(value)
-                        action = Actions::HAND_START;
+                        action = Actions::START;
                     else
-                        action = Actions::HAND_STOP;
+                        action = Actions::STOP;
                 break;                    
 
                 default:
@@ -268,7 +277,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
             }
 
             if (action != Actions::NONE)
-                publisher.publish(topic, std::to_string(action));
+                publisher.publish(topic, action);
         }
 
         isTalking_ = false;
