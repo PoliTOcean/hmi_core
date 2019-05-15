@@ -10,11 +10,11 @@
 //#include "autodrive.h"
 #include "mqttLogger.h"
 #include "Publisher.h"
+#include "ipcamera.h"
 
 
 using namespace Politocean;
 
-using namespace cv;
 
 namespace Ui {
 class MainWindow;
@@ -39,8 +39,10 @@ public:
     
     QImage imdisplay;  //This will create QImage which is shown in Qt label
     QTimer* Timer;   // A timer is needed in GUI application
+    void setFrame(cv::Mat frame);
     //IpCamera cam;
-    VideoCapture cap;
+    //VideoCapture cap;
+    IpCamera camera;
 
     ~MainWindow();
 
@@ -70,7 +72,7 @@ private:
     Publisher publisher;
     mqttLogger logPublisher;
     int value_track;
-    IpCamera camera;
+
 };
 
 #endif // MAINWINDOW_H
