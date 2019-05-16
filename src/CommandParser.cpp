@@ -149,15 +149,16 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
     });
 
     buttonTalker_ = new std::thread([&]() {
+
+        map<int, bool> state = {{Buttons::MOTORS,false}};
         while (publisher.is_connected())
         {
             if (!listener.isButtonUpdated())
                 continue;
-
+            
             int id      = listener.id();
             int value   = listener.value();
-
-            map<int, bool> state = {{Buttons::MOTORS,false}};
+            
 
             string action = Actions::NONE;
 
@@ -276,7 +277,9 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                 break;
             }
 
-            if (action != Actions::NONE)
+           // std::cout << topic << " " << action << std::endl;
+
+            if(action != Actions::NONE)
                 publisher.publish(topic, action);
         }
 
@@ -308,7 +311,7 @@ int main(int argc, const char* argv[])
     Listener listener;
 
     mqttLogger ptoLogger(&publisher);
-//	logger::enableLevel(logger::DEBUG, true);
+	//logger::enableLevel(logger::DEBUG, true);
 
     subscriber.subscribeTo(Topics::JOYSTICK_BUTTONS, &Listener::listenForButtons, &listener);
     subscriber.subscribeTo(Topics::JOYSTICK_AXES, &Listener::listenForAxes, &listener);
