@@ -221,11 +221,13 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                     topic = Topics::SHOULDER;
                     if (value)
                         action = Actions::ON;
-                break;
+                    break;
+
                 case Buttons::SHOULDER_DISABLE:
                     topic = Topics::SHOULDER;
                     if (value)
                         action = Actions::OFF;
+                    break;
 
                 case Buttons::WRIST_ENABLE:
                     topic = Topics::WRIST;
