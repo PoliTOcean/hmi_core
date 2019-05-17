@@ -112,7 +112,7 @@ public:
 
 void Talker::startTalking(Publisher& publisher, Listener& listener)
 {
-    std::unordered_map<int, int> prevAxes;
+    std::map<int, int> prevAxes;
 
     if (isTalking_)
         return ;
