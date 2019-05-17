@@ -257,7 +257,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                 case Buttons::SHOULDER_UP:
                     topic = Topics::SHOULDER;
                     if (value)
-                        action = Actions::Arm::SHOULDER_UP;
+                        action = Actions::Stepper::UP;
                     else
                         action = Actions::STOP;
                     break;
@@ -265,7 +265,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                 case Buttons::SHOULDER_DOWN:
                     topic = Topics::SHOULDER;
                     if(value)
-                        action = Actions::Arm::SHOULDER_DOWN;
+                        action = Actions::Stepper::DOWN;
                     else
                         action = Actions::STOP;
                     break;
@@ -277,7 +277,33 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                     else
                         action = Actions::STOP;
                     break;
+                
+                case Buttons::HEAD_ENABLE:
+                    topic = Topics::HEAD;
+                    if (value)
+                        action = Actions::ON;
+                    break;
+                
+                case Buttons::HEAD_DISABLE:
+                    topic = Topics::HEAD;
+                    if (value)
+                        action = Actions::OFF;
+                    break;
 
+                case Buttons::HEAD_UP:
+                    if (value)
+                        action = Actions::Stepper::UP;
+                    else
+                        action = Actions::STOP;
+                    break;
+                
+                case Buttons::HEAD_DOWN:
+                    if (value)
+                        action = Actions::Stepper::DOWN;
+                    else
+                        action = Actions::STOP;
+                    break;
+                    
                 default: 
                     break;
             }
