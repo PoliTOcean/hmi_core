@@ -170,7 +170,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                 case Buttons::START_AND_STOP:
                     topic = Topics::COMMANDS;
                     if (value)
-                        action = Actions::AtMega::START_AND_STOP;
+                        action = Actions::ATMega::START_AND_STOP;
                     break;
                 
                 case Buttons::MOTORS:
@@ -195,26 +195,31 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
 
                 case Buttons::VUP:
                     topic = Topics::COMMANDS;
-                    value ? action = Actions::AtMega::VUP_ON : action = Actions::AtMega::VUP_OFF;
+                    value ? action = Actions::ATMega::VUP_ON : action = Actions::ATMega::VUP_OFF;
+                    break;
+                
+                case Buttons::VUP_FAST:
+                    topic = Topics::COMMANDS;
+                    value ? action = Actions::ATMega::VUP_FAST_ON : action = Actions::ATMega::VUP_FAST_OFF;
                     break;
 
                 case Buttons::VDOWN:
                     topic = Topics::COMMANDS;
-                    value ? action = Actions::AtMega::VDOWN_ON : action = Actions::AtMega::VDOWN_OFF;
+                    value ? action = Actions::ATMega::VDOWN_ON : action = Actions::ATMega::VDOWN_OFF;
                     break;
 
                 case Buttons::SLOW:
                     topic = Topics::COMMANDS;
                     if (value)
-                        action = Actions::AtMega::SLOW;
+                        action = Actions::ATMega::SLOW;
                     break;
                 
                 case Buttons::MEDIUM_FAST:
                     topic = Topics::COMMANDS;
                     if (value)
-                        action = Actions::AtMega::MEDIUM;
+                        action = Actions::ATMega::MEDIUM;
                     else
-                        action = Actions::AtMega::FAST;
+                        action = Actions::ATMega::FAST;
                     break;
 
                 case Buttons::SHOULDER_ENABLE:
@@ -254,7 +259,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                     if (value)
                         action = Actions::Arm::SHOULDER_UP;
                     else
-                        action = Actions::Arm::SHOULDER_DOWN;
+                        action = Actions::STOP;
                     break;
 
                 case Buttons::SHOULDER_DOWN:
@@ -262,7 +267,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                     if(value)
                         action = Actions::Arm::SHOULDER_DOWN;
                     else
-                        action = Actions::Arm::SHOULDER_UP;
+                        action = Actions::STOP;
                     break;
 
                 case Buttons::HAND:
