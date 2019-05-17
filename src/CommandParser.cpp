@@ -131,7 +131,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                 axes[Axes::RZ]
             };
             nlohmann::json atmega = atmega_axes;
-            publisher.publish(Topics::JOYSTICK_AXES, atmega.dump());
+            publisher.publish(Topics::AXES, atmega.dump());
 
             int shoulder_axes = axes[Axes::SHOULDER];
             nlohmann::json shoulder = shoulder_axes;
@@ -291,6 +291,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                     break;
 
                 case Buttons::HEAD_UP:
+                    topic = Topics::HEAD;
                     if (value)
                         action = Actions::Stepper::UP;
                     else
@@ -298,6 +299,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                     break;
                 
                 case Buttons::HEAD_DOWN:
+                    topic = Topics::HEAD;
                     if (value)
                         action = Actions::Stepper::DOWN;
                     else
@@ -308,7 +310,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                     break;
             }
 
-           // std::cout << topic << " " << action << std::endl;
+           //DEBUG std::cout << topic << " " << action << std::endl;
 
             if(action != Actions::NONE)
                 publisher.publish(topic, action);
