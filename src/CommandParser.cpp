@@ -112,7 +112,6 @@ public:
 
 void Talker::startTalking(Publisher& publisher, Listener& listener)
 {
-    std::map<int, int> prevAxes;
 
     if (isTalking_)
         return ;
@@ -120,6 +119,14 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
     isTalking_ = true;
 
     axesTalker_ = new std::thread([&](){
+        std::map<int, int> prevAxes;
+        prevAxes.insert( std::pair<int, int>(Axes::X, 0));
+        prevAxes.insert( std::pair<int, int>(Axes::Y, 0));
+        prevAxes.insert( std::pair<int, int>(Axes::RZ, 0));
+        prevAxes.insert( std::pair<int, int>(Axes::SHOULDER, 0));
+        prevAxes.insert( std::pair<int, int>(Axes::WRIST, 0));
+        prevAxes.insert( std::pair<int, int>(Axes::HAND, 0));
+        
         while(publisher.is_connected())
         {
             if(!listener.isAxesUpdated())
@@ -127,9 +134,9 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
             
             std::vector<int> axes = listener.axes();
 
-            if(axes[Axes::X] != prevAxes[Axes::X]
-                && axes[Axes::Y] != prevAxes[Axes::Y]
-                && axes[Axes::RZ] != prevAxes[Axes::RZ]){
+            if(axes[Axes::X] != prevAxes.at(Axes::X)
+                || axes[Axes::Y] != prevAxes.at(Axes::Y)
+                || axes[Axes::RZ] != prevAxes.at(Axes::RZ)){
 
                 std::vector<int> atmega_axes = {
                     axes[Axes::X],
@@ -137,14 +144,14 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                     axes[Axes::RZ]
                 };
                 nlohmann::json atmega = atmega_axes;
-                publisher.publish(Topics::JOYSTICK_AXES, atmega.dump());
+                publisher.publish(Topics::AXES, atmega.dump());
                 
                 prevAxes[Axes::X] = axes[Axes::X];
                 prevAxes[Axes::Y] = axes[Axes::Y];
                 prevAxes[Axes::RZ] = axes[Axes::RZ];
             }
             
-            if(axes[Axes::SHOULDER] != prevAxes[Axes::SHOULDER]){
+            if(axes[Axes::SHOULDER] != prevAxes.at(Axes::SHOULDER)){
                 int shoulder_axes = axes[Axes::SHOULDER];
                 nlohmann::json shoulder = shoulder_axes;
                 publisher.publish(Topics::SHOULDER_VELOCITY, shoulder.dump());
@@ -152,7 +159,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                 prevAxes[Axes::SHOULDER] = axes[Axes::SHOULDER];
             }
 
-            if(axes[Axes::WRIST] != prevAxes[Axes::WRIST]){
+            if(axes[Axes::WRIST] != prevAxes.at(Axes::WRIST)){
                 int shoulder_wrist = axes[Axes::WRIST];
                 nlohmann::json wrist = shoulder_wrist;
                 publisher.publish(Topics::WRIST_VELOCITY, wrist.dump());
@@ -160,7 +167,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
                 prevAxes[Axes::WRIST] = axes[Axes::WRIST];
             }
 
-            if(axes[Axes::HAND] != prevAxes[Axes::HAND]){
+            if(axes[Axes::HAND] != prevAxes.at(Axes::HAND)){
                 int shoulder_hand = axes[Axes::HAND];
                 nlohmann::json hand = shoulder_hand;
                 publisher.publish(Topics::HAND_VELOCITY, hand.dump());
