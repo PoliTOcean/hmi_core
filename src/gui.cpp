@@ -21,7 +21,7 @@ void retriveFrame(MainWindow* gui){
 
 int main(int argc, char *argv[])
 {
-    Subscriber subscriber(Hmi::IP_ADDRESS, Hmi::GUI_ID);
+    Subscriber subscriber("127.0.0.1", Hmi::GUI_ID);
 
     QApplication a(argc, argv);
 

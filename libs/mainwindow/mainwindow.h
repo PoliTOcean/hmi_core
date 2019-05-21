@@ -14,7 +14,7 @@
 
 
 using namespace Politocean;
-
+using namespace cv;
 
 namespace Ui {
 class MainWindow;
@@ -41,7 +41,7 @@ public:
     QTimer* Timer;   // A timer is needed in GUI application
     void setFrame(cv::Mat frame);
     //IpCamera cam;
-    //VideoCapture cap;
+    VideoCapture cap;
     IpCamera camera;
 
     ~MainWindow();

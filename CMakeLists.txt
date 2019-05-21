@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 # Add politocean common libs
 add_subdirectory(politocean_common)
+add_compile_definitions(WEBCAM_MODE)
 include_directories(politocean_common/include)
 
 # Add vision libs
