@@ -85,7 +85,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
 
 			publisher.publish(Constants::Topics::JOYSTICK_AXES, j_map.dump());
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
 
 		isTalking_ = false;

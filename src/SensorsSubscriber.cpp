@@ -84,7 +84,7 @@ int main(int argc, const char *argv[])
                         std::cout << "\tPITCH: ";
                         break;
                     
-                    case sensor_t::PRESSION:
+                    case sensor_t::PRESSURE:
                         std::cout << "\tPRESSURE: ";
                         break;
                     
@@ -92,10 +92,13 @@ int main(int argc, const char *argv[])
                         std::cout << "ROLL: ";
                         break;
                     
-                    case sensor_t::TEMPERATURE:
-                        std::cout << "\tTEMPERATURE: ";
+                    case sensor_t::TEMPERATURE_PWR:
+                        std::cout << "\t12V POWER TEMPERATURE: ";
                         break;
                     
+                    case sensor_t::TEMPERATURE_INT:
+                        std::cout << "\tINTERNAL TEMPERATURE: ";
+                        break;
                     default: break;
                 }
 
