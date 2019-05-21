@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(Joystick VERSION 1.0.0 LANGUAGES CXX)
 
-
+SET(OpenCV_DIR /home/pto/installation/OpenCV-3.4.4/share/OpenCV/)
 find_package(OpenCV REQUIRED)
 
 # find Qt5 and required components
@@ -37,7 +37,8 @@ target_link_libraries(mainwindow
                                 Qt5::Core
                                 Qt5::Gui
                                 Qt5::Widgets
-                                ${OpenCV_LIBS})
+                                ${OpenCV_LIBS}
+				-lpthread)
 
 target_compile_features(mainwindow PRIVATE cxx_auto_type)
 target_compile_options(mainwindow PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)
