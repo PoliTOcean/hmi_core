@@ -8,19 +8,27 @@
 #include "mqttLogger.h"
 #include "mainwindow.h"
 #include <QApplication>
+#include <thread>
 
 using namespace std;
 using namespace Politocean;
 using namespace Politocean::Constants;
 
+void retriveFrame(MainWindow* gui){
+    while(true)
+        gui->setFrame(gui->camera.getFrame());
+}
+
 int main(int argc, char *argv[])
 {
     Subscriber subscriber(Hmi::IP_ADDRESS, Hmi::GUI_ID);
-    
-    QApplication a(argc, argv);
-    MainWindow gui;
 
+    QApplication a(argc, argv);
+
+    MainWindow gui;
+    std::thread thread(retriveFrame,&gui);
     gui.show();
+
     subscriber.subscribeTo(Topics::ERRORS, &MainWindow::messageArrived, &gui);
     subscriber.subscribeTo(Topics::COMPONENTS, &MainWindow::messageArrived, &gui);
     subscriber.subscribeTo(Topics::INFO, &MainWindow::messageArrived, &gui);
@@ -28,5 +36,8 @@ int main(int argc, char *argv[])
 
     subscriber.connect();
 
+
+    //thread.join();
     return a.exec();
 }
+

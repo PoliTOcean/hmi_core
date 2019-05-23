@@ -2,14 +2,17 @@
 #include "ui_design.h"
 #include <QTimer>
 //#include "vision.h"
+#include "ipcamera.h"
 #include <iostream>
 #include "PolitoceanConstants.h"
+#include <mutex>
 
 #define sizeIconMenu 80
 #define sizeIconComponent 30
 
 using namespace Politocean;
 using namespace Politocean::Constants;
+std::mutex mtx;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,7 +26,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* OPEN WEBCAM */
     try{
-        cap.open("/dev/video0");
+        //cap.open("/dev/video0");
     }catch(...){
         std::cout << "ERRORE" << std::endl;
     }
@@ -34,7 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     /*TIMER DISPLAY CAMERAS*/
     Timer = new QTimer(this);
     connect(Timer, SIGNAL(timeout()), this, SLOT(DisplayImage()));
-    Timer->start(33);
+    Timer->start(0);
 
     /*CONNECTION BUTTONS*/
     connect(ui->startVideo,SIGNAL(clicked()),SLOT(setVideoStart()));
@@ -94,30 +97,33 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    cap.release();
+    //cap.release();
     delete ui;
+}
+
+void MainWindow::setFrame(cv::Mat frame)
+{
+    mtx.lock();
+    img = frame;
+    mtx.unlock();
 }
 
 void MainWindow::DisplayImage(){
 
     Mat img_hls,res,frame;
     if(video){
-        try{
-            img = camera.getFrame();
-        }
-        catch(...){
-
-        }
         if(!img.empty()){
 
             //cvtColor(img,img_hls,CV_BGR2HLS);
             //cvtColor(img,img,CV_BGR2RGB);
 
             if(mode == MODE::MODE_HOME){
-
+                 mtx.lock();
+                 cv::resize(img, img, cv::Size(640,480), 0, 0, CV_INTER_LINEAR);
                 //img = Vision::addCircle(frame,value_track);
                 QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
                 ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+                mtx.unlock();
             }
 
             else if(mode  == MODE::MODE_AUTO){
@@ -155,7 +161,7 @@ void MainWindow::DisplayImage(){
         }
         else{
       //      logPublisher.logError("Impossibile accedere alla webcam");
-            ui->startVideo->click();
+            //ui->startVideo->click();
         }
     }
 }

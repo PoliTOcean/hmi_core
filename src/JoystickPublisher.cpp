@@ -16,6 +16,7 @@
 #include "json.hpp"
 
 using namespace Politocean;
+using namespace Politocean::Constants;
 
 /**************************************************************
  * Listener class for Joystick device
@@ -83,9 +84,9 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
 		{
 			nlohmann::json j_map = listener.axes();
 
-			publisher.publish(Constants::Topics::JOYSTICK_AXES, j_map.dump());
+			publisher.publish(Topics::JOYSTICK_AXES, j_map.dump());
 
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
+			std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::JOYSTICK_AXIS));
 		}
 
 		isTalking_ = false;
@@ -100,7 +101,7 @@ void Talker::startTalking(Publisher& publisher, Listener& listener)
 			if ((button = listener.button()) == lastButton)
 				continue;
 
-			publisher.publish(Constants::Topics::JOYSTICK_BUTTONS, std::to_string(button));
+			publisher.publish(Topics::JOYSTICK_BUTTONS, std::to_string(button));
 			lastButton = button;
 		}
 
@@ -135,7 +136,7 @@ int main(int argc, const char *argv[])
   //  logger::enableLevel(logger::DEBUG, true);
 
 	// Create a publisher object and a talker.
-	Publisher joystickPublisher(Constants::Hmi::IP_ADDRESS, Constants::Hmi::JOYSTICK_ID);
+	Publisher joystickPublisher(Hmi::IP_ADDRESS, Hmi::JOYSTICK_ID);
 	Talker talker;
 
 	// Try to connect the publisher
