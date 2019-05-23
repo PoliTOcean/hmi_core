@@ -28,14 +28,22 @@ IpCamera::~IpCamera()
 Mat IpCamera::getFrame()
 {
     Image raw;
-    camera.RetrieveBuffer(&raw);
+    cv::Mat img;
 
-    Image rgb;
-    raw.Convert( FlyCapture2::PIXEL_FORMAT_RGB, &rgb );
+    FlyCapture2::Error error = camera.RetrieveBuffer(&raw);
+    if (error != PGRERROR_OK){
+            std::cout << "network loss frame" << std::endl;
+    }
+    else{
+        Image rgb;
+        raw.Convert( FlyCapture2::PIXEL_FORMAT_RGB, &rgb );
 
-    unsigned int row = (double)rgb.GetReceivedDataSize()/(double)rgb.GetRows();
+        unsigned int row = (double)rgb.GetReceivedDataSize()/(double)rgb.GetRows();
 
-    return cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(),row);
+        img = cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(),row);
+        //cv::imshow("test",img);
+    }
+    return img;
 }
 
 }
