@@ -3,7 +3,7 @@ project(vision VERSION 1.0.0 LANGUAGES CXX)
 
 find_package(OpenCV REQUIRED)
 
-add_library(vision
+add_library(vision SHARED
         vision.cpp)
 
 add_library(PolitoceanHmi::vision ALIAS vision)
