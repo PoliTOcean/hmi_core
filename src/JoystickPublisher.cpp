@@ -3,8 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "Subscriber.h"
-#include "Publisher.h"
+#include "MqttClient.h"
 #include "Joystick.h"
 
 #include "PolitoceanExceptions.hpp"
@@ -66,13 +65,13 @@ class Talker {
 	bool isTalking_ = false;
 
 public:
-	void startTalking(Publisher& publisher, Listener& listener);
+	void startTalking(MqttClient& publisher, Listener& listener);
 	void stopTalking();
 
 	bool isTalking();
 };
 
-void Talker::startTalking(Publisher& publisher, Listener& listener)
+void Talker::startTalking(MqttClient& publisher, Listener& listener)
 {
 	if (isTalking_)
 		return ;
@@ -136,7 +135,7 @@ int main(int argc, const char *argv[])
   //  logger::enableLevel(logger::DEBUG, true);
 
 	// Create a publisher object and a talker.
-	Publisher joystickPublisher(Hmi::IP_ADDRESS, Hmi::JOYSTICK_ID);
+	MqttClient joystickPublisher(Hmi::JOYSTICK_ID, Hmi::IP_ADDRESS);
 	Talker talker;
 
 	// Try to connect the publisher

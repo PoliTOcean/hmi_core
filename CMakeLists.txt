@@ -23,8 +23,7 @@ target_link_libraries(JoystickPublisher -lpthread
     PolitoceanHmi::Joystick
 
     PolitoceanCommon::mqttLogger
-    PolitoceanCommon::Publisher
-    PolitoceanCommon::Subscriber)
+    PolitoceanCommon::MqttClient)
 
 target_link_libraries(Gui 
     # Add here all the libraries as:
@@ -37,5 +36,4 @@ target_link_libraries(Gui
     
 target_link_libraries(CommandParser -lpthread
         PolitoceanCommon::mqttLogger
-        PolitoceanCommon::Publisher
-        PolitoceanCommon::Subscriber)
+        PolitoceanCommon::MqttClient)
