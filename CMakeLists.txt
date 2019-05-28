@@ -18,7 +18,6 @@ add_subdirectory(libs)
 add_executable(JoystickPublisher src/JoystickPublisher.cpp)
 add_executable(Gui src/gui.cpp)
 add_executable(CommandParser src/CommandParser.cpp)
-add_executable(SensorsSubscriber src/SensorsSubscriber.cpp)
 
 # Linking the libraries
 target_link_libraries(JoystickPublisher -lpthread
@@ -42,8 +41,3 @@ target_link_libraries(CommandParser -lpthread
         PolitoceanCommon::Publisher
         PolitoceanCommon::Subscriber)
 
-target_link_libraries(SensorsSubscriber -lpthread
-        PolitoceanCommon::mqttLogger
-        PolitoceanCommon::Publisher
-        PolitoceanCommon::Subscriber
-        PolitoceanCommon::Sensor)
