@@ -4,8 +4,7 @@
 #include <thread>
 #include <chrono>
 
-#include "Publisher.h"
-#include "Subscriber.h"
+#include "MqttClient.h"
 
 #include <json.hpp>
 
@@ -104,13 +103,13 @@ class Talker {
     bool isTalking_ = false;
 
 public:
-    void startTalking(Publisher& publisher, Listener& listener);
+    void startTalking(MqttClient& publisher, Listener& listener);
     void stopTalking();
 
     bool isTalking();
 };
 
-void Talker::startTalking(Publisher& publisher, Listener& listener)
+void Talker::startTalking(MqttClient& publisher, Listener& listener)
 {
 
     if (isTalking_)
@@ -367,31 +366,31 @@ bool Talker::isTalking()
 int main(int argc, const char* argv[])
 {
 
-    Publisher publisher(Constants::Rov::IP_ADDRESS, Constants::Hmi::CMD_ID);
+    MqttClient rovClient(Constants::Hmi::CMD_ID, Constants::Rov::IP_ADDRESS);
     Talker talker;
 
-    Subscriber subscriber(Constants::Hmi::IP_ADDRESS, Constants::Hmi::CMD_ID);
+    MqttClient hmiClient(Constants::Hmi::CMD_ID, Constants::Hmi::IP_ADDRESS);
     Listener listener;
 
-    mqttLogger ptoLogger(&publisher);
+    mqttLogger ptoLogger(&hmiClient);
     // logger::enableLevel(logger::DEBUG, true);
-
-    subscriber.subscribeTo(Topics::JOYSTICK_BUTTONS, &Listener::listenForButtons, &listener);
-    subscriber.subscribeTo(Topics::JOYSTICK_AXES, &Listener::listenForAxes, &listener);
 
     try
     {
-        publisher.connect();
-        subscriber.connect();
+        rovClient.connect();
+        hmiClient.connect();
     }
     catch (const mqttException& e)
     {
         std::cerr << e.what() << '\n';
     }
 
-    talker.startTalking(publisher, listener);
+    hmiClient.subscribeTo(Topics::JOYSTICK_BUTTONS, &Listener::listenForButtons, &listener);
+    hmiClient.subscribeTo(Topics::JOYSTICK_AXES, &Listener::listenForAxes, &listener);
+
+    talker.startTalking(rovClient, listener);
     
-    subscriber.wait();
+    rovClient.wait();
 
     talker.stopTalking();
 

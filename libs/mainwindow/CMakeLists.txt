@@ -14,7 +14,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 qt5_wrap_ui(ui_wrap form/design.ui)
 qt5_wrap_cpp(moc_sources mainwindow.h)
 
-add_library(mainwindow
+add_library(mainwindow SHARED
         mainwindow.cpp
         ${ui_wrap}
         ${moc_sources})
@@ -31,9 +31,10 @@ target_include_directories(mainwindow
 
 target_link_libraries(mainwindow
                                 PolitoceanCommon::logger
-                                PolitoceanCommon::Publisher
+                                PolitoceanCommon::MqttClient
                                 PolitoceanCommon::mqttLogger
 				PolitoceanHmi::ipcamera
+				PolitoceanHmi::vision
                                 Qt5::Core
                                 Qt5::Gui
                                 Qt5::Widgets

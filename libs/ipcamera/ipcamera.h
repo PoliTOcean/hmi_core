@@ -7,15 +7,19 @@
 namespace Politocean {
 
 using namespace FlyCapture2;
-using namespace cv;
+
 class IpCamera
 {
 public:
     IpCamera();
     ~IpCamera();
-    Mat getFrame();
+    cv::Mat getFrame();
     Camera camera;
+    cv::VideoCapture webcam;
     CameraInfo camInfo;
+
+private:
+    bool ipcamera_active;
 
 };
 

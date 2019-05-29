@@ -9,12 +9,12 @@
 #include "PolitoceanConstants.h"
 //#include "autodrive.h"
 #include "mqttLogger.h"
-#include "Publisher.h"
+#include "MqttClient.h"
 #include "ipcamera.h"
 
 
 using namespace Politocean;
-
+using namespace cv;
 
 namespace Ui {
 class MainWindow;
@@ -41,7 +41,7 @@ public:
     QTimer* Timer;   // A timer is needed in GUI application
     void setFrame(cv::Mat frame);
     //IpCamera cam;
-    //VideoCapture cap;
+    VideoCapture cap;
     IpCamera camera;
 
     ~MainWindow();
@@ -60,6 +60,7 @@ slots:    // A slot or function is defined which will be intiated by timer
 signals:
     void componentChanged();
     void messageArrived(QString msg,int type);
+    void frameArrived();
 
 private:
     bool video,snap_b;
@@ -69,9 +70,10 @@ private:
     QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon;
     MODE mode = MODE::MODE_HOME;
     //AutoDrive autodrive;
-    Publisher publisher;
+    MqttClient publisher;
     mqttLogger logPublisher;
     int value_track;
+    Mat img_hls,res,frame,frame_rsz;
 
 };
 

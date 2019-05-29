@@ -11,37 +11,34 @@
 namespace Politocean {
 
 using namespace cv;
-
 class Vision
 {
 public:
     Vision();
 
-    static bool checkTop(Mat src);
-    static bool checkLeft(Mat src);
-    static bool checkRight(Mat src);
-    static bool checkBottom(Mat src);
+    static bool checkTop(cv::Mat src);
+    static bool checkLeft(cv::Mat src);
+    static bool checkRight(cv::Mat src);
+    static bool checkBottom(cv::Mat src);
 
     /* FILTERS */
-    static Mat filterRed(Mat src);
-    static Mat filterBlue(Mat src);
-    static Mat filterBlack(Mat src);
-    static Mat addROI(Mat src,Rect roi);
-    static bool isCentered(Mat srcBlackFiltered);
-    static int getLenghtFromBlack(Mat black,Mat blue);
-    static void getLenghtFromCenter(Mat src);
+    static Mat filterRed(cv::Mat src);
+    static Mat filterBlue(cv::Mat src);
+    static Mat filterBlack(cv::Mat src);
+    static Mat addROI(cv::Mat src,Rect roi);
+    static bool isCentered(cv::Mat srcBlackFiltered);
+    static int getLenghtFromBlack(cv::Mat black,cv::Mat blue);
+    static void getLenghtFromCenter(cv::Mat src);
 
     /* SHAPE RECOGNITION */
-    static void Circle( Mat img, int position[4]);
-    static void Triangle( Mat img ,int position[4]);
-    static void Line( Mat img,int position[4]);
-    static void Rectangle( Mat img, int position[4] );
-    static Mat getshape(Mat image1,int tresh);
-    static Mat getImageBlackShape(Mat src,int thresh);
+    static void Circle( cv::Mat img, int position[4]);
+    static void Triangle( cv::Mat img ,int position[4]);
+    static void Line( cv::Mat img,int position[4]);
+    static void Rectangle( cv::Mat img, int position[4] );
+    static cv::Mat getshape(cv::Mat image1,int tresh);
+    static cv::Mat getImageBlackShape(cv::Mat src,int thresh);
 
-    static Mat addCircle(Mat src, int value);
-
-
+    static cv::Mat addCircle(cv::Mat src, int value);
 
 private:
     int height,width;
