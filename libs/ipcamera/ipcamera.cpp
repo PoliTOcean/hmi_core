@@ -21,7 +21,7 @@ IpCamera::IpCamera()
                   << camInfo.serialNumber << std::endl;
 
         camera.StartCapture();
-        ipcamera_active = false;
+        ipcamera_active = true;
     }
 }
 
@@ -36,16 +36,17 @@ cv::Mat IpCamera::getFrame()
 {
     Image raw;
     cv::Mat img;
-    if(ipcamera_active && camera.IsConnected() == PGRERROR_OK){
+    if(ipcamera_active){
         FlyCapture2::Error error = camera.RetrieveBuffer(&raw);
         if (error != PGRERROR_OK){
                 //std::cout << "network loss frame" << std::endl;
         }
         else{
             Image rgb;
-            raw.Convert( FlyCapture2::PIXEL_FORMAT_RGB, &rgb );
+            raw.Convert( FlyCapture2::PIXEL_FORMAT_BGR, &rgb );
 
             unsigned int row = (double)rgb.GetReceivedDataSize()/(double)rgb.GetRows();
+
 
             img = cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(),row);
             //cv::imshow("test",img);

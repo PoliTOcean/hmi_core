@@ -35,9 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     video = false;
 
     /*TIMER DISPLAY CAMERAS*/
-    Timer = new QTimer(this);
-    connect(Timer, SIGNAL(timeout()), this, SLOT(DisplayImage()));
-    Timer->start(0);
+    connect(this, SIGNAL(frameArrived()), this, SLOT(DisplayImage()));
 
     /*CONNECTION BUTTONS*/
     connect(ui->startVideo,SIGNAL(clicked()),SLOT(setVideoStart()));
@@ -105,23 +103,22 @@ void MainWindow::setFrame(cv::Mat frame)
 {
     mtx.lock();
     img = frame;
+    this->frameArrived();
     mtx.unlock();
 }
 
 void MainWindow::DisplayImage(){
 
-    Mat img_hls,res,frame;
-    if(!video){
 
+    if(video){
+        mtx.lock();
         if(!img.empty()){
-
             cvtColor(img,img_hls,CV_BGR2HLS);
-            cvtColor(img,frame,CV_BGR2RGB);
-
+            cvtColor(img,frame_rsz,CV_BGR2RGB);
+            cv::resize(frame_rsz, frame, cv::Size(1024,720));
             if(mode == MODE::MODE_AUTO){
-                 cv::resize(frame, frame, cv::Size(640,480), 0, 0, CV_INTER_LINEAR);
                 //img = Vision::addCircle(frame,value_track);
-                QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+                QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
                 ui->display_image->setPixmap(QPixmap::fromImage(cam1));
             }
 
@@ -174,6 +171,7 @@ void MainWindow::DisplayImage(){
             //ui->startVideo->click();
         }
     }
+    mtx.unlock();
 }
 
 void MainWindow::setVideoStart()

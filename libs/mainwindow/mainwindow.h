@@ -60,6 +60,7 @@ slots:    // A slot or function is defined which will be intiated by timer
 signals:
     void componentChanged();
     void messageArrived(QString msg,int type);
+    void frameArrived();
 
 private:
     bool video,snap_b;
@@ -72,6 +73,7 @@ private:
     Publisher publisher;
     mqttLogger logPublisher;
     int value_track;
+    Mat img_hls,res,frame,frame_rsz;
 
 };
 
