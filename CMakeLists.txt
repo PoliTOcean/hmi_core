@@ -39,3 +39,4 @@ target_link_libraries(CommandParser -lpthread
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::Publisher
         PolitoceanCommon::Subscriber)
+

@@ -14,7 +14,7 @@
 
 
 using namespace Politocean;
-
+using namespace cv;
 
 namespace Ui {
 class MainWindow;
@@ -41,7 +41,7 @@ public:
     QTimer* Timer;   // A timer is needed in GUI application
     void setFrame(cv::Mat frame);
     //IpCamera cam;
-    //VideoCapture cap;
+    VideoCapture cap;
     IpCamera camera;
 
     ~MainWindow();
@@ -60,6 +60,7 @@ slots:    // A slot or function is defined which will be intiated by timer
 signals:
     void componentChanged();
     void messageArrived(QString msg,int type);
+    void frameArrived();
 
 private:
     bool video,snap_b;
@@ -72,6 +73,7 @@ private:
     Publisher publisher;
     mqttLogger logPublisher;
     int value_track;
+    Mat img_hls,res,frame,frame_rsz;
 
 };
 

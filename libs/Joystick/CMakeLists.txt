@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(Joystick VERSION 1.0.0 LANGUAGES CXX)
 
-add_library(Joystick
+add_library(Joystick SHARED
         Joystick.cpp)
 
 add_library(PolitoceanHmi::Joystick ALIAS Joystick)
