@@ -18,10 +18,13 @@ add_executable(JoystickPublisher src/JoystickPublisher.cpp)
 add_executable(Gui src/gui.cpp)
 add_executable(CommandParser src/CommandParser.cpp)
 
+find_package(Catch2 REQUIRED)
+add_executable(MqttTest test/MqttTest.cpp)
+target_link_libraries(MqttTest Catch2::Catch2)
+
 # Linking the libraries
 target_link_libraries(JoystickPublisher -lpthread
     PolitoceanHmi::Joystick
-
     PolitoceanCommon::mqttLogger
     PolitoceanCommon::Publisher
     PolitoceanCommon::Subscriber)
@@ -39,4 +42,11 @@ target_link_libraries(CommandParser -lpthread
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::Publisher
         PolitoceanCommon::Subscriber)
+
+target_link_libraries(MqttTest
+    PolitoceanHmi::Joystick
+    PolitoceanCommon::MqttClient
+    PolitoceanCommon::mqttLogger
+    PolitoceanCommon::Publisher
+    PolitoceanCommon::Subscriber)
 
