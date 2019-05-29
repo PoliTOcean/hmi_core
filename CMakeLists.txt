@@ -37,3 +37,4 @@ target_link_libraries(Gui
 target_link_libraries(CommandParser -lpthread
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::MqttClient)
+

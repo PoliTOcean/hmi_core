@@ -34,6 +34,7 @@ target_link_libraries(mainwindow
                                 PolitoceanCommon::Publisher
                                 PolitoceanCommon::mqttLogger
 				PolitoceanHmi::ipcamera
+				PolitoceanHmi::vision
                                 Qt5::Core
                                 Qt5::Gui
                                 Qt5::Widgets

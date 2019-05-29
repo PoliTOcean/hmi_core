@@ -15,13 +15,15 @@ using namespace Politocean;
 using namespace Politocean::Constants;
 
 void retriveFrame(MainWindow* gui){
-    while(true)
+    while(true){
         gui->setFrame(gui->camera.getFrame());
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
 }
 
 int main(int argc, char *argv[])
 {
-    Subscriber subscriber(Hmi::IP_ADDRESS, Hmi::GUI_ID);
+    Subscriber subscriber("127.0.0.1", Hmi::GUI_ID);
 
     QApplication a(argc, argv);
 

@@ -90,14 +90,12 @@ bool Vision::checkBottom(Mat src)
 
 Mat Vision::filterRed(Mat src)
 {
-
     Mat res,redOnly,redOnly2;
 
     //COLOR RED IN HSL (N.B in openCV is HLS
     /* RED HUE 340 -> 360 to 0 -> 10  H = H/2 */
-    //blur(src,src,Size(2,2));
     inRange(src, Scalar(170, 50, 50), Scalar(180,160, 255), redOnly);
-    inRange(src, Scalar(0, 50, 50), Scalar(5, 160, 255), redOnly2);
+    inRange(src, Scalar(0, 50, 50), Scalar(10, 160, 255), redOnly2);
 
     src.copyTo(res,redOnly2);
     src.copyTo(res,redOnly);
@@ -105,7 +103,6 @@ Mat Vision::filterRed(Mat src)
     cvtColor(res,res,CV_HLS2RGB);
     cvtColor(res,res,CV_RGB2GRAY);
     threshold(res,res,0,255,CV_THRESH_BINARY);
-
 
     return res;
 }
@@ -115,22 +112,14 @@ Mat Vision::filterBlue(Mat src)
 {
     Mat res,blueOnly,canny_output;
 
-    //GAUSSIAN BLUR FOR SMOOTH IMAGE
-    //GaussianBlur(src, blur, Size( 3, 3 ), 0, 0 );
-    //blur(src,src,Size(5,5));
     //COLOR BLUE IN HSL (N.B in openCV is HLS
     /* Be careful to S value -> low saturation is not good */
-
     inRange(src, Scalar(100, 25, 90), Scalar(120,200, 255), blueOnly);
-
     src.copyTo(res,blueOnly);
 
     cvtColor(res,res,CV_HLS2RGB);
     cvtColor(res,res,CV_RGB2GRAY);
-
     threshold(res,res,0,255,CV_THRESH_BINARY);
-
-
 
     return res;
 }
@@ -164,7 +153,6 @@ void Vision::getLenghtFromCenter(Mat src)
     vector<Vec4i> hierarchy;
     Rect roi;
 
-
     roi.x = src.size().width/2 - lato/2;
     roi.y = src.size().height/2 - lato/2;
     roi.width = lato;
@@ -176,15 +164,12 @@ void Vision::getLenghtFromCenter(Mat src)
     areaRed = countNonZero(red(roi));
     areaBlue = countNonZero(blue);
 
-
     lineTicknessPixel = (areaRed / (lato) );
     cmPerPixel = LINE_TICKNESS / lineTicknessPixel;
-
 
     /* FIRST ATTEMPT */
     //lengthPixel = areaBlue / lineTicknessPixel;
     //length = lengthPixel * cmPerPixel;
-
 
     /* NEW TRY */
     /// Detect edges using canny
@@ -203,11 +188,8 @@ void Vision::getLenghtFromCenter(Mat src)
          }
 
 
-
     cout<< "Lunghezza Linea Blue: "<< length << " cm" << endl;
 }
-
-
 
 Mat Vision::addROI(Mat src, Rect roi){
 
@@ -236,7 +218,6 @@ Mat Vision::addROI(Mat src, Rect roi){
     return src;
 }
 
-
 bool Vision::isCentered(Mat srcBlackFiltered)
 {
 
@@ -258,7 +239,6 @@ bool Vision::isCentered(Mat srcBlackFiltered)
 
     return false;
 }
-
 
 int Vision::getLenghtFromBlack(Mat black,Mat blue)
 {
@@ -302,7 +282,6 @@ int Vision::getLenghtFromBlack(Mat black,Mat blue)
     return 0;
 }
 
-
 void Vision::Circle( Mat img, int position[4] )
 {
      stringstream circ;
@@ -316,6 +295,7 @@ void Vision::Circle( Mat img, int position[4] )
         putText( img, str, Point (30,100), FONT_HERSHEY_COMPLEX, 3,Scalar(255, 0, 0), 5, 6 );
     }
 }
+
 void Vision::Triangle( Mat image, int position[4])
 {
     // Cast from integer to string for obtaining a feasible output for puttext
@@ -353,6 +333,7 @@ void Vision::Triangle( Mat image, int position[4])
         putText( image, str, number, FONT_HERSHEY_COMPLEX, 3, Scalar(255, 0, 0), 5, 6 );
     }
 }
+
 void Vision::Line( Mat image, int position[4])
 {
 
@@ -400,6 +381,7 @@ void Vision::Line( Mat image, int position[4])
         putText( image, str, number, FONT_HERSHEY_COMPLEX, 3, Scalar(255, 0, 0), 5, 6 );
     }
 }
+
 void Vision::Rectangle( Mat img, int position[4])
 {
      stringstream rect;
@@ -466,7 +448,6 @@ void Vision::Rectangle( Mat img, int position[4])
                 Scalar(255, 0, 0), 5, 6 );
     }
 }
-    /*
 
 Mat Vision::getImageBlackShape(Mat src,int thresh){
     IplImage copy = src;
@@ -485,6 +466,7 @@ Mat Vision::getImageBlackShape(Mat src,int thresh){
     return ret;
 
 }
+
 Mat Vision::getshape(Mat image1,int thresh)
 {
      //counter for each figure
@@ -617,7 +599,6 @@ Mat Vision::getshape(Mat image1,int thresh)
      return blank_img;
 
 }
-*/
 
 Mat Vision::addCircle(Mat src, int value)
 {
@@ -626,6 +607,4 @@ Mat Vision::addCircle(Mat src, int value)
 
     return src;
 }
-
-
 }

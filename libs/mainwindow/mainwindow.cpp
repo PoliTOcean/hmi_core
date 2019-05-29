@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_design.h"
 #include <QTimer>
-//#include "vision.h"
+#include "vision.h"
 #include "ipcamera.h"
 #include <iostream>
 #include "PolitoceanConstants.h"
@@ -35,9 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
     video = false;
 
     /*TIMER DISPLAY CAMERAS*/
-    Timer = new QTimer(this);
-    connect(Timer, SIGNAL(timeout()), this, SLOT(DisplayImage()));
-    Timer->start(0);
+    connect(this, SIGNAL(frameArrived()), this, SLOT(DisplayImage()));
 
     /*CONNECTION BUTTONS*/
     connect(ui->startVideo,SIGNAL(clicked()),SLOT(setVideoStart()));
@@ -97,7 +95,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    //cap.release();
+    cap.release();
     delete ui;
 }
 
@@ -105,28 +103,37 @@ void MainWindow::setFrame(cv::Mat frame)
 {
     mtx.lock();
     img = frame;
+    this->frameArrived();
     mtx.unlock();
 }
 
 void MainWindow::DisplayImage(){
 
-    Mat img_hls,res,frame;
+
     if(video){
+        mtx.lock();
         if(!img.empty()){
-
-            //cvtColor(img,img_hls,CV_BGR2HLS);
-            //cvtColor(img,img,CV_BGR2RGB);
-
-            if(mode == MODE::MODE_HOME){
-                 mtx.lock();
-                 cv::resize(img, img, cv::Size(640,480), 0, 0, CV_INTER_LINEAR);
+            cvtColor(img,img_hls,CV_BGR2HLS);
+            cvtColor(img,frame_rsz,CV_BGR2RGB);
+            cv::resize(frame_rsz, frame, cv::Size(1024,720));
+            if(mode == MODE::MODE_AUTO){
                 //img = Vision::addCircle(frame,value_track);
                 QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
                 ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                mtx.unlock();
             }
 
-            else if(mode  == MODE::MODE_AUTO){
+            else if(mode  == MODE::MODE_HOME){
+                //VISION TEST:
+                cv::Mat filtered = Vision::filterRed(img_hls);
+                if(ui->debugCheck->isChecked()){
+                    QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
+                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+                }
+                else{
+                    QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+                }
+
                 /*
                 //Mat filtered = Vision::filterRed(img_hls);
                 Mat grid_mat = autodrive.getGrid();
@@ -164,6 +171,7 @@ void MainWindow::DisplayImage(){
             //ui->startVideo->click();
         }
     }
+    mtx.unlock();
 }
 
 void MainWindow::setVideoStart()
