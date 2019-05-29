@@ -31,7 +31,7 @@ target_include_directories(mainwindow
 
 target_link_libraries(mainwindow
                                 PolitoceanCommon::logger
-                                PolitoceanCommon::Publisher
+                                PolitoceanCommon::MqttClient
                                 PolitoceanCommon::mqttLogger
 				PolitoceanHmi::ipcamera
 				PolitoceanHmi::vision

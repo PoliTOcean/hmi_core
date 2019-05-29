@@ -27,10 +27,32 @@ using namespace Politocean::Constants::Commands;
  *************************************************************/
 
 class Listener {
-    int id_, value_;
+    std::string value_;
+    bool updated_;
 public:
+    Listener() : updated_(false) {}
     void callBackFunc(const std::string& payload); // my func
+
+    std::string value();
+    bool isUpdated();
 };
+
+void Listener::callBackFunc(const std::string& payload)
+{
+    value_ = payload;
+    updated_ = true;
+}
+
+std::string Listener::value()
+{
+    updated_ = false;
+    return value_;
+}
+
+bool Listener::isUpdated()
+{
+    return updated_;
+}
 
 
 /**************************************************************
@@ -70,13 +92,28 @@ void Talker::stopTalking()
     return isTalking_;
 }*/
 
-TEST_CASE( "First mqtt", "[mqtt]" ) {
-    /*REQUIRE( Factorial(0) == 1 );
-    REQUIRE( Factorial(1) == 1 );
-    REQUIRE( Factorial(2) == 2 );
-    REQUIRE( Factorial(3) == 6 );
-    REQUIRE( Factorial(10) == 3628800 );*/
-    REQUIRE( 0 == 0 );
+TEST_CASE("First mqtt","[mqtt]")
+{
+    const std::string id = "ID_1";
+    const std::string address = "127.0.0.1";
+    const std::string topic_name = "test";
+    MqttClient myClient(id,address);
+    Listener listener;
+
+    try
+    {   
+        myClient.connect();
+    }
+    catch (const mqttException& e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+
+    myClient.subscribeTo(topic_name, &Listener::callBackFunc, &listener);
+
+    while (!listener.isUpdated());
+
+    REQUIRE(listener.value() == "ciao");
 }
 
 /*int main(int argc, const char* argv[])
@@ -84,9 +121,13 @@ TEST_CASE( "First mqtt", "[mqtt]" ) {
     logger::enableLevel(logger::DEBUG, true);
     const std::string id = "custom";
     const std::string address = "127.0.0.1"; // localhost
+    const std::string topic_name = "test";
 
     MqttClient myClient(id,address);
     Listener l;
+
+    
+    myClient.subscribeTo(topic_name,&Listener::myFunc, &l);
 
     //MqttClient rovClient(Constants::Hmi::CMD_ID, Constants::Rov::IP_ADDRESS);
     //Talker talker;
