@@ -3,7 +3,7 @@ project(autodrive VERSION 1.0.0 LANGUAGES CXX)
 SET(OpenCV_DIR /home/pto/installation/OpenCV-3.4.4/share/OpenCV/)
 find_package(OpenCV REQUIRED)
 
-add_library(autodrive
+add_library(autodrive SHARED
         autodrive.cpp)
 
 add_library(PolitoceanHmi::autodrive ALIAS autodrive)
