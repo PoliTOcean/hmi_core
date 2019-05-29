@@ -9,7 +9,7 @@
 #include "PolitoceanConstants.h"
 //#include "autodrive.h"
 #include "mqttLogger.h"
-#include "Publisher.h"
+#include "MqttClient.h"
 #include "ipcamera.h"
 
 
@@ -70,7 +70,7 @@ private:
     QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon;
     MODE mode = MODE::MODE_HOME;
     //AutoDrive autodrive;
-    Publisher publisher;
+    MqttClient publisher;
     mqttLogger logPublisher;
     int value_track;
     Mat img_hls,res,frame,frame_rsz;
