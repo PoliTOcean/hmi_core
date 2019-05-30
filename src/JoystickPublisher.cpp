@@ -115,6 +115,7 @@ void Talker::stopTalking()
 	if (!isTalking_)
 		return ;
 
+
 	isTalking_ = false;
 	axesTalker_->join(); buttonTalker_->join();
 }
@@ -184,7 +185,7 @@ int main(int argc, const char *argv[])
 
 		std::cerr << "Joystick device disconnected" << std::endl;
 		
-		talker.stopTalking();
+		//talker.stopTalking();
 
 		while (!joystick.isConnected())
 		{
@@ -208,7 +209,7 @@ int main(int argc, const char *argv[])
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 
-		talker.startTalking(joystickPublisher, listener);
+		//talker.startTalking(joystickPublisher, listener);
 	}
 
 	return 0;
