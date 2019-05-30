@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <thread>
+#include <chrono>
 
 #include "MqttClient.h"
 #include "Joystick.h"
@@ -147,7 +149,6 @@ int main(int argc, const char *argv[])
 	{
 		std::cerr << e.what() << '\n';
 	}
-
 	
 	// Create a joystick object and a listener.
 	Joystick joystick;
@@ -156,6 +157,7 @@ int main(int argc, const char *argv[])
 	// Try to connect to the joystick device.
 	// If error has caught, terminate with EXIT_FAILURE
 	while (!joystick.isConnected())
+	{
 		try
 		{
 			joystick.connect();
@@ -164,6 +166,10 @@ int main(int argc, const char *argv[])
 		{
 			std::cerr << e.what() << std::endl;
 		}
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+
+	std::cout << "Joystick device is connected.\n" << std::endl;
 
 	// Start reading data from the joystick device.
 	joystick.startReading(&Listener::listen, &listener);
@@ -173,14 +179,13 @@ int main(int argc, const char *argv[])
 	int nretry = 0;
 	while (joystickPublisher.is_connected())
 	{
-		while (joystick.isConnected() && joystickPublisher.is_connected());
-		
-		if (!joystickPublisher.is_connected())
-			break;
+		if (joystick.isConnected())
+			continue ;
+
+		std::cerr << "Joystick device disconnected" << std::endl;
 		
 		talker.stopTalking();
 
-		std::cerr << "Joystick device disconnected" << std::endl;
 		while (!joystick.isConnected())
 		{
 			std::cout << "\tRetry to reconnect... " << nretry++ << std::endl;
@@ -188,6 +193,7 @@ int main(int argc, const char *argv[])
 			if (nretry >= MAX_JOYSTICK_CONNECTION_RETRY)
 				std::cerr << "Cannot reconnect to joystick device" << std::endl;
 
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 
 		talker.startTalking(joystickPublisher, listener);
