@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     
     //INIT PRIVATE VARIABLE
-    video = false;
+    video = true;
 
     /*TIMER DISPLAY CAMERAS*/
     connect(this, SIGNAL(frameArrived()), this, SLOT(DisplayImage()));
@@ -115,7 +115,7 @@ void MainWindow::DisplayImage(){
         if(!img.empty()){
             cvtColor(img,img_hls,CV_BGR2HLS);
             cvtColor(img,frame_rsz,CV_BGR2RGB);
-            cv::resize(frame_rsz, frame, cv::Size(1024,720));
+            cv::resize(frame_rsz, frame, cv::Size(640,480));
             if(mode == MODE::MODE_AUTO){
                 //img = Vision::addCircle(frame,value_track);
                 QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
@@ -151,19 +151,32 @@ void MainWindow::DisplayImage(){
             }
 
             else if(mode == MODE::MODE_SHAPES){
-                /*
-                //img = Vision::getImageBlackShape(frame,value_track);
+
+                img = Vision::getImageBlackShape(frame,value_track);
+
+                //DRAW THE REGION OF INTEREST
+                rectangle( img,Point(150,150),Point(450,300),Scalar( 255, 0, 0 ),1,LINE_8 );
+
+                //SELECT ONLY THIS REGION OF THE IMAGE
+                Rect roi;
+                roi.x = 100;
+                roi.y = 100;
+                roi.width = (450 - 100);
+                roi.height= (300 - 100);
+
+
                 QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_Grayscale8);
                 ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+                img = img(roi);
 
                 if(snap_b){
                     ui->display_image_2->setVisible(true);
-                    //res = Vision::getshape(img,value_track);
+                    res = Vision::getshape(img,value_track);
                     QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
                     ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
                     snap_b = false;
                 }
-                */
+
             }
         }
         else{
