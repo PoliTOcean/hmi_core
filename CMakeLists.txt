@@ -18,6 +18,7 @@ add_executable(JoystickPublisher src/JoystickPublisher.cpp)
 add_executable(Gui src/gui.cpp)
 add_executable(CommandParser src/CommandParser.cpp)
 
+#test section
 find_package(Catch2 REQUIRED)
 add_executable(MqttTest test/MqttTest.cpp)
 target_link_libraries(MqttTest Catch2::Catch2)
