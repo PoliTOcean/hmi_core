@@ -81,7 +81,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 	isTalking_ = true;
 
 	axesTalker_ = new std::thread([&]() {
-		while (publisher.is_connected())
+		while (isTalking_)
 		{
 			nlohmann::json j_map = listener.axes();
 
@@ -97,7 +97,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 		unsigned char lastButton = -1;
 		unsigned char button;
 
-		while (publisher.is_connected())
+		while (isTalking_)
 		{
 			if ((button = listener.button()) == lastButton)
 				continue;
@@ -185,7 +185,7 @@ int main(int argc, const char *argv[])
 
 		std::cerr << "Joystick device disconnected" << std::endl;
 		
-		//talker.stopTalking();
+		talker.stopTalking();
 
 		while (!joystick.isConnected())
 		{
@@ -205,11 +205,12 @@ int main(int argc, const char *argv[])
 				std::cerr << e.what() << '\n';
 			}
 			
-
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 
-		//talker.startTalking(joystickPublisher, listener);
+		std::cout << "Joystick device is connected." << std::endl;
+		
+		talker.startTalking(joystickPublisher, listener);
 	}
 
 	return 0;
