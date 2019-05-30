@@ -189,10 +189,19 @@ int main(int argc, const char *argv[])
 		while (!joystick.isConnected())
 		{
 			std::cout << "\tRetry to reconnect... " << nretry++ << std::endl;
-
+			/*
 			if (nretry >= MAX_JOYSTICK_CONNECTION_RETRY)
 				std::cerr << "Cannot reconnect to joystick device" << std::endl;
-
+			*/
+			try
+			{
+				joystick.connect();
+			}
+			catch (const JoystickException& e)
+			{
+				std::cerr << e.what() << std::endl;
+			}
+			
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 
