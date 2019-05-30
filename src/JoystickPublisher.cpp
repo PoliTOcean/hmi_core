@@ -155,15 +155,15 @@ int main(int argc, const char *argv[])
 
 	// Try to connect to the joystick device.
 	// If error has caught, terminate with EXIT_FAILURE
-	try
-	{
-		joystick.connect();
-	}
-	catch (const JoystickException& e)
-	{
-		std::cerr << e.what() << std::endl;
-		std::exit(EXIT_FAILURE);
-	}
+	while (!joystick.isConnected())
+		try
+		{
+			joystick.connect();
+		}
+		catch (const JoystickException& e)
+		{
+			std::cerr << e.what() << std::endl;
+		}
 
 	// Start reading data from the joystick device.
 	joystick.startReading(&Listener::listen, &listener);
@@ -186,10 +186,8 @@ int main(int argc, const char *argv[])
 			std::cout << "\tRetry to reconnect... " << nretry++ << std::endl;
 
 			if (nretry >= MAX_JOYSTICK_CONNECTION_RETRY)
-			{
 				std::cerr << "Cannot reconnect to joystick device" << std::endl;
-				std::exit(EXIT_FAILURE);
-			}
+
 		}
 
 		talker.startTalking(joystickPublisher, listener);
