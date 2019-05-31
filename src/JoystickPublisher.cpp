@@ -10,6 +10,7 @@
 
 #include "PolitoceanExceptions.hpp"
 #include "PolitoceanConstants.h"
+#include "PolitoceanUtils.hpp"
 
 #include "logger.h"
 #include "mqttLogger.h"
@@ -171,7 +172,7 @@ int main(int argc, const char *argv[])
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
-
+	Politocean::publishComponents(Hmi::JOYSTICK_ID, Components::JOYSTICK, Components::Status::ENABLED);
 	std::cout << "Joystick device is connected.\n" << std::endl;
 
 	// Start reading data from the joystick device.
@@ -185,6 +186,7 @@ int main(int argc, const char *argv[])
 		if (joystick.isConnected())
 			continue ;
 
+		Politocean::publishComponents(Hmi::JOYSTICK_ID, Components::JOYSTICK, Components::Status::ERROR);
 		std::cerr << "Joystick device disconnected" << std::endl;
 		
 		talker.stopTalking();
@@ -192,11 +194,6 @@ int main(int argc, const char *argv[])
 		while (!joystick.isConnected())
 		{
 			std::cout << "\tRetry to reconnect... " << nretry++ << std::endl;
-			/*
-			/*
-			if (nretry >= MAX_JOYSTICK_CONNECTION_RETRY)
-				std::cerr << "Cannot reconnect to joystick device" << std::endl;
-			*/
 
 			try
 			{
@@ -209,6 +206,8 @@ int main(int argc, const char *argv[])
 			
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
+
+		Politocean::publishComponents(Hmi::JOYSTICK_ID, Components::JOYSTICK, Components::Status::ENABLED);
 
 		std::cout << "Joystick device is connected." << std::endl;
 		
