@@ -363,7 +363,7 @@ bool Talker::isTalking()
 
 int main(int argc, const char* argv[])
 {
-    logger::enableLevel(logger::DEBUG);
+    logger::enableLevel(logger::INFO);
 
     Talker talker;
 

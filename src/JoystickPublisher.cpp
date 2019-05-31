@@ -134,7 +134,7 @@ bool Talker::isTalking()
 
 int main(int argc, const char *argv[])
 {
-	logger::enableLevel(logger::DEBUG);
+	logger::enableLevel(logger::INFO);
 
 	// Create a publisher object and a talker.
 	MqttClient& joystickPublisher = MqttClient::getInstance(Hmi::JOYSTICK_ID, Hmi::IP_ADDRESS);
