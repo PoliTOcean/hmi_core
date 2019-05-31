@@ -40,6 +40,7 @@ void Joystick::connect()
 
 Joystick::~Joystick()
 {
+    isConnected_ = false;
     close(fd);
 }
 
