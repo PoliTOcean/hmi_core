@@ -2,6 +2,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <thread>
+#include <chrono>
 
 #include "MqttClient.h"
 #include "Joystick.h"
@@ -79,7 +81,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 	isTalking_ = true;
 
 	axesTalker_ = new std::thread([&]() {
-		while (publisher.is_connected())
+		while (isTalking_)
 		{
 			nlohmann::json j_map = listener.axes();
 
@@ -95,7 +97,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 		unsigned char lastButton = -1;
 		unsigned char button;
 
-		while (publisher.is_connected())
+		while (isTalking_)
 		{
 			if ((button = listener.button()) == lastButton)
 				continue;
@@ -112,6 +114,7 @@ void Talker::stopTalking()
 {
 	if (!isTalking_)
 		return ;
+
 
 	isTalking_ = false;
 	axesTalker_->join(); buttonTalker_->join();
@@ -139,22 +142,37 @@ int main(int argc, const char *argv[])
 
 	mqttLogger logger = mqttLogger::getInstance(joystickPublisher);
     logger.setPublishLevel(logger::CONFIG);
+	// Try to connect the publisher
+	try
+	{
+		joystickPublisher.connect();
+	}
+	catch(const mqttException& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
 
+	
 	// Create a joystick object and a listener.
 	Joystick joystick;
 	Listener listener;
 
 	// Try to connect to the joystick device.
 	// If error has caught, terminate with EXIT_FAILURE
-	try
+	while (!joystick.isConnected())
 	{
-		joystick.connect();
+		try
+		{
+			joystick.connect();
+		}
+		catch (const JoystickException& e)
+		{
+			std::cerr << e.what() << std::endl;
+		}
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
-	catch (const JoystickException& e)
-	{
-		std::cerr << e.what() << std::endl;
-		std::exit(EXIT_FAILURE);
-	}
+
+	std::cout << "Joystick device is connected.\n" << std::endl;
 
 	// Start reading data from the joystick device.
 	joystick.startReading(&Listener::listen, &listener);
@@ -164,25 +182,36 @@ int main(int argc, const char *argv[])
 	int nretry = 0;
 	while (joystickPublisher.is_connected())
 	{
-		while (joystick.isConnected() && joystickPublisher.is_connected());
-		
-		if (!joystickPublisher.is_connected())
-			break;
+		if (joystick.isConnected())
+			continue ;
+
+		std::cerr << "Joystick device disconnected" << std::endl;
 		
 		talker.stopTalking();
 
-		std::cerr << "Joystick device disconnected" << std::endl;
 		while (!joystick.isConnected())
 		{
 			std::cout << "\tRetry to reconnect... " << nretry++ << std::endl;
-
+			/*
+			/*
 			if (nretry >= MAX_JOYSTICK_CONNECTION_RETRY)
-			{
 				std::cerr << "Cannot reconnect to joystick device" << std::endl;
-				std::exit(EXIT_FAILURE);
+			*/
+
+			try
+			{
+				joystick.connect();
 			}
+			catch(const JoystickException& e)
+			{
+				std::cerr << e.what() << '\n';
+			}
+			
+			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 
+		std::cout << "Joystick device is connected." << std::endl;
+		
 		talker.startTalking(joystickPublisher, listener);
 	}
 
