@@ -366,13 +366,13 @@ bool Talker::isTalking()
 int main(int argc, const char* argv[])
 {
 
-    MqttClient rovClient(Constants::Hmi::CMD_ID, Constants::Rov::IP_ADDRESS);
+    MqttClient rovClient = MqttClient::getInstance(Constants::Hmi::CMD_ID, Constants::Rov::IP_ADDRESS);
     Talker talker;
 
-    MqttClient hmiClient(Constants::Hmi::CMD_ID, Constants::Hmi::IP_ADDRESS);
+    MqttClient hmiClient = MqttClient::getInstance(Constants::Hmi::CMD_ID, Constants::Hmi::IP_ADDRESS);
     Listener listener;
 
-    mqttLogger ptoLogger(&hmiClient);
+    mqttLogger ptoLogger = mqttLogger::getInstance(hmiClient);
     // logger::enableLevel(logger::DEBUG, true);
 
     try

@@ -25,7 +25,7 @@ void retriveFrame(MainWindow* gui){
 
 int main(int argc, char *argv[])
 {
-    MqttClient subscriber(Hmi::GUI_ID, Hmi::IP_ADDRESS);
+    MqttClient subscriber = MqttClient::getInstance(Hmi::GUI_ID, Hmi::IP_ADDRESS);
     subscriber.connect();
 
     QApplication a(argc, argv);
