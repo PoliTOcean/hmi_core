@@ -130,7 +130,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
         {
             if(!listener.isAxesUpdated())
                 continue;
-            
+                
             std::vector<int> axes = listener.axes();
 
             if(axes[Axes::X] != prevAxes.at(Axes::X)
@@ -339,8 +339,6 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
                     break;
             }
 
-           //DEBUG std::cout << topic << " " << action << std::endl;
-
             if(action != Actions::NONE)
                 publisher.publish(topic, action);
         }
@@ -365,32 +363,22 @@ bool Talker::isTalking()
 
 int main(int argc, const char* argv[])
 {
+    logger::enableLevel(logger::DEBUG);
 
-    MqttClient rovClient = MqttClient::getInstance(Constants::Hmi::CMD_ID, Constants::Rov::IP_ADDRESS);
     Talker talker;
 
-    MqttClient hmiClient = MqttClient::getInstance(Constants::Hmi::CMD_ID, Constants::Hmi::IP_ADDRESS);
+    MqttClient& hmiClient = MqttClient::getInstance(Constants::Hmi::CMD_ID, Constants::Hmi::IP_ADDRESS);
     Listener listener;
 
-    mqttLogger ptoLogger = mqttLogger::getInstance(hmiClient);
-    // logger::enableLevel(logger::DEBUG, true);
-
-    try
-    {
-        rovClient.connect();
-        hmiClient.connect();
-    }
-    catch (const mqttException& e)
-    {
-        std::cerr << e.what() << '\n';
-    }
+    mqttLogger& ptoLogger = mqttLogger::getInstance(hmiClient);
+    ptoLogger.setPublishLevel(logger::CONFIG);
 
     hmiClient.subscribeTo(Topics::JOYSTICK_BUTTONS, &Listener::listenForButtons, &listener);
     hmiClient.subscribeTo(Topics::JOYSTICK_AXES, &Listener::listenForAxes, &listener);
 
-    talker.startTalking(rovClient, listener);
+    talker.startTalking(MqttClient::getInstance(Constants::Hmi::CMD_ID, Constants::Rov::IP_ADDRESS), listener);
     
-    rovClient.wait();
+    hmiClient.wait();
 
     talker.stopTalking();
 

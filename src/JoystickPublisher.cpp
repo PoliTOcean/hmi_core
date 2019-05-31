@@ -131,24 +131,15 @@ bool Talker::isTalking()
 
 int main(int argc, const char *argv[])
 {
-  // Enable logging
-  //  logger::enableLevel(logger::DEBUG, true);
+	logger::enableLevel(logger::DEBUG);
 
 	// Create a publisher object and a talker.
 	MqttClient joystickPublisher = MqttClient::getInstance(Hmi::JOYSTICK_ID, Hmi::IP_ADDRESS);
 	Talker talker;
 
-	// Try to connect the publisher
-	try
-	{
-		joystickPublisher.connect();
-	}
-	catch(const mqttException& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
+	mqttLogger logger = mqttLogger::getInstance(joystickPublisher);
+    logger.setPublishLevel(logger::CONFIG);
 
-	
 	// Create a joystick object and a listener.
 	Joystick joystick;
 	Listener listener;

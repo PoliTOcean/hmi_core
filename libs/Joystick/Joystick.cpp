@@ -28,7 +28,7 @@ void Joystick::connect()
     info << "Joystick detected: " << name_of_joystick << "\n\t";
     info << num_of_axes << " axis\n\t";
     info << num_of_buttons << "buttons";
-    //logger::log(logger::DEBUG, info.str());
+    logger::getInstance().log(logger::CONFIG, info.str());
     // End logging
 
     axes_.resize(num_of_axes, 0);
