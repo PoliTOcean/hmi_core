@@ -134,7 +134,7 @@ int main(int argc, const char *argv[])
 	logger::enableLevel(logger::DEBUG);
 
 	// Create a publisher object and a talker.
-	MqttClient joystickPublisher = MqttClient::getInstance(Hmi::JOYSTICK_ID, Hmi::IP_ADDRESS);
+	MqttClient& joystickPublisher = MqttClient::getInstance(Hmi::JOYSTICK_ID, Hmi::IP_ADDRESS);
 	Talker talker;
 
 	mqttLogger logger = mqttLogger::getInstance(joystickPublisher);

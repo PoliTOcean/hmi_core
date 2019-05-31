@@ -70,8 +70,8 @@ private:
     QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon;
     MODE mode = MODE::MODE_HOME;
     //AutoDrive autodrive;
-    MqttClient publisher;
-    mqttLogger logPublisher;
+    MqttClient& publisher;
+    mqttLogger& LOGGER;
     int value_track;
     Mat img_hls,res,frame,frame_rsz;
 

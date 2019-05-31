@@ -31,7 +31,7 @@ target_link_libraries(Gui
     # -lname_of_the_library     --- if it's a standard c++ library (e.g. -lpthread)
     PolitoceanHmi::mainwindow
 
-    PolitoceanCommon::Subscriber
+    PolitoceanCommon::MqttClient
     PolitoceanCommon::logger)
     
 target_link_libraries(CommandParser -lpthread

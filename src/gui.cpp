@@ -1,11 +1,10 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "Subscriber.h"
+#include "MqttClient.h"
 
 #include "PolitoceanConstants.h"
 #include "PolitoceanExceptions.hpp"
-#include "mqttLogger.h"
 #include "mainwindow.h"
 #include <QApplication>
 #include <thread>
@@ -25,8 +24,9 @@ void retriveFrame(MainWindow* gui){
 
 int main(int argc, char *argv[])
 {
-    MqttClient subscriber = MqttClient::getInstance(Hmi::GUI_ID, Hmi::IP_ADDRESS);
-    subscriber.connect();
+    logger::enableLevel(logger::DEBUG);
+
+    MqttClient& subscriber = MqttClient::getInstance(Hmi::GUI_ID, Hmi::IP_ADDRESS);
 
     QApplication a(argc, argv);
 
@@ -34,9 +34,8 @@ int main(int argc, char *argv[])
     std::thread thread(retriveFrame,&gui);
     gui.show();
 
-    subscriber.subscribeTo(Topics::ERRORS, &MainWindow::messageArrived, &gui);
+    subscriber.subscribeTo(Topics::LOGS+"#", &MainWindow::messageArrived, &gui);
     subscriber.subscribeTo(Topics::COMPONENTS, &MainWindow::messageArrived, &gui);
-    subscriber.subscribeTo(Topics::INFO, &MainWindow::messageArrived, &gui);
 
     int code = a.exec();
     readFromCamera = false;
