@@ -4,7 +4,7 @@
 #include "vision.h"
 #include <opencv2/opencv.hpp>
 #include "PolitoceanConstants.h"
-#include "Publisher.h"
+#include "MqttClient.h"
 
 #define MAX_PATH 12
 
@@ -31,7 +31,6 @@ public:
 private:
     Point currentPos;
     Direction direction;
-    Publisher publisher;
     Direction path[MAX_PATH];
     Mat grid;
 
