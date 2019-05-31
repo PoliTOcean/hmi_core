@@ -31,7 +31,6 @@ public:
 private:
     Point currentPos;
     Direction direction;
-    MqttClient& publisher;
     Direction path[MAX_PATH];
     Mat grid;
 

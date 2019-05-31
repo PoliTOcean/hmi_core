@@ -9,7 +9,7 @@ AutoDrive::AutoDrive() : AutoDrive(Direction::UP)
 {
 }
 
-AutoDrive::AutoDrive(Direction startDirection) : publisher(MqttClient::getInstance(Hmi::AUTODRIVE_ID, Hmi::IP_ADDRESS))
+AutoDrive::AutoDrive(Direction startDirection)
 {
     direction = startDirection;
     grid = imread("images/grid.png",CV_LOAD_IMAGE_COLOR);
@@ -30,6 +30,8 @@ Mat AutoDrive::getGrid(){
 
 Direction AutoDrive::updateDirection(Mat frame)
 {
+    MqttClient& publisher = MqttClient::getInstance(Hmi::AUTODRIVE_ID, Hmi::IP_ADDRESS);
+
     if(direction == Direction::DOWN || direction == Direction::UP){
 
         if(Vision::checkLeft(frame)){

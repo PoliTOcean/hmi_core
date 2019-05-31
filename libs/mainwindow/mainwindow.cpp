@@ -16,9 +16,7 @@ std::mutex mtx;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    publisher(MqttClient::getInstance(Hmi::GUI_ID, Hmi::IP_ADDRESS)),
-    LOGGER(mqttLogger::getInstance(publisher))
+    ui(new Ui::MainWindow)
 {
 
     /* SETUP UI*/

@@ -25,12 +25,12 @@ target_link_libraries(JoystickPublisher -lpthread
     PolitoceanCommon::mqttLogger
     PolitoceanCommon::MqttClient)
 
-target_link_libraries(Gui 
+target_link_libraries(Gui -lpthread
     # Add here all the libraries as:
     # Name_of_the_library       --- if it's internal (e.g. Publisher)
     # -lname_of_the_library     --- if it's a standard c++ library (e.g. -lpthread)
     PolitoceanHmi::mainwindow
-
+    PolitoceanCommon::mqttLogger
     PolitoceanCommon::MqttClient
     PolitoceanCommon::logger)
     

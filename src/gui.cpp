@@ -36,10 +36,9 @@ int main(int argc, char *argv[])
 
     subscriber.subscribeTo(Topics::LOGS+"#", &MainWindow::messageArrived, &gui);
     subscriber.subscribeTo(Topics::COMPONENTS, &MainWindow::messageArrived, &gui);
-
     int code = a.exec();
     readFromCamera = false;
     thread.join();
-    return code;
+    return 0;
 }
 

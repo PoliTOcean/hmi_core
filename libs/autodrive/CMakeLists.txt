@@ -18,7 +18,7 @@ target_include_directories(autodrive
 
 target_link_libraries(autodrive 
                                 PolitoceanCommon::logger
-                                PolitoceanCommon::Publisher
+                                PolitoceanCommon::MqttClient
                                 ${OpenCV_LIBS}
                                 -lflycapture
                                 PolitoceanHmi::vision)
