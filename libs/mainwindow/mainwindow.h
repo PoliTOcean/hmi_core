@@ -26,7 +26,8 @@ class MainWindow : public QMainWindow
     enum class MODE{
         MODE_HOME,
         MODE_AUTO,
-        MODE_SHAPES
+        MODE_SHAPES,
+        MODE_CANNON
     };
     Q_OBJECT
 
@@ -51,6 +52,7 @@ slots:    // A slot or function is defined which will be intiated by timer
     void DisplayImage();
     void setVideoStart();
     void modeAuto();
+    void modeCannon();
     void modeShapes();
     void modeHome();
     void startMeasure();
@@ -63,16 +65,17 @@ signals:
     void frameArrived();
 
 private:
-    bool video,snap_b;
+    bool video,snap_b,debug,snap_a;
     Ui::MainWindow *ui;
-    Mat img;
+    Mat img,shape;
     QIcon icon,icon2,video_icon,auto_icon,shapes_icon,home_icon,cannon_icon;
-    QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon;
+    QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon,cannon_icon_w;
     MODE mode = MODE::MODE_HOME;
     //AutoDrive autodrive;
     MqttClient publisher;
     mqttLogger logPublisher;
-    int value_track;
+    int value_track,cnt;
+    Point left,right;
     Mat img_hls,res,frame,frame_rsz;
 
 };

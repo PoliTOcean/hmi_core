@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->home,SIGNAL(clicked()),SLOT(modeHome()));
     connect(ui->shapes_recognize,SIGNAL(clicked()),SLOT(modeShapes()));
     connect(ui->measure_button,SIGNAL(clicked()),SLOT(startMeasure()));
+    connect(ui->cannon_measure,SIGNAL(clicked()),SLOT(modeCannon()));
 
     /* WIDGET CONNECTIONS */
     connect(ui->trackbar_circle,SIGNAL(valueChanged(int)),this,SLOT(valueTrackbar(int)));
@@ -55,6 +56,7 @@ MainWindow::MainWindow(QWidget *parent) :
     auto_icon.addFile(QString::fromUtf8("images/robot-solid.png"), QSize(), QIcon::Normal, QIcon::Off);
     shapes_icon.addFile(QString::fromUtf8("images/shapes-solid.png"), QSize(), QIcon::Normal, QIcon::Off);
     home_icon.addFile(QString::fromUtf8("images/home.png"), QSize(), QIcon::Normal, QIcon::Off);
+    cannon_icon_w.addFile(QString::fromUtf8("images/cannon_w.png"), QSize(), QIcon::Normal, QIcon::Off);
     auto_icon_w.addFile(QString::fromUtf8("images/robot-solid_w.png"), QSize(), QIcon::Normal, QIcon::Off);
     shapes_icon_w.addFile(QString::fromUtf8("images/shapes-solid_w.png"), QSize(), QIcon::Normal, QIcon::Off);
     home_icon_w.addFile(QString::fromUtf8("images/home_w.png"), QSize(), QIcon::Normal, QIcon::Off);
@@ -89,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
     //-> setting TRACKBAR
     ui->trackbar_circle->setMaximum(255);
 
-    value_track = 0;
+    value_track = 150;
     snap_b = false;
 }
 
@@ -152,33 +154,92 @@ void MainWindow::DisplayImage(){
 
             else if(mode == MODE::MODE_SHAPES){
 
-                img = Vision::getImageBlackShape(frame,value_track);
+                shape = Vision::getImageBlackShape(frame,value_track);
 
                 //DRAW THE REGION OF INTEREST
-                rectangle( img,Point(150,150),Point(450,300),Scalar( 255, 0, 0 ),1,LINE_8 );
+                rectangle( shape,Point(100,100),Point(500,400),Scalar( 255, 255, 255 ),1,LINE_8 );
 
                 //SELECT ONLY THIS REGION OF THE IMAGE
                 Rect roi;
-                roi.x = 100;
-                roi.y = 100;
+                roi.x = 150;
+                roi.y = 150;
                 roi.width = (450 - 100);
-                roi.height= (300 - 100);
+                roi.height= (350 - 100);
 
-
-                QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_Grayscale8);
-                ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                img = img(roi);
+               if(!ui->debugCheck->isChecked()){
+                    QImage cam1((uchar*)shape.data, shape.cols, shape.rows, shape.step, QImage::Format_Grayscale8);
+                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+                }
+                else if(ui->debugCheck->isChecked()){
+                    debug = true;
+                    ui->display_image_2->setVisible(true);
+                    //shape = Vision::getImageBlackShape(frame,value_track);
+                    res = Vision::getshape(shape,debug);
+                    QImage cam1((uchar*)res.data, res.cols, res.rows, res.step,QImage::Format_Grayscale8);
+                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+                }
 
                 if(snap_b){
+                    shape = shape(roi);
+                    debug = false;
                     ui->display_image_2->setVisible(true);
-                    res = Vision::getshape(img,value_track);
+                    res = Vision::getshape(shape,debug);
                     QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
                     ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
-                    snap_b = false;
+                    //snap_b = false;
                 }
 
             }
+
+            else if(mode == MODE::MODE_CANNON){
+                ui->display_image_2->setVisible(true);
+                QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+                ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+
+                if(snap_b){
+
+                    imwrite( "/home/gianni/Downloads/cannon_mode.jpg", frame );
+                    cnt = 2;
+                    snap_b = false;
+
+                }
+/*
+                if(cnt == 1){
+
+                    Mat src = imread("/home/gianni/Downloads/cannon_mode.jpg");
+                    rectangle( src,left,right,Scalar( 255, 0, 0 ),1,LINE_8 );
+
+                    if(snap_a){
+
+                        Rect roi;
+                        roi.x = left.x;
+                        roi.y = left.y;
+                        roi.width = (right.y - left.y)*(640/480);
+                        roi.height= (right.y - left.y);
+
+                        Mat zoom = src(roi);
+                        cv::resize(zoom,zoom,src.size());
+                        imwrite( "/home/gianni/Downloads/cannon_mode.jpg", zoom );
+                        cnt = 2;
+
+                    }
+                    else{
+                        QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);
+                        ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+                    }
+                }*/
+                if(cnt == 2){
+
+                    Mat src = imread("/home/gianni/Downloads/cannon_mode.jpg");
+                    //line(src,left,right,Scalar(0,0,255),1,LINE_8);
+
+                    QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);
+                    ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+
+                }
+            }
         }
+
         else{
       //      logPublisher.logError("Impossibile accedere alla webcam");
             //ui->startVideo->click();
@@ -235,6 +296,22 @@ void MainWindow::setMessageConsole(QString msg,int type)
     ui->console->scrollBarWidgets(Qt::AlignBottom);
 }
 
+
+void MainWindow::modeCannon()
+{
+    mode = MODE::MODE_CANNON;
+
+    /* Draw white icon */
+    ui->cannon_measure->setIcon(cannon_icon_w);
+    ui->cannon_measure->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+    ui->auto_drive->setIcon(auto_icon);
+    ui->auto_drive->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+    ui->home->setIcon(home_icon);
+    ui->home->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+    ui->shapes_recognize->setIcon(shapes_icon);
+    ui->shapes_recognize->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+}
+
 void MainWindow::modeAuto()
 {
     //autodrive.reset();
@@ -262,6 +339,8 @@ void MainWindow::modeShapes()
     ui->auto_drive->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     ui->home->setIcon(home_icon);
     ui->home->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+    ui->cannon_measure->setIcon(cannon_icon);
+    ui->cannon_measure->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
     ui->gridLabel->setVisible(false);
     ui->display_image_2->setVisible(false);
@@ -277,6 +356,8 @@ void MainWindow::modeHome()
     ui->shapes_recognize->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     ui->auto_drive->setIcon(auto_icon);
     ui->auto_drive->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+    ui->cannon_measure->setIcon(cannon_icon);
+    ui->cannon_measure->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
     ui->gridLabel->setVisible(false);
     ui->display_image_2->setVisible(false);

@@ -35,7 +35,7 @@ public:
     static void Triangle( cv::Mat img ,int position[4]);
     static void Line( cv::Mat img,int position[4]);
     static void Rectangle( cv::Mat img, int position[4] );
-    static cv::Mat getshape(cv::Mat image1,int tresh);
+    static cv::Mat getshape(cv::Mat image1,bool debug);
     static cv::Mat getImageBlackShape(cv::Mat src,int thresh);
 
     static cv::Mat addCircle(cv::Mat src, int value);

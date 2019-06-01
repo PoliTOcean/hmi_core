@@ -128,15 +128,13 @@ Mat Vision::filterBlack(Mat src)
 {
     Mat res,blackOnly,gray;
 
-    blur(src,src,Size(2,2));
+    blur(src,src,Size(9,9));
     inRange(src, Scalar(0, 0, 0), Scalar(255,40, 255), blackOnly);
     src.copyTo(res,blackOnly);
 
     cvtColor(res,res,CV_HLS2RGB);
     cvtColor(res,res,CV_RGB2GRAY);
-
     threshold(res,res,0,255,CV_THRESH_BINARY);
-
     return res;
 }
 
@@ -145,10 +143,10 @@ void Vision::getLenghtFromCenter(Mat src)
     int areaRed,areaBlue;
     int lato = 80;
 
-    double lineTicknessPixel,lengthPixel,length = 0,cmPerPixel;
+    double lineTicknessPixel,length = 0,cmPerPixel;
     double max = 0;
 
-    Mat red,blue,canny_output;
+    Mat red,blue;
     vector<vector<Point> > contours;
     vector<Vec4i> hierarchy;
     Rect roi;
@@ -193,7 +191,7 @@ void Vision::getLenghtFromCenter(Mat src)
 
 Mat Vision::addROI(Mat src, Rect roi){
 
-    int lato = 80;
+    //int lato = 80;
 
     Point p1(roi.x , roi.y);
     Point p2(roi.x + roi.width, roi.y);
@@ -289,13 +287,14 @@ void Vision::Circle( Mat img, int position[4] )
      string str = circ.str();
 
     //se c'è il cerchio allora mostralo
-    if (position[0] >= 1)
+  /*  if (position[0] >= 1)
     {
         circle( img,Point( 200, 75) ,40,Scalar( 255, 0, 0 ),FILLED,LINE_8 );
         putText( img, str, Point (30,100), FONT_HERSHEY_COMPLEX, 3,Scalar(255, 0, 0), 5, 6 );
-    }
+    }*/
+        circle( img,Point( 200, 75) ,40,Scalar( 255, 0, 0 ),FILLED,LINE_8 );
+        putText( img, str, Point (30,100), FONT_HERSHEY_COMPLEX, 3,Scalar(255, 0, 0), 5, 6 );
 }
-
 void Vision::Triangle( Mat image, int position[4])
 {
     // Cast from integer to string for obtaining a feasible output for puttext
@@ -305,7 +304,7 @@ void Vision::Triangle( Mat image, int position[4])
 
     Point number;
     //se c'è il triangolo
-    if (position[1]>=1)
+    /*if (position[1]>=1)
     {
         Point rook_points[1][3];
         //no cerchio, riga 1
@@ -331,9 +330,19 @@ void Vision::Triangle( Mat image, int position[4])
 
         fillPoly( image,ppt,npt,1,Scalar( 255, 0, 0 ),lineType );
         putText( image, str, number, FONT_HERSHEY_COMPLEX, 3, Scalar(255, 0, 0), 5, 6 );
-    }
-}
+    }*/
+    Point rook_points[1][3];
+    rook_points[0][0]  = Point( 150, 225);
+    rook_points[0][1]  = Point( 200, 150);
+    rook_points[0][2]  = Point(250, 225);
+    number = Point (30,225);
+    int lineType = LINE_8;
+    const Point* ppt[1] = { rook_points[0]};
+    int npt[] = { 3 };
 
+    fillPoly( image,ppt,npt,1,Scalar( 255, 0, 0 ),lineType );
+    putText( image, str, number, FONT_HERSHEY_COMPLEX, 3, Scalar(255, 0, 0), 5, 6 );
+}
 void Vision::Line( Mat image, int position[4])
 {
 
@@ -343,7 +352,7 @@ void Vision::Line( Mat image, int position[4])
      string str = lin.str();
 
     //se c'è la linea
-    if (position[2] >= 1){
+/*    if (position[2] >= 1){
         Point start, end,number;
         // no cerchio, riga 2
         if (position[0] ==0)
@@ -359,7 +368,7 @@ void Vision::Line( Mat image, int position[4])
                 number = Point (30,125);
             }
         }
-        if (position[1]==0)
+        else if (position[1]==0)
         {
             start = Point( 150, 200 );
             end = Point( 250, 200);
@@ -379,16 +388,29 @@ void Vision::Line( Mat image, int position[4])
             thickness,
             lineType );
         putText( image, str, number, FONT_HERSHEY_COMPLEX, 3, Scalar(255, 0, 0), 5, 6 );
-    }
-}
+    }*/
+     Point start, end,number;
+     start = Point( 150, 300 );
+     end = Point( 250, 300);
+     number = Point (30,325);
 
+     int thickness = 6;
+     int lineType = LINE_8;
+     line( image,
+         start,
+         end,
+         Scalar( 255, 0, 0 ),
+         thickness,
+         lineType );
+     putText( image, str, number, FONT_HERSHEY_COMPLEX, 3, Scalar(255, 0, 0), 5, 6 );
+}
 void Vision::Rectangle( Mat img, int position[4])
 {
      stringstream rect;
      rect << position[3];
      string str = rect.str();
 
-    if (position[3]>=1)
+  /*   if (position[3]>=1)
     {
         Point left, right,number;
 
@@ -399,8 +421,16 @@ void Vision::Rectangle( Mat img, int position[4])
             right = Point( 237, 325);
             number = Point (30,325);
 
-            //no cerchio e triangolo, riga 2
-            if (position[1] == 0)
+            //no circle and no line-> row 2
+            if (position[2] == 0)
+            {
+                left = Point( 162, 150 );
+                right = Point( 237, 225);
+                number = Point (30,225);
+            }
+
+            //no cirlce e triangle-> riga 2
+            else if (position[1] == 0)
             {
                 left = Point( 162, 150 );
                 right = Point( 237, 225);
@@ -446,28 +476,37 @@ void Vision::Rectangle( Mat img, int position[4])
         rectangle( img,left,right,Scalar( 255, 0, 0 ),FILLED,LINE_8 );
         putText( img, str, number, FONT_HERSHEY_COMPLEX, 3,
                 Scalar(255, 0, 0), 5, 6 );
-    }
+    }*/
+     Point left, right,number;
+     left = Point( 162, 350);
+     right = Point( 237,425);
+     number = Point (30,425);
+     rectangle( img,left,right,Scalar( 255, 0, 0 ),FILLED,LINE_8 );
+     putText( img, str, number, FONT_HERSHEY_COMPLEX, 3,
+             Scalar(255, 0, 0), 5, 6 );
+
 }
 
 Mat Vision::getImageBlackShape(Mat src,int thresh){
     IplImage copy = src;
     IplImage* img = &copy;
-
     cvNot(img,img);
     //converting the original image into grayscale
     IplImage* imgGrayScale = cvCreateImage(cvGetSize(img), 8, 1);
     cvCvtColor(img,imgGrayScale,CV_BGR2GRAY);
+    Mat ret = cvarrToMat(imgGrayScale);
+    blur( ret, ret, Size(3,3));
 
     //thresholding the grayscale image to get better results
-    cvThreshold(imgGrayScale,imgGrayScale,thresh,255,CV_THRESH_BINARY);
+    threshold(ret,ret,thresh,255,CV_THRESH_BINARY);
 
 
-    Mat ret = cvarrToMat(imgGrayScale);
+
     return ret;
 
 }
 
-Mat Vision::getshape(Mat image1,int thresh)
+Mat Vision::getshape(Mat image1,bool debug)
 {
      //counter for each figure
      int cnt_tri = 0;
@@ -475,28 +514,41 @@ Mat Vision::getshape(Mat image1,int thresh)
      int cnt_rect = 0;
      int cnt_line = 0;
 
+
      Mat blank_img(500,640, CV_8UC3, Scalar(250, 250, 250));
-     IplImage copy = image1;
-     IplImage* img = &copy;
+
+     //Mat img = image1;
 
      IplImage copy2 = image1;
-     IplImage* imgGrayScale = &copy2;
+     IplImage* img = &copy2;
+
+
+     //cvNot(img,img);
+     //converting the original image into grayscale
+     //IplImage* imgGrayScale = cvCreateImage(cvGetSize(img), 8, 1);
+     //cvCvtColor(img,imgGrayScale,CV_BGR2GRAY);
+
+     //thresholding the grayscale image to get better results
+     //cvThreshold(imgGrayScale,imgGrayScale,128,255,CV_THRESH_BINARY);
+
+     //cvShowImage("image", imgGrayScale);
 
      CvSeq* contours;  //hold the pointer to a contour in the memory block
      CvSeq* result;   //hold sequence of points of a contour
      CvMemStorage *storage = cvCreateMemStorage(0); //storage area for all contours
 
      //finding all contours in the image
-     cvFindContours(imgGrayScale, storage, &contours, sizeof(CvContour), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0));
+     cvFindContours(img, storage, &contours, sizeof(CvContour), CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE, cvPoint(0,0));
 
 
      //iterating through each contour
      while(contours)
      {
+         double area = cvContourArea(contours);
          //obtain a sequence of points of contour, pointed by the variable 'contour'
          result = cvApproxPoly(contours, sizeof(CvContour), storage, CV_POLY_APPROX_DP, cvContourPerimeter(contours)*0.02, 0);
 
-         if(result->total==2 ){
+   /*      if(result->total==2 ){
                       CvPoint *pt[2];
                       for (int i=0;i<2;i++){
                           pt[i]= (CvPoint*)cvGetSeqElem(result,i);
@@ -505,67 +557,108 @@ Mat Vision::getshape(Mat image1,int thresh)
                      cvLine(img,*pt[1],*pt[0],cvScalar(255,255,255),4);
                      if (cnt_line<6){
                       cnt_line++;}
-                  }
+                  }*/
 
          //if there are 3 vertices in the contour(It should be a triangle)
-         else if(result->total==3 ){
+         if(result->total==3 ){
              CvPoint *pt[3];
              for (int i=0;i<3;i++){
                  pt[i]= (CvPoint*)cvGetSeqElem(result,i);
              }
-            cvLine(img,*pt[0],*pt[1],cvScalar(255,0,0),4);
-            cvLine(img,*pt[1],*pt[2],cvScalar(255,0,0),4);
-            cvLine(img,*pt[2],*pt[0],cvScalar(255,0,0),4);
-            if (cnt_tri<6){
-             cnt_tri++;}
+
+             if (area<800)
+             {
+                 cvLine(img,*pt[0],*pt[1],cvScalar(255,255,255),4);
+                 cvLine(img,*pt[1],*pt[2],cvScalar(255,255,255),4);
+                 cvLine(img,*pt[2],*pt[0],cvScalar(255,255,255),4);
+                 if (cnt_tri<6)
+                 {
+                  cnt_tri++;
+                 }
+             }
+
          }
 
          //if there are 4 vertices in the contour(It should be a quadrilateral)
          else if(result->total==4 )
          {
+
+             if (area<800)
+             {
+                 //iterating through each point
+                 CvPoint *pt[4];
+                 for(int i=0;i<4;i++){
+                     pt[i] = (CvPoint*)cvGetSeqElem(result, i);
+                 }
+
+                  int * a = &pt[0]->y;
+                  int * b = &pt[1]->y;
+                  int * c = &pt[1]->x;
+                  int * d = &pt[2]->x;
+                  int base = *d-*c;
+                  int altezza = *b-*a;
+
+                  //if it is a line the height and the weight are very different
+                  if (base>2 && altezza>2)
+                  {
+                      if (base<altezza/6){
+                          cvLine(img,*pt[0],*pt[1],cvScalar(255,255,255),4);
+                          cvLine(img,*pt[1],*pt[2],cvScalar(255,255,255),4);
+                          cvLine(img,*pt[2],*pt[3],cvScalar(255,255,255),4);
+                          cvLine(img,*pt[3],*pt[0],cvScalar(255,255,255),4);
+                          if (cnt_line<6){
+                           cnt_line++;}
+                      }
+                      else if( altezza<base/6){
+                          cvLine(img,*pt[0],*pt[1],cvScalar(255,255,255),4);
+                          cvLine(img,*pt[1],*pt[2],cvScalar(255,255,255),4);
+                          cvLine(img,*pt[2],*pt[3],cvScalar(255,255,255),4);
+                          cvLine(img,*pt[3],*pt[0],cvScalar(255,255,255),4);
+                          if (cnt_line<6)
+                          {
+                           cnt_line++;
+                          }
+                      }
+                      // otherwise it is square
+                      else{
+                          cvLine(img,*pt[0],*pt[1],cvScalar(255,255,255),4);
+                          cvLine(img,*pt[1],*pt[2],cvScalar(255,255,255),4);
+                          cvLine(img,*pt[2],*pt[3],cvScalar(255,255,255),4);
+                          cvLine(img,*pt[3],*pt[0],cvScalar(255,255,255),4);
+                          if (cnt_rect<6){
+                           cnt_rect++;}
+                      }
+                  }
+
+             }
+
+
+         }
+        //if there are 8 vertices in the contour(It should be a circle)
+        else if(result->total>8 )
+         {
              //iterating through each point
-             CvPoint *pt[4];
-             for(int i=0;i<4;i++){
+             CvPoint *pt[10];
+             for(int i=0;i<10;i++){
                  pt[i] = (CvPoint*)cvGetSeqElem(result, i);
              }
 
-              int * a = &pt[0]->y;
-              int * b = &pt[1]->y;
-              int * c = &pt[1]->x;
-              int * d = &pt[2]->x;
-              int base = *d-*c;
-              int altezza = *b-*a;
-              //if it is a line the height and the weight are very different
-             if (base<altezza/6){
-                 cvLine(img,*pt[0],*pt[1],cvScalar(255,255,0),4);
-                 cvLine(img,*pt[1],*pt[2],cvScalar(255,255,0),4);
-                 cvLine(img,*pt[2],*pt[3],cvScalar(255,255,0),4);
-                 cvLine(img,*pt[3],*pt[0],cvScalar(255,255,0),4);
-                 if (cnt_line<6){
-                  cnt_line++;}
+             if (area<800)
+            {
+                 cvLine(img,*pt[0],*pt[1],cvScalar(255,255,255),4);
+                 cvLine(img,*pt[1],*pt[2],cvScalar(255,255,255),4);
+                 cvLine(img,*pt[2],*pt[3],cvScalar(255,255,255),4);
+                 cvLine(img,*pt[3],*pt[4],cvScalar(255,255,255),4);
+                 cvLine(img,*pt[4],*pt[5],cvScalar(255,255,255),4);
+                 cvLine(img,*pt[5],*pt[6],cvScalar(255,255,255),4);
+                 cvLine(img,*pt[6],*pt[7],cvScalar(255,255,255),4);
+                 cvLine(img,*pt[7],*pt[0],cvScalar(255,255,255),4);
+                 if (cnt_circ<6)
+                 {
+                  cnt_circ++;
+                 }
              }
-             else if( altezza<base/6){
-                 cvLine(img,*pt[0],*pt[1],cvScalar(255,255,0),4);
-                 cvLine(img,*pt[1],*pt[2],cvScalar(255,255,0),4);
-                 cvLine(img,*pt[2],*pt[3],cvScalar(255,255,0),4);
-                 cvLine(img,*pt[3],*pt[0],cvScalar(255,255,0),4);
-                 if (cnt_line<6){
-                  cnt_line++;}
-             }
-             // otherwise it is square
-             else{
-                 cvLine(img,*pt[0],*pt[1],cvScalar(255,255,0),4);
-                 cvLine(img,*pt[1],*pt[2],cvScalar(255,255,0),4);
-                 cvLine(img,*pt[2],*pt[3],cvScalar(255,255,0),4);
-                 cvLine(img,*pt[3],*pt[0],cvScalar(255,255,0),4);
-                 if (cnt_rect<6){
-                  cnt_rect++;}
-             }
-         }
-        //if there are 8 vertices in the contour(It should be a circle)
-        else if(result->total==8 ){
-             if (cnt_circ<6){
-              cnt_circ++;}
+
         }
 
          //obtain the next contour
@@ -580,16 +673,17 @@ Mat Vision::getshape(Mat image1,int thresh)
      Vision::Line(blank_img, pos);
      Vision::Rectangle(blank_img, pos);
 
+
      /* DEBUG */
-/*
-     cvDestroyAllWindows();
-     cvNamedWindow("original");
-     cvShowImage("original",img);
-*/
-     cvReleaseMemStorage(&storage);
-
-     return blank_img;
-
+     if(debug)
+     {
+         Mat ret = cvarrToMat(img);
+         return ret;
+     }
+    else
+     {
+         return blank_img;
+     }
 }
 
 
