@@ -39,6 +39,8 @@ class Joystick
 
     std::thread *readingThread_;
 
+    const int SLEEP_TIME = 20; //ms
+
 public:
     static const std::string DFLT_DEVICE;
     /**
@@ -75,6 +77,7 @@ public:
         readingThread_ = new std::thread([this, callbackFunction]() {
             while (isReading_)
             {
+                std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
                 readData();
                 callbackFunction(axes_, button_);
             }
