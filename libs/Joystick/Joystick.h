@@ -39,7 +39,7 @@ class Joystick
 
     std::thread *readingThread_;
 
-    const int SLEEP_TIME = 20; //ms
+    const int SLEEP_TIME = 5; //ms
 
 public:
     static const std::string DFLT_DEVICE;
