@@ -16,9 +16,7 @@ std::mutex mtx;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
-    publisher(Hmi::GUI_ID, Hmi::IP_ADDRESS),
-    logPublisher(&publisher)
+    ui(new Ui::MainWindow)
 {
 
     /* SETUP UI*/
