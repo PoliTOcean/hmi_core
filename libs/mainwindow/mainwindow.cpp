@@ -177,13 +177,14 @@ void MainWindow::DisplayImage(){
 void MainWindow::setVideoStart()
 {
     //TOOGLE START VIDEO
+
     video = !video;
     if(video){
+        camera.reconnect();
         ui->error_video->setIcon(QIcon());  }
     else{
         ui->error_video->setIcon(video_icon);
         ui->error_video->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
-
     }
 }
 

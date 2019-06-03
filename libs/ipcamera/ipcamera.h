@@ -17,6 +17,7 @@ public:
     Camera camera;
     cv::VideoCapture webcam;
     CameraInfo camInfo;
+    void reconnect();
 
 private:
     bool ipcamera_active;

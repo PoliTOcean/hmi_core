@@ -32,14 +32,36 @@ IpCamera::~IpCamera()
 
 }
 
+void IpCamera::reconnect()
+{
+    camera.StopCapture();
+    camera.Disconnect();
+    ipcamera_active = false;
+
+    FlyCapture2::Error error = camera.Connect( 0 );
+    if(error != PGRERROR_OK){
+        std::cout << "Impossibile accedere all'IpCamera" << std::endl;
+        ipcamera_active = false;
+    }
+    camera.GetCameraInfo( &camInfo );
+    std::cout << camInfo.vendorName << " "
+              << camInfo.modelName << " "
+              << camInfo.serialNumber << std::endl;
+
+    camera.StartCapture();
+
+    ipcamera_active = true;
+}
+
 cv::Mat IpCamera::getFrame()
 {
     Image raw;
     cv::Mat img;
+
     if(ipcamera_active){
         FlyCapture2::Error error = camera.RetrieveBuffer(&raw);
         if (error != PGRERROR_OK){
-                //std::cout << "network loss frame" << std::endl;
+            std::cout << "Camera error, try to reconnect!" <<std::endl;
         }
         else{
             Image rgb;
