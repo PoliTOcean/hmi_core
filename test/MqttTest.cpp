@@ -133,6 +133,7 @@ TEST_CASE("Testing Control station", "control"){
     const std::string id_pub = "TEST_PUB_C";
     const std::string id_sub = "TEST_SUB_C";
     const std::string address = "10.0.0.1";
+ 
 
     SECTION("Axes") {
         MqttClient& publisher = MqttClient::getInstance(id_pub, address);
@@ -144,7 +145,7 @@ TEST_CASE("Testing Control station", "control"){
         subscriber.subscribeTo(Politocean::Constants::Topics::JOYSTICK_AXES, &Listener::callBackFunc, &listener);
         sleep(1);
         publisher.publish(Politocean::Constants::Topics::JOYSTICK_AXES,"test");
-        sleep(2);
+        sleep(5);
         REQUIRE(listener.isUpdated() == true );
         REQUIRE(listener.isTested() == true );
         subscriber.unsubscribeFrom(Politocean::Constants::Topics::JOYSTICK_AXES);
@@ -162,7 +163,7 @@ TEST_CASE("Testing Control station", "control"){
         subscriber.subscribeTo(Politocean::Constants::Topics::JOYSTICK_BUTTONS, &Listener::callBackFunc, &listener);
         sleep(1);
         publisher.publish(Politocean::Constants::Topics::JOYSTICK_BUTTONS,"test");
-        sleep(2);
+        sleep(5);
         REQUIRE(listener.isUpdated() == true );
         REQUIRE(listener.isTested() == true);
         subscriber.unsubscribeFrom(Politocean::Constants::Topics::JOYSTICK_BUTTONS);
@@ -177,13 +178,13 @@ TEST_CASE("Testing Control station", "control"){
         // check connection
         REQUIRE(publisher.is_connected() == true);
         REQUIRE(subscriber.is_connected() == true);
-        subscriber.subscribeTo(Politocean::Constants::Topics::JOYSTICK_BUTTONS, &Listener::callBackFunc, &listener);
+        subscriber.subscribeTo(Politocean::Constants::Topics::JOYSTICK + "#", &Listener::callBackFunc, &listener);
         sleep(1);
         publisher.publish(Politocean::Constants::Topics::JOYSTICK_BUTTONS,"test");
-        sleep(2);
+        sleep(5);
         REQUIRE(listener.isUpdated() == true );
         REQUIRE(listener.isTested() == true);
-        subscriber.unsubscribeFrom(Politocean::Constants::Topics::JOYSTICK_BUTTONS);
+        subscriber.unsubscribeFrom(Politocean::Constants::Topics::JOYSTICK + "#");
         subscriber.disconnect();
         publisher.disconnect();
     };
