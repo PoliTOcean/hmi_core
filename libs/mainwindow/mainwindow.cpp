@@ -115,7 +115,7 @@ void MainWindow::DisplayImage(){
         if(!img.empty()){
             cvtColor(img,img_hls,CV_BGR2HLS);
             cvtColor(img,frame_rsz,CV_BGR2RGB);
-            cv::resize(frame_rsz, frame, cv::Size(640,480));
+            cv::resize(frame_rsz, frame, cv::Size(1024,720));
             if(mode == MODE::MODE_AUTO){
                 //img = Vision::addCircle(frame,value_track);
                 QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
@@ -159,10 +159,10 @@ void MainWindow::DisplayImage(){
 
                 //SELECT ONLY THIS REGION OF THE IMAGE
                 Rect roi;
-                roi.x = 150;
-                roi.y = 150;
-                roi.width = (450 - 100);
-                roi.height= (350 - 100);
+                roi.x = 300;
+                roi.y = 300;
+                roi.width = (600 - 300);
+                roi.height= (500 - 300);
 
                if(!ui->debugCheck->isChecked()){
                     QImage cam1((uchar*)shape.data, shape.cols, shape.rows, shape.step, QImage::Format_Grayscale8);
@@ -193,10 +193,12 @@ void MainWindow::DisplayImage(){
                 ui->display_image_2->setVisible(true);
                 QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
                 ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-
+                std::string str =  "images/cannon_mode"+to_string(i)+".jpg";
                 if(snap_b){
+                    i++;
+                    std::string str =  "images/cannon_mode"+to_string(i)+".jpg";
 
-                    imwrite( "/home/gianni/Downloads/cannon_mode.jpg", frame );
+                    imwrite( str, frame );
                     cnt = 2;
                     snap_b = false;
 
@@ -228,7 +230,8 @@ void MainWindow::DisplayImage(){
                 }*/
                 if(cnt == 2){
 
-                    Mat src = imread("/home/gianni/Downloads/cannon_mode.jpg");
+
+                    Mat src = imread(str);
                     //line(src,left,right,Scalar(0,0,255),1,LINE_8);
 
                     QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);

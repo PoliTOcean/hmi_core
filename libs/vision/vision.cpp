@@ -515,7 +515,7 @@ Mat Vision::getshape(Mat image1,bool debug)
      int cnt_line = 0;
 
 
-     Mat blank_img(500,640, CV_8UC3, Scalar(250, 250, 250));
+     Mat blank_img(720,830, CV_8UC3, Scalar(250, 250, 250));
 
      //Mat img = image1;
 

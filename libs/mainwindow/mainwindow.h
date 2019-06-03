@@ -72,7 +72,7 @@ private:
     QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon,cannon_icon_w;
     MODE mode = MODE::MODE_HOME;
     //AutoDrive autodrive;
-    int value_track,cnt;
+    int value_track,i=0,cnt;
     Point left,right;
     Mat img_hls,res,frame,frame_rsz;
 
