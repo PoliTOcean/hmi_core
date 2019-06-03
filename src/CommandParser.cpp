@@ -142,7 +142,8 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
         prevAxes.insert( std::pair<int, int>(Axes::SHOULDER, 0));
         prevAxes.insert( std::pair<int, int>(Axes::WRIST, 0));
         prevAxes.insert( std::pair<int, int>(Axes::HAND, 0));
-        
+        prevAxes.insert( std::pair<int, int>(Axes::PITCH, 0));
+
         while(publisher.is_connected())
         {            
             if(!listener.isAxesUpdated())
@@ -155,13 +156,16 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 
             if(axes[Axes::X] != prevAxes.at(Axes::X)
                 || axes[Axes::Y] != prevAxes.at(Axes::Y)
-                || axes[Axes::RZ] != prevAxes.at(Axes::RZ)){
+                || axes[Axes::RZ] != prevAxes.at(Axes::RZ)
+                || axes[Axes::PITCH != prevAxes.at(Axes::PITCH)]){
 
                 std::vector<int> atmega_axes = {
                     axes[Axes::X],
                     axes[Axes::Y],
-                    axes[Axes::RZ]
+                    axes[Axes::RZ],
+                    axes[Axes::PITCH]
                 };
+
                 nlohmann::json atmega = atmega_axes;
                 publisher.publish(Topics::AXES, atmega.dump());
                 
@@ -359,7 +363,13 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
                     else
                         action = Actions::STOP;
                     break;
-                    
+                
+                case Buttons::PITCH_CONTROL:
+                    topic = Topics::ATMEGA;
+                    if (value)
+                        action = Actions::ATMega::PITCH_CONTROL;
+                    break;
+                
                 default: 
                     break;
             }
