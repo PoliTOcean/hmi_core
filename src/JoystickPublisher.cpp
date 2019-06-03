@@ -4,6 +4,8 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <queue>
+#include <mutex>
 
 #include "MqttClient.h"
 #include "Joystick.h"
@@ -25,19 +27,25 @@ using namespace Politocean::Constants;
 
 class Listener {
 	std::vector<int> axes_;
-	unsigned char button_;
+	std::queue<unsigned char> buttons_;
+	unsigned char lastButton_ = 0;
 
 public:
 	void listen(const std::vector<int>& axes, unsigned char button);
 
 	std::vector<int> axes();
 	unsigned char button();
+	bool isButtonUpdated();
 };
 
 void Listener::listen(const std::vector<int>& axes, unsigned char button)
 {
 	axes_ 	= axes;
-	button_	= button;
+	
+	if(buttons_.empty() && button != lastButton_ || !buttons_.empty() && button != buttons_.back())
+	{
+		buttons_.push(button);
+	}
 }
 
 std::vector<int> Listener::axes()
@@ -47,7 +55,18 @@ std::vector<int> Listener::axes()
 
 unsigned char Listener::button()
 {
-	return button_;
+	if (buttons_.empty()) return lastButton_;
+
+	unsigned char button = buttons_.front();
+	buttons_.pop();
+	if (buttons_.empty()) lastButton_ = button;
+
+	return button;
+}
+
+bool Listener::isButtonUpdated()
+{
+	return !buttons_.empty();
 }
 
 /**************************************************************
@@ -83,27 +102,28 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 	axesTalker_ = new std::thread([&]() {
 		while (isTalking_)
 		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::JOYSTICK));
+
 			nlohmann::json j_map = listener.axes();
 
 			publisher.publish(Topics::JOYSTICK_AXES, j_map.dump());
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::JOYSTICK_AXIS));
 		}
 
 		isTalking_ = false;
 	});
 
 	buttonTalker_ = new std::thread([&]() {
-		unsigned char lastButton = -1;
 		unsigned char button;
 
 		while (isTalking_)
-		{
-			if ((button = listener.button()) == lastButton)
+		{			
+			if (!listener.isButtonUpdated())
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::JOYSTICK));
 				continue;
-
+			}
+			button = listener.button();
 			publisher.publish(Topics::JOYSTICK_BUTTONS, std::to_string(button));
-			lastButton = button;
 		}
 
 		isTalking_ = false;
@@ -140,7 +160,7 @@ int main(int argc, const char *argv[])
 	MqttClient& joystickPublisher = MqttClient::getInstance(Hmi::JOYSTICK_ID, Hmi::IP_ADDRESS);
 	Talker talker;
 
-	mqttLogger logger = mqttLogger::getInstance(joystickPublisher);
+	mqttLogger& logger = mqttLogger::getInstance(joystickPublisher);
     logger.setPublishLevel(logger::CONFIG);
 	// Try to connect the publisher
 	try
