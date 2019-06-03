@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(PolitoceanHmi)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_BUILD_TYPE Debug)
 
 # Add politocean common libs
 add_subdirectory(politocean_common)
@@ -21,8 +22,10 @@ add_executable(CommandParser src/CommandParser.cpp)
 #test section
 find_package(Catch2 REQUIRED)
 add_executable(MqttTest test/MqttTest.cpp)
-target_link_libraries(MqttTest Catch2::Catch2)
-
+target_link_libraries(MqttTest Catch2::Catch2
+    PolitoceanCommon::MqttClient
+    PolitoceanCommon::mqttLogger)
+    
 # Linking the libraries
 target_link_libraries(JoystickPublisher -lpthread
     PolitoceanHmi::Joystick
@@ -41,11 +44,4 @@ target_link_libraries(Gui -lpthread
 target_link_libraries(CommandParser -lpthread
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::MqttClient)
-
-target_link_libraries(MqttTest
-    PolitoceanHmi::Joystick
-    PolitoceanCommon::MqttClient
-    PolitoceanCommon::mqttLogger
-    PolitoceanCommon::Publisher
-    PolitoceanCommon::Subscriber)
 

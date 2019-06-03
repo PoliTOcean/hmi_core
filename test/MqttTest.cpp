@@ -29,17 +29,22 @@ using namespace Politocean::Constants::Commands;
 class Listener {
     std::string value_;
     bool updated_;
+    bool tested_;
 public:
-    Listener() : updated_(false) {}
+    Listener() : updated_(false), tested_(false) {}
     void callBackFunc(const std::string& payload); // my func
 
     std::string value();
     bool isUpdated();
+    bool isTested();
 };
 
 void Listener::callBackFunc(const std::string& payload)
 {
     value_ = payload;
+    if(value_ == "test"){
+        tested_ = true;
+    }
     updated_ = true;
 }
 
@@ -52,6 +57,10 @@ std::string Listener::value()
 bool Listener::isUpdated()
 {
     return updated_;
+}
+
+bool Listener::isTested(){
+    return tested_;
 }
 
 
@@ -92,7 +101,7 @@ void Talker::stopTalking()
     return isTalking_;
 }*/
 
-TEST_CASE("First mqtt","[mqtt]")
+/*TEST_CASE("First mqtt","[mqtt]")
 {
     const std::string id = "ID_1";
     const std::string address = "127.0.0.1";
@@ -115,6 +124,101 @@ TEST_CASE("First mqtt","[mqtt]")
 
     REQUIRE(listener.value() == "ciao");
 }
+
+/**
+ * Testin the control station @ 10.0.0.1
+ */
+TEST_CASE("Testing Control station", "control"){
+
+    const std::string id_pub = "TEST_PUB_C";
+    const std::string id_sub = "TEST_SUB_C";
+    const std::string address = "10.0.0.1";
+
+    SECTION("Axes") {
+        MqttClient& publisher = MqttClient::getInstance(id_pub, address);
+        MqttClient& subscriber = MqttClient::getInstance(id_sub,address);
+        Listener listener;
+        // check connection
+        REQUIRE(publisher.is_connected() == true);
+        REQUIRE(subscriber.is_connected() == true);
+        subscriber.subscribeTo(Politocean::Constants::Topics::JOYSTICK_AXES, &Listener::callBackFunc, &listener);
+        sleep(1);
+        publisher.publish(Politocean::Constants::Topics::JOYSTICK_AXES,"test");
+        sleep(2);
+        REQUIRE(listener.isUpdated() == true );
+        REQUIRE(listener.isTested() == true );
+        subscriber.unsubscribeFrom(Politocean::Constants::Topics::JOYSTICK_AXES);
+        subscriber.disconnect();
+        publisher.disconnect();
+    };
+
+    SECTION("Buttons") {
+        MqttClient& publisher = MqttClient::getInstance(id_pub, address);
+        MqttClient& subscriber = MqttClient::getInstance(id_sub,address);
+        Listener listener;
+        // check connection
+        REQUIRE(publisher.is_connected() == true);
+        REQUIRE(subscriber.is_connected() == true);
+        subscriber.subscribeTo(Politocean::Constants::Topics::JOYSTICK_BUTTONS, &Listener::callBackFunc, &listener);
+        sleep(1);
+        publisher.publish(Politocean::Constants::Topics::JOYSTICK_BUTTONS,"test");
+        sleep(2);
+        REQUIRE(listener.isUpdated() == true );
+        REQUIRE(listener.isTested() == true);
+        subscriber.unsubscribeFrom(Politocean::Constants::Topics::JOYSTICK_BUTTONS);
+        subscriber.disconnect();
+        publisher.disconnect();
+    };
+
+    SECTION("Mixed") {
+        MqttClient& publisher = MqttClient::getInstance(id_pub, address);
+        MqttClient& subscriber = MqttClient::getInstance(id_sub,address);
+        Listener listener;
+        // check connection
+        REQUIRE(publisher.is_connected() == true);
+        REQUIRE(subscriber.is_connected() == true);
+        subscriber.subscribeTo(Politocean::Constants::Topics::JOYSTICK_BUTTONS, &Listener::callBackFunc, &listener);
+        sleep(1);
+        publisher.publish(Politocean::Constants::Topics::JOYSTICK_BUTTONS,"test");
+        sleep(2);
+        REQUIRE(listener.isUpdated() == true );
+        REQUIRE(listener.isTested() == true);
+        subscriber.unsubscribeFrom(Politocean::Constants::Topics::JOYSTICK_BUTTONS);
+        subscriber.disconnect();
+        publisher.disconnect();
+    };
+}
+
+
+/**
+ * Testing the ROV @ 10.0.0.2
+ */
+/*TEST_CASE("Testing ROV", "aida"){
+    SECTION( "Section 1" ) {
+        REQUIRE(0 == 0);
+    }
+    SECTION( "Section 2" ) {
+        REQUIRE(0 == 0);
+    }
+    SECTION( "Section 3" ) {
+        REQUIRE(0 == 0);
+    }
+}*/
+
+/**
+ * Testing the ROV @ 10.0.0.3
+ */
+/*TEST_CASE("Testing MicroROV", "rino"){
+    SECTION( "Section 1" ) {
+        REQUIRE(0 == 0);
+    }
+    SECTION( "Section 2" ) {
+        REQUIRE(0 == 0);
+    }
+    SECTION( "Section 3" ) {
+        REQUIRE(0 == 1);
+    }
+}*/
 
 /*int main(int argc, const char* argv[])
 {
