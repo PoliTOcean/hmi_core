@@ -157,7 +157,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
             if(axes[Axes::X] != prevAxes.at(Axes::X)
                 || axes[Axes::Y] != prevAxes.at(Axes::Y)
                 || axes[Axes::RZ] != prevAxes.at(Axes::RZ)
-                || axes[Axes::PITCH != prevAxes.at(Axes::PITCH)]){
+                || axes[Axes::PITCH] != prevAxes.at(Axes::PITCH)){
 
                 std::vector<int> atmega_axes = {
                     axes[Axes::X],
@@ -172,6 +172,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
                 prevAxes[Axes::X] = axes[Axes::X];
                 prevAxes[Axes::Y] = axes[Axes::Y];
                 prevAxes[Axes::RZ] = axes[Axes::RZ];
+                prevAxes[Axes::PITCH] = axes[Axes::PITCH];
             }
             
             if(axes[Axes::SHOULDER] != prevAxes.at(Axes::SHOULDER)){
@@ -365,7 +366,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
                     break;
                 
                 case Buttons::PITCH_CONTROL:
-                    topic = Topics::ATMEGA;
+                    topic = Topics::COMMANDS;
                     if (value)
                         action = Actions::ATMega::PITCH_CONTROL;
                     break;
@@ -373,7 +374,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
                 default: 
                     break;
             }
-
+            
             if(action != Actions::NONE)
                 publisher.publish(topic, action);
         }
