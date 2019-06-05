@@ -72,7 +72,7 @@ cv::Mat IpCamera::getFrame()
                     while (reconnecting)
                     {
                         FlyCapture2::Error error = camera.Connect( 0 );
-                        if (error == PGRERROR_OK || error == PGRERROR_)
+                        if (error == PGRERROR_OK)
                         {
                             reconnecting = false;
                             ipcamera_active = true;
