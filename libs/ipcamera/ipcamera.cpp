@@ -72,6 +72,7 @@ cv::Mat IpCamera::getFrame()
                     {
                         FlyCapture2::Error error = camera.Connect( 0 );
                         if (error == PGRERROR_OK) reconnecting = false;
+                        std::this_thread::sleep_for(std::chrono::milliseconds(500));
                     }
                 });
             }
