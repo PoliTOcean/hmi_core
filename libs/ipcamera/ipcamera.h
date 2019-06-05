@@ -3,6 +3,7 @@
 
 #include "flycapture/FlyCapture2.h"
 #include <opencv2/opencv.hpp>
+#include <thread>
 
 namespace Politocean {
 
@@ -20,7 +21,8 @@ public:
     void reconnect();
 
 private:
-    bool ipcamera_active;
+    bool ipcamera_active = false, reconnecting = false;
+    std::thread *reconnectionThd;
 
 };
 

@@ -37,11 +37,12 @@ void IpCamera::reconnect()
     camera.StopCapture();
     camera.Disconnect();
     ipcamera_active = false;
+    reconnecting = false;
 
     FlyCapture2::Error error = camera.Connect( 0 );
     if(error != PGRERROR_OK){
         std::cout << "Impossibile accedere all'IpCamera" << std::endl;
-        ipcamera_active = false;
+        return;
     }
     camera.GetCameraInfo( &camInfo );
     std::cout << camInfo.vendorName << " "
@@ -61,7 +62,19 @@ cv::Mat IpCamera::getFrame()
     if(ipcamera_active){
         FlyCapture2::Error error = camera.RetrieveBuffer(&raw);
         if (error != PGRERROR_OK){
-            std::cout << "Camera error, try to reconnect!" <<std::endl;
+            if (error == PGRERROR_NOT_CONNECTED || error == PGRERROR_NOT_FOUND)
+            {
+                std::cout << "Camera error, try to reconnect!" <<std::endl;
+                ipcamera_active = false;
+                reconnecting = true;
+                reconnectionThd = new std::thread([&](){
+                    while (reconnecting)
+                    {
+                        FlyCapture2::Error error = camera.Connect( 0 );
+                        if (error == PGRERROR_OK) reconnecting = false;
+                    }
+                });
+            }
         }
         else{
             Image rgb;
@@ -74,7 +87,7 @@ cv::Mat IpCamera::getFrame()
             //cv::imshow("test",img);
         }
     }
-    else{
+    else if (!reconnecting){
         webcam.read(img);
     }
     return img;
