@@ -83,7 +83,6 @@ cv::Mat IpCamera::getFrame()
         }
         else{
             Image rgb;
-            raw.SetDimensions(768, 1024, raw.GetStride(), FlyCapture2::PIXEL_FORMAT_BGR, raw.GetBayerTileFormat());
             raw.Convert( FlyCapture2::PIXEL_FORMAT_BGR, &rgb );
             raw.ReleaseBuffer();
 
