@@ -70,7 +70,7 @@ cv::Mat IpCamera::getFrame()
         raw.ReleaseBuffer();
         FlyCapture2::Error error = camera.RetrieveBuffer(&raw);
         if (error != PGRERROR_OK){
-            error.PrintErrorTrace();
+            std::cout << "FlyCapture::ErrorType::" << error.GetType() << " " << error.GetDescription() << std::endl;
          /*   if (error != PGRERROR_BUFFER_TOO_SMALL)
             {
                 reconnect();                
