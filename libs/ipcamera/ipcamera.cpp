@@ -36,9 +36,9 @@ IpCamera::IpCamera()
 
 void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
     std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now-lastFrameRetrieve).count() < 33)
+    /*if (std::chrono::duration_cast<std::chrono::milliseconds>(now-lastFrameRetrieve).count() < 33)
         return;
-    
+    */
     Image rgb;
     raw->Convert( FlyCapture2::PIXEL_FORMAT_BGR, &rgb );
 
