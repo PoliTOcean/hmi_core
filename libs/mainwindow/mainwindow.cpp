@@ -16,7 +16,8 @@ std::mutex mtx;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    camera( std::bind(&MainWindow::setFrame, this, std::placeholders::_1) )
 {
 
     /* SETUP UI*/

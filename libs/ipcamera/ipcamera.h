@@ -4,8 +4,8 @@
 #include "flycapture/FlyCapture2.h"
 #include <opencv2/opencv.hpp>
 #include <thread>
-#include <chrono>
-#include <mutex>
+#include <functional>
+
 
 namespace Politocean {
 
@@ -14,24 +14,21 @@ using namespace FlyCapture2;
 class IpCamera
 {
 public:
-    IpCamera();
+    IpCamera(std::function<void(cv::Mat)> extCb);
     ~IpCamera();
-    cv::Mat getFrame();
     Camera *camera;
   //  cv::VideoCapture webcam;
     CameraInfo camInfo;
-    void reconnect();
+    std::thread* reconnect();
 
 private:
     static void callback(FlyCapture2::Image *raw, const void *pCallbackData);
-    static bool updated;
+
+    static bool updated, updated_monitor;
     static int counterFrame;
-    static cv::Mat frame;
-    static std::mutex mtx;
-
-    bool ipcamera_active = false, reconnecting = false;
-    std::thread *reconnectionThd;
-
+    static std::function<void(cv::Mat)> extCallback;
+    bool reconnecting, active;
+    std::thread monitor;
 };
 
 }
