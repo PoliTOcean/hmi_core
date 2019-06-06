@@ -22,13 +22,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /* SETUP UI*/
     ui->setupUi(this);
-
-    /* OPEN WEBCAM */
-    try{
-        //cap.open("/dev/video0");
-    }catch(...){
-        std::cout << "ERRORE" << std::endl;
-    }
     
     //INIT PRIVATE VARIABLE
     video = false;
@@ -94,7 +87,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    cap.release();
     delete ui;
 }
 
