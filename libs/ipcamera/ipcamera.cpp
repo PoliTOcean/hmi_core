@@ -56,6 +56,8 @@ void IpCamera::reconnect()
             ipcamera_active = true;
             camera.StartCapture();
         }
+        else
+            std::cout << error.GetType() << " " << error.GetDescription() << std::endl;
     }
     camera.GetCameraInfo( &camInfo );
     std::cout << camInfo.vendorName << " "
