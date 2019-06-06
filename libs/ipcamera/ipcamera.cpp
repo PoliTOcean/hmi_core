@@ -11,6 +11,7 @@ cv::Mat IpCamera::frame;
 std::chrono::system_clock::time_point IpCamera::lastFrameRetrieve;
 bool IpCamera::updated = false;
 int IpCamera::counterFrame = 0;
+std::mutex IpCamera::mtx;
 
 IpCamera::IpCamera()
 {
@@ -43,6 +44,7 @@ void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
         return;
     counterFrame = 0;
 
+    std::lock_guard<std::mutex> lck (mtx);
     Image rgb;
     raw->Convert( FlyCapture2::PIXEL_FORMAT_BGR, &rgb );
 
@@ -105,7 +107,9 @@ cv::Mat IpCamera::getFrame()
         camera->Disconnect();
         reconnect();
     }
-    updated = false;    
+    updated = false;
+
+    std::lock_guard<std::mutex> lck (mtx);
     return frame;
 }
 /*

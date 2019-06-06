@@ -5,6 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <thread>
 #include <chrono>
+#include <mutex>
 
 namespace Politocean {
 
@@ -27,6 +28,8 @@ private:
     static int counterFrame;
     static std::chrono::system_clock::time_point lastFrameRetrieve;
     static cv::Mat frame;
+    static std::mutex mtx;
+
     bool ipcamera_active = false, reconnecting = false;
     std::thread *reconnectionThd;
 
