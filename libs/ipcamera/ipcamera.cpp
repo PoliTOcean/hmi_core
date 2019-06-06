@@ -44,7 +44,7 @@ void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
         return;
     counterFrame = 0;
 
-    std::lock_guard<std::mutex> lck (mtx);
+    std::lock_guard<std::mutex> lck (IpCamera::mtx);
     Image rgb;
     raw->Convert( FlyCapture2::PIXEL_FORMAT_BGR, &rgb );
 
@@ -109,7 +109,7 @@ cv::Mat IpCamera::getFrame()
     }
     updated = false;
 
-    std::lock_guard<std::mutex> lck (mtx);
+    std::lock_guard<std::mutex> lck (IpCamera::mtx);
     return frame;
 }
 /*
