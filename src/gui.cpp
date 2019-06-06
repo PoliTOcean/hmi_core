@@ -17,7 +17,7 @@ bool readFromCamera = true;
 
 void retriveFrame(MainWindow* gui){
     while(readFromCamera){
-        gui->setFrame(IpCamera::getFrame());
+        gui->setFrame(gui->camera.getFrame());
         std::this_thread::sleep_for(chrono::milliseconds(33));
     }
 }

@@ -4,6 +4,7 @@
 #include "flycapture/FlyCapture2.h"
 #include <opencv2/opencv.hpp>
 #include <thread>
+#include <chrono>
 
 namespace Politocean {
 
@@ -14,7 +15,7 @@ class IpCamera
 public:
     IpCamera();
     ~IpCamera();
-    static cv::Mat getFrame();
+    cv::Mat getFrame();
     Camera *camera;
   //  cv::VideoCapture webcam;
     CameraInfo camInfo;
@@ -23,6 +24,7 @@ public:
 private:
     static void callback(FlyCapture2::Image *raw, const void *pCallbackData);
 
+    static std::chrono::system_clock::time_point lastFrameRetrieve;
     static cv::Mat frame;
     bool ipcamera_active = false, reconnecting = false;
     std::thread *reconnectionThd;
