@@ -39,7 +39,8 @@ void IpCamera::reconnect()
     camera.Disconnect();
     ipcamera_active = false;
     reconnecting = true;
-
+    std::cout << "Reconnecting\n";
+    
     reconnectionThd = new std::thread(
         [&](){
             while (reconnecting)
