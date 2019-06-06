@@ -1,5 +1,6 @@
 #include "ipcamera.h"
 #include <chrono>         // std::chrono::milliseconds
+#define DEFAULT_FREQ_DIVIDER 1
 
 using namespace FlyCapture2;
 
@@ -8,8 +9,11 @@ namespace Politocean {
 std::function<void(cv::Mat)> IpCamera::extCallback;
 bool IpCamera::updated = false;
 int IpCamera::counterFrame = 0;
+int IpCamera::freqDivider = DEFAULT_FREQ_DIVIDER;
 
-IpCamera::IpCamera(std::function<void(cv::Mat)> extCb) 
+IpCamera::IpCamera(std::function<void(cv::Mat)> extCb) : IpCamera(extCb, DEFAULT_FREQ_DIVIDER) {}
+
+IpCamera::IpCamera(std::function<void(cv::Mat)> extCb, int freqDivider)
     :   camera(nullptr), reconnecting(false), active(true),
         monitor([&]() {
             while (active) {
@@ -24,15 +28,16 @@ IpCamera::IpCamera(std::function<void(cv::Mat)> extCb)
             }
         })
 {
+    IpCamera::freqDivider = freqDivider;
     extCallback = extCb;
 }
 
 void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
     updated = true;
-  /*  counterFrame++;
-    if (counterFrame < 2)
+    counterFrame++;
+    if (counterFrame < freqDivider)
         return;
-    counterFrame = 0;*/
+    counterFrame = 0;
 
     Image rgb;
     raw->Convert( FlyCapture2::PIXEL_FORMAT_BGR, &rgb );

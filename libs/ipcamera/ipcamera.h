@@ -15,9 +15,10 @@ class IpCamera
 {
 public:
     IpCamera(std::function<void(cv::Mat)> extCb);
+    IpCamera(std::function<void(cv::Mat)> extCb, int freqDivider);
     ~IpCamera();
+
     Camera *camera;
-  //  cv::VideoCapture webcam;
     CameraInfo camInfo;
     std::thread* reconnect();
 
@@ -25,7 +26,7 @@ private:
     static void callback(FlyCapture2::Image *raw, const void *pCallbackData);
 
     static bool updated, updated_monitor;
-    static int counterFrame;
+    static int counterFrame, freqDivider;
     static std::function<void(cv::Mat)> extCallback;
     bool reconnecting, active;
     std::thread monitor;
