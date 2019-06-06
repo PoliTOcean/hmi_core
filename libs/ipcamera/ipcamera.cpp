@@ -48,7 +48,7 @@ void IpCamera::reconnect()
         camera.StopCapture();
         camera.Disconnect();
     }
-    
+
     while (reconnecting)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -64,7 +64,7 @@ void IpCamera::reconnect()
     std::cout << camInfo.vendorName << " "
             << camInfo.modelName << " "
             << camInfo.serialNumber << std::endl
-            << camInfo.sensorResolution << " " << camInfo.sensorInfo; 
+            << camInfo.sensorResolution << " " << camInfo.sensorInfo << std::endl; 
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
