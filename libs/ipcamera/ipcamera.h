@@ -16,11 +16,14 @@ public:
     ~IpCamera();
     cv::Mat getFrame();
     Camera *camera;
-    cv::VideoCapture webcam;
+  //  cv::VideoCapture webcam;
     CameraInfo camInfo;
     void reconnect();
 
 private:
+    static void callback(FlyCapture2::Image *raw, const void *pCallbackData);
+
+    static cv::Mat frame;
     bool ipcamera_active = false, reconnecting = false;
     std::thread *reconnectionThd;
 
