@@ -14,7 +14,7 @@ class IpCamera
 public:
     IpCamera();
     ~IpCamera();
-    cv::Mat getFrame();
+    static cv::Mat getFrame();
     Camera *camera;
   //  cv::VideoCapture webcam;
     CameraInfo camInfo;

@@ -34,7 +34,6 @@ IpCamera::IpCamera()
 }
 
 void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
-    std::cout << "received!\n";
     Image rgb;
     raw->Convert( FlyCapture2::PIXEL_FORMAT_BGR, &rgb );
 

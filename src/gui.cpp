@@ -17,7 +17,7 @@ bool readFromCamera = true;
 
 void retriveFrame(MainWindow* gui){
     while(readFromCamera){
-        gui->setFrame(gui->camera.getFrame());
+        gui->setFrame(IpCamera::getFrame());
     }
 }
 
