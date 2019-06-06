@@ -39,7 +39,7 @@ IpCamera::~IpCamera()
 
 void IpCamera::reconnect()
 {
-    if (camera)->IsConnected() return;
+    if (camera!=nullptr && camera->IsConnected()) return;
 
     ipcamera_active = false;
     reconnecting = true;
@@ -47,7 +47,7 @@ void IpCamera::reconnect()
 
     if (camera != nullptr) delete camera;
     camera = new Camera();
-    
+
     while (reconnecting)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -77,7 +77,7 @@ cv::Mat IpCamera::getFrame()
         raw.ReleaseBuffer();
 
         // call function asynchronously:
-        std::future<FlyCapture2::Error> fut = std::async ( std::bind(&FlyCapture2::Camera::RetrieveBuffer, &camera, std::placeholders::_1), &raw); 
+        std::future<FlyCapture2::Error> fut = std::async ( std::bind(&FlyCapture2::Camera::RetrieveBuffer, camera, std::placeholders::_1), &raw); 
         if (fut.wait_for(std::chrono::milliseconds(500))==std::future_status::timeout)
         {
             camera->StopCapture();
