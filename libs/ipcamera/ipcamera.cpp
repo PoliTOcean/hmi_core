@@ -9,6 +9,8 @@ namespace Politocean {
 
 cv::Mat IpCamera::frame;
 std::chrono::system_clock::time_point IpCamera::lastFrameRetrieve;
+bool IpCamera::updated = false;
+int IpCamera::counterFrame = 0;
 
 IpCamera::IpCamera()
 {
@@ -35,18 +37,18 @@ IpCamera::IpCamera()
 }
 
 void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-    /*if (std::chrono::duration_cast<std::chrono::milliseconds>(now-lastFrameRetrieve).count() < 33)
+    updated = true;
+    counterFrame++;
+    if (counterFrame < 2)
         return;
-    */
+    counterFrame = 0;
+
     Image rgb;
     raw->Convert( FlyCapture2::PIXEL_FORMAT_BGR, &rgb );
 
     unsigned int row = (double)rgb.GetReceivedDataSize()/(double)rgb.GetRows();
 
     IpCamera::frame = cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(),row);
-
-    lastFrameRetrieve = now;
 }
 
 IpCamera::~IpCamera()
@@ -59,6 +61,7 @@ void IpCamera::reconnect()
 {
     if (camera!=nullptr && camera->IsConnected()) return;
 
+    updated = false;
     ipcamera_active = false;
     reconnecting = true;
     std::cout << "Searching for the GigE Camera...\n";
@@ -96,15 +99,13 @@ void IpCamera::reconnect()
 
 cv::Mat IpCamera::getFrame()
 {
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-
-    if (!reconnecting && std::chrono::duration_cast<std::chrono::milliseconds>(now-lastFrameRetrieve).count() > 1000)
+    if (!updated && !reconnecting)
     {
         camera->StopCapture();
         camera->Disconnect();
         reconnect();
     }
-    
+    updated = false;    
     return frame;
 }
 /*
