@@ -40,7 +40,7 @@ void IpCamera::reconnect()
     ipcamera_active = false;
     reconnecting = true;
     std::cout << "Reconnecting\n";
-    
+
     reconnectionThd = new std::thread(
         [&](){
             while (reconnecting)
@@ -68,11 +68,10 @@ cv::Mat IpCamera::getFrame()
     cv::Mat img;
 
     if(ipcamera_active){
-        raw.ReleaseBuffer();
+        //raw.ReleaseBuffer();
         FlyCapture2::Error error = camera.RetrieveBuffer(&raw);
-        if(!camera.IsConnected()) {
-            reconnect();
-        } else if (error != PGRERROR_OK){
+        
+        if (error != PGRERROR_OK){
             std::cout << "FlyCapture::ErrorType::" << error.GetType() << " " << error.GetDescription() << std::endl;
          /*   if (error != PGRERROR_BUFFER_TOO_SMALL)
             {
