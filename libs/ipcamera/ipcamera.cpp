@@ -103,11 +103,10 @@ cv::Mat IpCamera::getFrame()
     if (!updated && !reconnecting)
     {
         camera->StopCapture();
-        camera->Disconnect();
         reconnect();
     }
     updated = false;
-    
+
     std::lock_guard<std::mutex> lck (IpCamera::mtx);
     return frame;
 }
