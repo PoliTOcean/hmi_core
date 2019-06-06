@@ -37,7 +37,7 @@ public:
     static void Rectangle( cv::Mat img, int position[4] );
     static cv::Mat getshape(cv::Mat image1,bool debug,int mean);
     static cv::Mat getImageBlackShape(cv::Mat src,int thresh);
-    static int mean_mode( int numeri[10]);
+    static int mean_mode( int numeri[100]);
 
     static cv::Mat addCircle(cv::Mat src, int value);
 

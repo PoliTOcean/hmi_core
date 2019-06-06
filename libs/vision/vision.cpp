@@ -355,7 +355,7 @@ Mat Vision::getImageBlackShape(Mat src,int thresh){
 
     /// Convert image to gray and blur it
     cvtColor( src, src_gray, CV_BGR2GRAY );
-    blur( src_gray, src_gray, Size(3,3) );
+    blur( src_gray, src_gray, Size(1,1) );
     Mat canny_output;
 
     /// Detect edges using canny
@@ -365,16 +365,16 @@ Mat Vision::getImageBlackShape(Mat src,int thresh){
 }
 
 
-int Vision::mean_mode( int numeri[10]){
+int Vision::mean_mode( int numeri[100]){
 
 
    //Qui comincia l'algoritmo di ricerca della moda
 
       int cont=0, max=0, pos=0,j=0,final;
 
-      for (int i=0; i<10; i++){
+      for (int i=0; i<100; i++){
           cont=0;
-          for (j=i+1; j<10; j++){
+          for (j=i+1; j<100; j++){
               //confronta il primo numero del vettore con numeri[i]+1;
               if (numeri[i]==numeri[j]){
                   cont++;
@@ -401,10 +401,10 @@ Mat Vision::getshape(Mat src,bool debug,int j){
     int cnt_rect = 0;
     int cnt_line = 0;
 
-    static int tri[10];
-    static int circ[10];
-    static int rect[10];
-    static int line[10];
+    static int tri[100];
+    static int circ[100];
+    static int rect[100];
+    static int line[100];
 
     //int pos[10][4];
      Mat blank_img(720,830, CV_8UC3, Scalar(250, 250, 250));
@@ -440,7 +440,7 @@ Mat Vision::getshape(Mat src,bool debug,int j){
                   Scalar color = Scalar( 255, 0,0 );
                   drawContours( drawing, contours, i, color, 2, 8, hierarchy, 0, Point() );
                   cnt_tri++;
-                 // tri[j] = cnt_tri;
+
                   }
 
               }
@@ -453,7 +453,7 @@ Mat Vision::getshape(Mat src,bool debug,int j){
                   //bounding box to compute the aspect ratio
 
                   float ar = float(boundRect[i].width)/float(boundRect[i].height);
-                    cout<<"ilrapporto è:"<<ar<<endl;
+
                   //a square will have an aspect ratio that is approximately
                   //equal to one, otherwise, the shape is a rectangle
                     ///square
@@ -496,21 +496,20 @@ Mat Vision::getshape(Mat src,bool debug,int j){
         line[j] = cnt_line;
         rect[j] = cnt_rect;
 
-
         /* DEBUG */
         if(debug){
             return drawing;
             }
         //acquisisco 10 campioni e ne faccio la moda
-      else if(j==10){
+      else if(j==100){
 
-            int a = Vision::mean_mode(circ);
-            int b = Vision::mean_mode(tri);
-            int c = Vision::mean_mode(line);
-            int d = Vision::mean_mode(rect);
+            int circle_moda = Vision::mean_mode(circ);
+            int triangle_moda = Vision::mean_mode(tri);
+            int line_moda = Vision::mean_mode(line);
+            int square_moda = Vision::mean_mode(rect);
 
 
-            int pos[4] = {a,b,c,d};
+            int pos[4] = {circle_moda,triangle_moda,line_moda,square_moda};
 
 
             Vision::Circle( blank_img, pos );

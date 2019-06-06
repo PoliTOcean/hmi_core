@@ -155,20 +155,22 @@ void MainWindow::DisplayImage(){
                 shape = Vision::getImageBlackShape(frame,value_track);
                 ui->display_image_2->setVisible(true);
                 //DRAW THE REGION OF INTEREST
-                rectangle( shape,Point(200,200),Point(800,700),Scalar( 255, 255, 255 ),1,LINE_8 );
+                rectangle( shape,Point(200,200),Point(800,600),Scalar( 255, 255, 255 ),1,LINE_4 );
 
                 //SELECT ONLY THIS REGION OF THE IMAGE
                 Rect roi;
                 roi.x = 200;
                 roi.y = 200;
-                roi.width = (800 - 200);
-                roi.height= (700 - 200);
+                roi.width = (800-200);
+                roi.height=(600-200);
+               // shape = shape(roi);
 
                 if(!ui->debugCheck->isChecked()){
                      QImage cam1((uchar*)shape.data, shape.cols, shape.rows, shape.step, QImage::Format_Grayscale8);
                      ui->display_image->setPixmap(QPixmap::fromImage(cam1));
                  }
                  else if(ui->debugCheck->isChecked()){
+
                      debug = true;
                      res = Vision::getshape(shape,debug,mean);
 
@@ -181,15 +183,21 @@ void MainWindow::DisplayImage(){
                    shape = shape(roi);
 
                    debug = false;
-                    mean++;
+                    if(mean!=100){
+                        mean++;
+                    }
+
+
                    res = Vision::getshape(shape,debug,mean);
 
-                   if(mean == 10){
-                       mean=0;
+                   if(mean == 100 ){
+                       //mean=0;
                        QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
                        ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
                        //snap_b = false;
                    }
+
+
                }
 
 
@@ -199,6 +207,7 @@ void MainWindow::DisplayImage(){
                 ui->display_image_2->setVisible(true);
                 QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
                 ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+
                 std::string str =  "images/cannon_mode"+to_string(i)+".jpg";
                 if(snap_b){
                     i++;
