@@ -27,6 +27,7 @@ IpCamera::IpCamera()
         camera->StartCapture();
         ipcamera_active = true;
     }*/
+    camera = nullptr;
     reconnect();
 }
 
