@@ -153,39 +153,45 @@ void MainWindow::DisplayImage(){
             else if(mode == MODE::MODE_SHAPES){
 
                 shape = Vision::getImageBlackShape(frame,value_track);
-
+                ui->display_image_2->setVisible(true);
                 //DRAW THE REGION OF INTEREST
-                rectangle( shape,Point(100,100),Point(500,400),Scalar( 255, 255, 255 ),1,LINE_8 );
+                rectangle( shape,Point(200,200),Point(800,700),Scalar( 255, 255, 255 ),1,LINE_8 );
 
                 //SELECT ONLY THIS REGION OF THE IMAGE
                 Rect roi;
-                roi.x = 300;
-                roi.y = 300;
-                roi.width = (600 - 300);
-                roi.height= (500 - 300);
+                roi.x = 200;
+                roi.y = 200;
+                roi.width = (800 - 200);
+                roi.height= (700 - 200);
 
-               if(!ui->debugCheck->isChecked()){
-                    QImage cam1((uchar*)shape.data, shape.cols, shape.rows, shape.step, QImage::Format_Grayscale8);
-                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                }
-                else if(ui->debugCheck->isChecked()){
-                    debug = true;
-                    ui->display_image_2->setVisible(true);
-                    //shape = Vision::getImageBlackShape(frame,value_track);
-                    res = Vision::getshape(shape,debug);
-                    QImage cam1((uchar*)res.data, res.cols, res.rows, res.step,QImage::Format_Grayscale8);
-                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                }
+                if(!ui->debugCheck->isChecked()){
+                     QImage cam1((uchar*)shape.data, shape.cols, shape.rows, shape.step, QImage::Format_Grayscale8);
+                     ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+                 }
+                 else if(ui->debugCheck->isChecked()){
+                     debug = true;
+                     res = Vision::getshape(shape,debug,mean);
 
-                if(snap_b){
-                    shape = shape(roi);
-                    debug = false;
-                    ui->display_image_2->setVisible(true);
-                    res = Vision::getshape(shape,debug);
-                    QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
-                    ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
-                    //snap_b = false;
-                }
+
+                     QImage cam1((uchar*)res.data, res.cols, res.rows, res.step,QImage::Format_RGB888);
+                     ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+                 }
+
+               if(snap_b){
+                   shape = shape(roi);
+
+                   debug = false;
+                    mean++;
+                   res = Vision::getshape(shape,debug,mean);
+
+                   if(mean == 10){
+                       mean=0;
+                       QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
+                       ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+                       //snap_b = false;
+                   }
+               }
+
 
             }
 
@@ -261,6 +267,7 @@ void MainWindow::setVideoStart()
 
     }
 }
+
 
 void MainWindow::setMessageConsole(QString msg,int type)
 {
