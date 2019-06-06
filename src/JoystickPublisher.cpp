@@ -161,7 +161,7 @@ int main(int argc, const char *argv[])
 	MqttClient& joystickPublisher = MqttClient::getInstance(Hmi::JOYSTICK_ID, Hmi::IP_ADDRESS);
 	Talker talker;
 
-	mqttLogger logger = mqttLogger::getInstance(joystickPublisher);
+	mqttLogger& logger = mqttLogger::getInstance(joystickPublisher);
     logger.setPublishLevel(logger::CONFIG);
 	// Try to connect the publisher
 	try

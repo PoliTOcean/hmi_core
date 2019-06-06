@@ -81,12 +81,12 @@ button_t Listener::button()
 
 bool Listener::isButtonUpdated()
 {
-    return isButtonUpdated_ && !buttons_.empty();
+    return !buttons_.empty();
 }
 
 bool Listener::isAxesUpdated()
 {
-    return isAxesUpdated_ && !axes_.empty();
+    return !axes_.empty();
 }
 
 void Listener::listenForAxes(const std::string& payload)
@@ -142,7 +142,8 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
         prevAxes.insert( std::pair<int, int>(Axes::SHOULDER, 0));
         prevAxes.insert( std::pair<int, int>(Axes::WRIST, 0));
         prevAxes.insert( std::pair<int, int>(Axes::HAND, 0));
-        
+        prevAxes.insert( std::pair<int, int>(Axes::PITCH, 0));
+
         while(publisher.is_connected())
         {            
             if(!listener.isAxesUpdated())
@@ -155,19 +156,23 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 
             if(axes[Axes::X] != prevAxes.at(Axes::X)
                 || axes[Axes::Y] != prevAxes.at(Axes::Y)
-                || axes[Axes::RZ] != prevAxes.at(Axes::RZ)){
+                || axes[Axes::RZ] != prevAxes.at(Axes::RZ)
+                || axes[Axes::PITCH] != prevAxes.at(Axes::PITCH)){
 
                 std::vector<int> atmega_axes = {
                     axes[Axes::X],
                     axes[Axes::Y],
-                    axes[Axes::RZ]
+                    axes[Axes::RZ],
+                    axes[Axes::PITCH]
                 };
+
                 nlohmann::json atmega = atmega_axes;
                 publisher.publish(Topics::AXES, atmega.dump());
                 
                 prevAxes[Axes::X] = axes[Axes::X];
                 prevAxes[Axes::Y] = axes[Axes::Y];
                 prevAxes[Axes::RZ] = axes[Axes::RZ];
+                prevAxes[Axes::PITCH] = axes[Axes::PITCH];
             }
             
             if(axes[Axes::SHOULDER] != prevAxes.at(Axes::SHOULDER)){
@@ -359,11 +364,17 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
                     else
                         action = Actions::STOP;
                     break;
-                    
+                
+                case Buttons::PITCH_CONTROL:
+                    topic = Topics::COMMANDS;
+                    if (value)
+                        action = Actions::ATMega::PITCH_CONTROL;
+                    break;
+                
                 default: 
                     break;
             }
-
+            
             if(action != Actions::NONE)
                 publisher.publish(topic, action);
         }
