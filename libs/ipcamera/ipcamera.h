@@ -4,6 +4,7 @@
 #include "flycapture/FlyCapture2.h"
 #include <opencv2/opencv.hpp>
 #include <thread>
+#include <functional>
 
 namespace Politocean {
 

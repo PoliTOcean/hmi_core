@@ -1,4 +1,7 @@
 #include "ipcamera.h"
+#include <future>         // std::async, std::future
+#include <chrono>         // std::chrono::milliseconds
+#include <functional>
 
 using namespace FlyCapture2;
 
@@ -41,25 +44,22 @@ void IpCamera::reconnect()
     reconnecting = true;
     std::cout << "Reconnecting\n";
 
-    reconnectionThd = new std::thread(
-        [&](){
-            while (reconnecting)
-            {
-                FlyCapture2::Error error = camera.Connect( 0 );
-                if (error == PGRERROR_OK)
-                {
-                    reconnecting = false;
-                    ipcamera_active = true;
-                }
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            }
-            camera.GetCameraInfo( &camInfo );
-            std::cout << camInfo.vendorName << " "
-                    << camInfo.modelName << " "
-                    << camInfo.serialNumber << std::endl;
+    while (reconnecting)
+    {
+        FlyCapture2::Error error = camera.Connect( 0 );
+        if (error == PGRERROR_OK)
+        {
+            reconnecting = false;
+            ipcamera_active = true;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+    camera.GetCameraInfo( &camInfo );
+    std::cout << camInfo.vendorName << " "
+            << camInfo.modelName << " "
+            << camInfo.serialNumber << std::endl;
 
-            camera.StartCapture();
-        });
+    camera.StartCapture();
 }
 
 cv::Mat IpCamera::getFrame()
@@ -68,10 +68,19 @@ cv::Mat IpCamera::getFrame()
     cv::Mat img;
 
     if(ipcamera_active){
-        //raw.ReleaseBuffer();
-        FlyCapture2::Error error = camera.RetrieveBuffer(&raw);
-        std::cout << "FlyCapture::ErrorType::" << error.GetType() << " " << error.GetDescription() << std::endl;
+        raw.ReleaseBuffer();
+
+        // call function asynchronously:
+        std::future<FlyCapture2::Error> fut = std::async ( std::bind(&FlyCapture2::Camera::RetrieveBuffer, &camera, std::placeholders::_1), &raw); 
+        while (fut.wait_for(std::chrono::milliseconds(50))==std::future_status::timeout)
+        {
+            reconnect();
+        }
+
+        FlyCapture2::Error error = fut.get();
+        camera.RetrieveBuffer(&raw);
         if (error != PGRERROR_OK){
+            std::cout << "FlyCapture::ErrorType::" << error.GetType() << " " << error.GetDescription() << std::endl;
          /*   if (error != PGRERROR_BUFFER_TOO_SMALL)
             {
                 reconnect();                
