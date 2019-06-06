@@ -46,11 +46,13 @@ void IpCamera::reconnect()
     reconnecting = true;
     std::cout << "Reconnecting\n";
 
-    if (camera != nullptr) delete camera;
-    camera = new Camera();
+    if (camera != nullptr) {
+        delete camera;
+    }
 
     while (reconnecting)
     {
+        camera = new Camera();
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         FlyCapture2::Error error = camera->Connect( 0 );
         if (error == PGRERROR_OK)
@@ -59,8 +61,10 @@ void IpCamera::reconnect()
             ipcamera_active = true;
             camera->StartCapture();
         }
-        else
+        else {
             std::cout << error.GetType() << " " << error.GetDescription() << std::endl;
+            delete camera;
+        }
     }
     camera->GetCameraInfo( &camInfo );
     std::cout << camInfo.vendorName << " "
