@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(PolitoceanHmi)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_BUILD_TYPE Debug)
 
 if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
   message(FATAL_ERROR "
@@ -25,11 +26,10 @@ add_subdirectory(libs)
 add_executable(JoystickPublisher src/JoystickPublisher.cpp)
 add_executable(Gui src/gui.cpp)
 add_executable(CommandParser src/CommandParser.cpp)
-
+    
 # Linking the libraries
 target_link_libraries(JoystickPublisher -lpthread
     PolitoceanHmi::Joystick
-
     PolitoceanCommon::mqttLogger
     PolitoceanCommon::MqttClient)
 
@@ -46,3 +46,12 @@ target_link_libraries(CommandParser -lpthread
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::MqttClient)
 
+
+IF( BUILD_TESTS )
+    #test section
+    find_package(Catch2 REQUIRED)
+    add_executable(MqttTest test/MqttTest.cpp)
+    target_link_libraries(MqttTest Catch2::Catch2
+        PolitoceanCommon::MqttClient
+        PolitoceanCommon::mqttLogger)
+endif()
