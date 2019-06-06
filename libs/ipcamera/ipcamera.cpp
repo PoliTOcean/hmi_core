@@ -8,7 +8,6 @@ using namespace FlyCapture2;
 namespace Politocean {
 
 cv::Mat IpCamera::frame;
-std::chrono::system_clock::time_point IpCamera::lastFrameRetrieve;
 bool IpCamera::updated = false;
 int IpCamera::counterFrame = 0;
 std::mutex IpCamera::mtx;
@@ -102,7 +101,6 @@ void IpCamera::reconnect()
 cv::Mat IpCamera::getFrame()
 {
     std::lock_guard<std::mutex> lck (IpCamera::mtx);
-    cv::Mat frame;
     if (!updated && !reconnecting)
     {
         camera->StopCapture();

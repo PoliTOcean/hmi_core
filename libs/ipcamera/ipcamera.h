@@ -26,7 +26,6 @@ private:
     static void callback(FlyCapture2::Image *raw, const void *pCallbackData);
     static bool updated;
     static int counterFrame;
-    static std::chrono::system_clock::time_point lastFrameRetrieve;
     static cv::Mat frame;
     static std::mutex mtx;
 
