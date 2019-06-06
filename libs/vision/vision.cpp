@@ -140,7 +140,7 @@ Mat Vision::filterBlack(Mat src)
 
 void Vision::getLenghtFromCenter(Mat src)
 {
-    int areaRed,areaBlue;
+    int areaRed, areaBlue;
     int lato = 80;
 
     double lineTicknessPixel,length = 0,cmPerPixel;
@@ -519,6 +519,8 @@ Mat Vision::getshape(Mat src,bool debug,int j){
 
             return blank_img;
         }
+
+    return blank_img;
 }
 
 
