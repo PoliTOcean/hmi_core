@@ -10,7 +10,7 @@ namespace Politocean {
 IpCamera::IpCamera()
 {
     //Connect the camera
-    FlyCapture2::Error error = camera.Connect( 0 );
+    /*FlyCapture2::Error error = camera.Connect( 0 );
     if(error != PGRERROR_OK){
         std::cout << "FlyCapture::ErrorType::" << error.GetType() << " " << error.GetDescription() << std::endl;
         std::cout << "Impossibile accedere all'IpCamera" << std::endl;
@@ -26,7 +26,8 @@ IpCamera::IpCamera()
 
         camera.StartCapture();
         ipcamera_active = true;
-    }
+    }*/
+    reconnect();
 }
 
 IpCamera::~IpCamera()
@@ -46,13 +47,14 @@ void IpCamera::reconnect()
 
     while (reconnecting)
     {
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
         FlyCapture2::Error error = camera.Connect( 0 );
         if (error == PGRERROR_OK)
         {
             reconnecting = false;
             ipcamera_active = true;
+            camera.StartCapture();
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
     }
     camera.GetCameraInfo( &camInfo );
     std::cout << camInfo.vendorName << " "
@@ -60,7 +62,6 @@ void IpCamera::reconnect()
             << camInfo.serialNumber << std::endl
             << camInfo.sensorResolution << " " << camInfo.sensorInfo; 
 
-    camera.StartCapture();
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
 
