@@ -37,7 +37,6 @@ IpCamera::IpCamera()
 }
 
 void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
-    std::lock_guard<std::mutex> lck (IpCamera::mtx);
     updated = true;
     counterFrame++;
     if (counterFrame < 2)
@@ -49,6 +48,7 @@ void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
 
     unsigned int row = (double)rgb.GetReceivedDataSize()/(double)rgb.GetRows();
 
+    std::lock_guard<std::mutex> lck (IpCamera::mtx);
     IpCamera::frame = cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(),row);
 }
 
@@ -100,7 +100,6 @@ void IpCamera::reconnect()
 
 cv::Mat IpCamera::getFrame()
 {
-    std::lock_guard<std::mutex> lck (IpCamera::mtx);
   /*  if (!updated && !reconnecting)
     {
         camera->StopCapture();
@@ -108,6 +107,7 @@ cv::Mat IpCamera::getFrame()
         reconnect();
     }
     updated = false;*/
+    std::lock_guard<std::mutex> lck (IpCamera::mtx);
 
     return frame;
 }
