@@ -12,7 +12,6 @@
 
 using namespace Politocean;
 using namespace Politocean::Constants;
-std::mutex mtx;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -92,17 +91,14 @@ MainWindow::~MainWindow()
 
 void MainWindow::setFrame(cv::Mat frame)
 {
-    mtx.lock();
     img = frame;
     this->frameArrived();
-    mtx.unlock();
 }
 
 void MainWindow::DisplayImage(){
 
 
     if(video){
-        mtx.lock();
         if(!img.empty()){
             cvtColor(img,img_hls,CV_BGR2HLS);
             cvtColor(img,frame_rsz,CV_BGR2RGB);
@@ -157,23 +153,19 @@ void MainWindow::DisplayImage(){
                 */
             }
         }
-        else{
-      //      logPublisher.logError("Impossibile accedere alla webcam");
-            //ui->startVideo->click();
-        }
     }
-    mtx.unlock();
 }
 
 void MainWindow::setVideoStart()
 {
     //TOOGLE START VIDEO
-
     video = !video;
     if(video){
-        camera.reconnect();
-        ui->error_video->setIcon(QIcon());  }
+        camera.start();
+        ui->error_video->setIcon(QIcon());
+    }
     else{
+        camera.stop();
         ui->error_video->setIcon(video_icon);
         ui->error_video->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     }

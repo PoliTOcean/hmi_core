@@ -21,6 +21,8 @@ public:
     Camera *camera;
     CameraInfo camInfo;
     std::thread* reconnect();
+    void stop();
+    void start();
 
 private:
     static void callback(FlyCapture2::Image *raw, const void *pCallbackData);
@@ -28,7 +30,7 @@ private:
     static bool updated, updated_monitor;
     static int counterFrame, freqDivider;
     static std::function<void(cv::Mat)> extCallback;
-    bool reconnecting, active;
+    bool reconnecting, active, started;
     std::thread monitor;
 };
 

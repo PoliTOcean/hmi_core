@@ -14,9 +14,11 @@ int IpCamera::freqDivider = DEFAULT_FREQ_DIVIDER;
 IpCamera::IpCamera(std::function<void(cv::Mat)> extCb) : IpCamera(extCb, DEFAULT_FREQ_DIVIDER) {}
 
 IpCamera::IpCamera(std::function<void(cv::Mat)> extCb, int freqDivider)
-    :   camera(nullptr), reconnecting(false), active(true),
+    :   camera(nullptr), reconnecting(false), active(true), started(false),
         monitor([&]() {
             while (active) {
+                while (!started) std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
                 reconnect()->join();
 
                 while (!updated) std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -55,6 +57,18 @@ IpCamera::~IpCamera()
     camera->Disconnect();
 }
 
+void IpCamera::stop() {
+    started = false;
+    if (camera != nullptr)
+        camera->StopCapture();
+}
+
+void IpCamera::start() {
+    started = true;
+    if (camera != nullptr)
+        camera->StartCapture( callback, this );
+}
+
 std::thread* IpCamera::reconnect()
 {
     if (reconnecting) return new std::thread();
@@ -66,6 +80,7 @@ std::thread* IpCamera::reconnect()
     return new std::thread(
         [&]() {
             if (camera != nullptr) {
+                camera->StopCapture();
                 delete camera;
             }
 
