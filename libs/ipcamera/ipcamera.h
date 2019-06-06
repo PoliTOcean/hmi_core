@@ -4,7 +4,6 @@
 #include "flycapture/FlyCapture2.h"
 #include <opencv2/opencv.hpp>
 #include <thread>
-#include <functional>
 
 namespace Politocean {
 
@@ -16,7 +15,7 @@ public:
     IpCamera();
     ~IpCamera();
     cv::Mat getFrame();
-    Camera camera;
+    Camera *camera;
     cv::VideoCapture webcam;
     CameraInfo camInfo;
     void reconnect();
