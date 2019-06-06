@@ -39,14 +39,14 @@ IpCamera::~IpCamera()
 
 void IpCamera::reconnect()
 {
-    camera.StopCapture();
-    camera.Disconnect();
     ipcamera_active = false;
     reconnecting = true;
     std::cout << "Reconnecting\n";
 
+    camera.StopCapture();
     while (reconnecting)
     {
+        camera.Disconnect();
         std::this_thread::sleep_for(std::chrono::milliseconds(500));
         FlyCapture2::Error error = camera.Connect( 0 );
         if (error == PGRERROR_OK)
