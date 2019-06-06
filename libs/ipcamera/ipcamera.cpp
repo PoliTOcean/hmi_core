@@ -74,10 +74,10 @@ cv::Mat IpCamera::getFrame()
 
         // call function asynchronously:
         std::future<FlyCapture2::Error> fut = std::async ( std::bind(&FlyCapture2::Camera::RetrieveBuffer, &camera, std::placeholders::_1), &raw); 
-        if (fut.wait_for(std::chrono::milliseconds(500))==std::future_status::timeout)
+        while (fut.wait_for(std::chrono::milliseconds(500))==std::future_status::timeout)
         {
             reconnect();
-            return img;
+            std::async ( std::bind(&FlyCapture2::Camera::RetrieveBuffer, &camera, std::placeholders::_1), &raw); 
         }
 
         FlyCapture2::Error error = fut.get();
