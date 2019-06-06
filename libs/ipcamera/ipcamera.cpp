@@ -57,7 +57,8 @@ void IpCamera::reconnect()
     camera.GetCameraInfo( &camInfo );
     std::cout << camInfo.vendorName << " "
             << camInfo.modelName << " "
-            << camInfo.serialNumber << std::endl;
+            << camInfo.serialNumber << std::endl
+            << camInfo.sensorResolution << " " << camInfo.sensorInfo; 
 
     camera.StartCapture();
 }
@@ -72,7 +73,7 @@ cv::Mat IpCamera::getFrame()
 
         // call function asynchronously:
         std::future<FlyCapture2::Error> fut = std::async ( std::bind(&FlyCapture2::Camera::RetrieveBuffer, &camera, std::placeholders::_1), &raw); 
-        while (fut.wait_for(std::chrono::milliseconds(50))==std::future_status::timeout)
+        while (fut.wait_for(std::chrono::milliseconds(500))==std::future_status::timeout)
         {
             reconnect();
         }
