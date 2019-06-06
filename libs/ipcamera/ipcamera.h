@@ -27,6 +27,7 @@ private:
     static bool updated;
     static int counterFrame;
     static cv::Mat frame;
+    static std::mutex mtx;
 
     bool ipcamera_active = false, reconnecting = false;
     std::thread *reconnectionThd;
