@@ -26,13 +26,6 @@ add_subdirectory(libs)
 add_executable(JoystickPublisher src/JoystickPublisher.cpp)
 add_executable(Gui src/gui.cpp)
 add_executable(CommandParser src/CommandParser.cpp)
-
-#test section
-find_package(Catch2 REQUIRED)
-add_executable(MqttTest test/MqttTest.cpp)
-target_link_libraries(MqttTest Catch2::Catch2
-    PolitoceanCommon::MqttClient
-    PolitoceanCommon::mqttLogger)
     
 # Linking the libraries
 target_link_libraries(JoystickPublisher -lpthread
@@ -53,3 +46,12 @@ target_link_libraries(CommandParser -lpthread
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::MqttClient)
 
+
+IF( BUILD_TESTS )
+    #test section
+    find_package(Catch2 REQUIRED)
+    add_executable(MqttTest test/MqttTest.cpp)
+    target_link_libraries(MqttTest Catch2::Catch2
+        PolitoceanCommon::MqttClient
+        PolitoceanCommon::mqttLogger)
+endif()
