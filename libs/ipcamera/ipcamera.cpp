@@ -78,7 +78,6 @@ cv::Mat IpCamera::getFrame()
         }
 
         FlyCapture2::Error error = fut.get();
-        camera.RetrieveBuffer(&raw);
         if (error != PGRERROR_OK){
             std::cout << "FlyCapture::ErrorType::" << error.GetType() << " " << error.GetDescription() << std::endl;
          /*   if (error != PGRERROR_BUFFER_TOO_SMALL)
