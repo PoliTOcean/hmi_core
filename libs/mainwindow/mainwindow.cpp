@@ -107,8 +107,8 @@ void MainWindow::DisplayImage(){
 
     std::lock_guard<std::mutex> lock(mtx);
    // cvtColor(img, img_hls, CV_BGR2HLS);
-   // cvtColor(img, frame_rsz, CV_BGR2RGB);
-    cv::resize(img, frame, cv::Size(1024,720));
+    cvtColor(img, frame, CV_BGR2RGB);
+   // cv::resize(img, frame, cv::Size(1024,720));
     mtx.unlock();
 
     if(mode == MODE::MODE_AUTO){
