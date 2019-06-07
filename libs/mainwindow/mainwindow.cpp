@@ -97,62 +97,60 @@ void MainWindow::setFrame(cv::Mat frame)
 
 void MainWindow::DisplayImage(){
 
+    if(!video || img.empty())
+        return;
 
-    if(video){
-        if(!img.empty()){
-            cvtColor(img,img_hls,CV_BGR2HLS);
-            cvtColor(img,frame_rsz,CV_BGR2RGB);
-            cv::resize(frame_rsz, frame, cv::Size(1024,720));
-            if(mode == MODE::MODE_AUTO){
-                //img = Vision::addCircle(frame,value_track);
-                QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
-                ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-            }
+    cvtColor(img,img_hls,CV_BGR2HLS);
+    cvtColor(img,frame_rsz,CV_BGR2RGB);
+    cv::resize(frame_rsz, frame, cv::Size(1024,720));
+    if(mode == MODE::MODE_AUTO){
+        //img = Vision::addCircle(frame,value_track);
+        QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
+        ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+    }
 
-            else if(mode  == MODE::MODE_HOME){
-                //VISION TEST:
-                cv::Mat filtered = Vision::filterRed(img_hls);
-                if(ui->debugCheck->isChecked()){
-                    QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
-                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                }
-                else{
-                    QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                }
-
-                /*
-                //Mat filtered = Vision::filterRed(img_hls);
-                Mat grid_mat = autodrive.getGrid();
-                //autodrive.updateDirection(filtered);
-                QImage grid((uchar*)grid_mat.data, grid_mat.cols, grid_mat.rows, grid_mat.step, QImage::Format_RGB888);
-                ui->gridLabel->setPixmap(QPixmap::fromImage(grid));
-                if(ui->debugCheck->isChecked()){
-                    QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
-                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                }
-                else{
-                    QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
-                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                }*/
-            }
-
-            else if(mode == MODE::MODE_SHAPES){
-                /*
-                //img = Vision::getImageBlackShape(frame,value_track);
-                QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_Grayscale8);
-                ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-
-                if(snap_b){
-                    ui->display_image_2->setVisible(true);
-                    //res = Vision::getshape(img,value_track);
-                    QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
-                    ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
-                    snap_b = false;
-                }
-                */
-            }
+    else if(mode  == MODE::MODE_HOME){
+        //VISION TEST:
+        cv::Mat filtered = Vision::filterRed(img_hls);
+        if(ui->debugCheck->isChecked()){
+            QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
+        else{
+            QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+        }
+
+        /*
+        //Mat filtered = Vision::filterRed(img_hls);
+        Mat grid_mat = autodrive.getGrid();
+        //autodrive.updateDirection(filtered);
+        QImage grid((uchar*)grid_mat.data, grid_mat.cols, grid_mat.rows, grid_mat.step, QImage::Format_RGB888);
+        ui->gridLabel->setPixmap(QPixmap::fromImage(grid));
+        if(ui->debugCheck->isChecked()){
+            QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+        }
+        else{
+            QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+        }*/
+    }
+
+    else if(mode == MODE::MODE_SHAPES){
+        /*
+        //img = Vision::getImageBlackShape(frame,value_track);
+        QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_Grayscale8);
+        ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+
+        if(snap_b){
+            ui->display_image_2->setVisible(true);
+            //res = Vision::getshape(img,value_track);
+            QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
+            ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+            snap_b = false;
+        }
+        */
     }
 }
 
