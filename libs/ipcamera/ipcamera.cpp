@@ -18,8 +18,8 @@ IpCamera::IpCamera(std::function<void(cv::Mat)> extCb, int freqDivider)
         monitor([&]() {
             while (active) {
                 reconnect()->join();
-                if (started) camera->StartCapture();
-                
+                if (started) camera->StartCapture( callback, this );
+
                 while (!updated) std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
                 while (updated){
