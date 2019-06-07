@@ -88,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
+    ipcamera.stop();
     delete ui;
 }
 
@@ -128,7 +129,7 @@ void MainWindow::DisplayImage(){
         }
         else{
             cv::imshow("test", frame);
-           // QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+            QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
            // ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
 
