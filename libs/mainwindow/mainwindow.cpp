@@ -89,7 +89,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::setFrame(const cv::Mat& frame)
+void MainWindow::setFrame(const cv::Mat frame)
 {
     img = frame;
     this->frameArrived();
@@ -98,8 +98,6 @@ void MainWindow::setFrame(const cv::Mat& frame)
 void MainWindow::DisplayImage(){
     if(!video || img.empty())
         return;
-
-    std::cout << "I'm here!" << std::endl;
 
     Mat img_hls, res, frame, frame_rsz;
 
@@ -121,9 +119,8 @@ void MainWindow::DisplayImage(){
             ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
         else{
-           // QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-           // ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-            cv::imshow("test", img);
+            QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
 
         /*
