@@ -95,7 +95,7 @@ MainWindow::~MainWindow()
 void MainWindow::setFrame(const cv::Mat frame)
 {
     std::lock_guard<std::mutex> lock(mtx);
-    img = frame;
+    img = frame.clone();
     this->frameArrived();
 }
 
@@ -103,7 +103,7 @@ void MainWindow::DisplayImage(){
     if(!video || img.empty())
         return;
 
-    Mat img_hls, res, frame, frame_rsz;
+    Mat frame, frame_rsz;
 
     std::lock_guard<std::mutex> lock(mtx);
     cvtColor(img, frame_rsz, CV_BGR2RGB);
@@ -113,24 +113,29 @@ void MainWindow::DisplayImage(){
 
     if(mode == MODE::MODE_AUTO){
         //img = Vision::addCircle(frame,value_track);
+        std::lock_guard<std::mutex> lock(mtx);
         QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
+        mtx.unlock();
+
         ui->display_image->setPixmap(QPixmap::fromImage(cam1));
     }
 
     else if(mode  == MODE::MODE_HOME){
         //VISION TEST:
         if(ui->debugCheck->isChecked()){
+            cv::Mat img_hls;
+
             std::lock_guard<std::mutex> lock(mtx);
             cvtColor(img, img_hls, CV_BGR2HLS);
             mtx.unlock();
+
             cv::Mat filtered = Vision::filterRed(img_hls);
             QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
             ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
         else{
-            cv::imshow("test", frame);
             QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-           // ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
 
         /*
@@ -156,6 +161,7 @@ void MainWindow::DisplayImage(){
         ui->display_image->setPixmap(QPixmap::fromImage(cam1));
 
         if(snap_b){
+            cv::Mat res;
             ui->display_image_2->setVisible(true);
             //res = Vision::getshape(img,value_track);
             QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
