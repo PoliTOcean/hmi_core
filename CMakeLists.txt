@@ -55,3 +55,5 @@ IF( BUILD_TESTS )
         PolitoceanCommon::MqttClient
         PolitoceanCommon::mqttLogger)
 endif()
+
+add_executable(TestReflectable src/TestReflectable.cpp)

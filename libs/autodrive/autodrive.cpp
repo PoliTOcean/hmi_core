@@ -9,15 +9,15 @@ AutoDrive::AutoDrive() : AutoDrive(Direction::UP)
 {
 }
 
-AutoDrive::AutoDrive(Direction startDirection)
+AutoDrive::AutoDrive(Direction startDirection) : direction(startDirection)
 {
-    direction = startDirection;
     grid = imread("images/grid.png",CV_LOAD_IMAGE_COLOR);
     currentPos.x = 50;
     currentPos.y = 50;
     if(!grid.data )                              // Check for invalid input
     {
-        //TO DO: use logger: std::cout <<  "Could not open or find the image" << std::endl ;
+        //TODO exception
+        logger::getInstance().log(logger::ERROR, string(TAG) + "Could not open or find the image");
     }
 }
 
@@ -43,8 +43,8 @@ Direction AutoDrive::updateDirection(Mat frame)
             ss << "{\"X\":"<< -K << ", \"Y\":0, \"MOTORS_ON\":0, \"MOTOROS_OFF\":0}";
             out_string = ss.str();
 
-            publisher.publish(Topics::AUTODRIVE,out_string);
-            // TO DO: mqttLogger: publisher.publish(MESSAGE_TOPIC,"AUTODRIVE: direction left");
+            publisher.publish(Topics::AUTODRIVE, out_string);
+            // TODO: mqttLogger: publisher.publish(MESSAGE_TOPIC,"AUTODRIVE: direction left");
             /** TO DO: implement JSON **/
 
             currentPos.x = currentPos.x - 100;

@@ -5,8 +5,11 @@
 #include <opencv2/opencv.hpp>
 #include "PolitoceanConstants.h"
 #include "MqttClient.h"
+#include "logger.h"
 
 #define MAX_PATH 12
+
+#define TAG "AutoDrive: "
 
 namespace Politocean {
 
@@ -33,7 +36,7 @@ private:
     Direction direction;
     Direction path[MAX_PATH];
     Mat grid;
-
+    logger& LOGGER;
 
 };
 
