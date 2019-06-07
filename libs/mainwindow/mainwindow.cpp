@@ -13,6 +13,8 @@
 using namespace Politocean;
 using namespace Politocean::Constants;
 
+std::mutex mtx;
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     camera( std::bind(&MainWindow::setFrame, this, std::placeholders::_1), 2 ),
@@ -91,9 +93,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::setFrame(const cv::Mat frame)
 {
+    std::lock_guard<std::mutex> lock(mtx);
     img = frame;
-    cv::imshow("test", img);
-    //this->frameArrived();
+    //cv::imshow("test", img);
+    this->frameArrived();
 }
 
 void MainWindow::DisplayImage(){
@@ -102,8 +105,10 @@ void MainWindow::DisplayImage(){
 
     Mat img_hls, res, frame, frame_rsz;
 
+    std::lock_guard<std::mutex> lock(mtx);
     cvtColor(img, img_hls, CV_BGR2HLS);
     cvtColor(img, frame_rsz, CV_BGR2RGB);
+    mtx.unlock();
     cv::resize(frame_rsz, frame, cv::Size(1024,720));
 
     if(mode == MODE::MODE_AUTO){
