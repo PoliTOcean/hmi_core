@@ -34,11 +34,11 @@ IpCamera::IpCamera(std::function<void(cv::Mat)> extCb, int freqDivider)
 }
 
 void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
-    updated = true;
-    counterFrame++;
-    if (counterFrame < freqDivider)
+    IpCamera::updated = true;
+    IpCamera::counterFrame++;
+    if (IpCamera::counterFrame < IpCamera::freqDivider)
         return;
-    counterFrame = 0;
+    IpCamera::counterFrame = 0;
 
     Image rgb;
     raw->Convert( FlyCapture2::PIXEL_FORMAT_BGR, &rgb );
