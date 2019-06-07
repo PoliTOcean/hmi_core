@@ -17,7 +17,7 @@ target_include_directories(ipcamera
             ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(ipcamera 
+target_link_libraries(ipcamera -lpthread
                                 PolitoceanCommon::logger
                                 ${OpenCV_LIBS}
                                 -lflycapture)
