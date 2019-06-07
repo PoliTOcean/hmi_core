@@ -92,7 +92,8 @@ MainWindow::~MainWindow()
 void MainWindow::setFrame(const cv::Mat frame)
 {
     img = frame;
-    this->frameArrived();
+    cv::imshow("test", img);
+    //this->frameArrived();
 }
 
 void MainWindow::DisplayImage(){
