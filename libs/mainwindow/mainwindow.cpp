@@ -16,8 +16,7 @@ using namespace Politocean::Constants;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     camera( std::bind(&MainWindow::setFrame, this, std::placeholders::_1), 2 ),
-    ui(new Ui::MainWindow),
-    img(MainWindow::getDefaultFrame())
+    ui(new Ui::MainWindow)
 {
 
     /* SETUP UI*/
@@ -88,11 +87,6 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
-}
-
-cv::Mat& MainWindow::getDefaultFrame() {
-    cv::Mat frame;
-    return frame;
 }
 
 void MainWindow::setFrame(const cv::Mat& frame)
