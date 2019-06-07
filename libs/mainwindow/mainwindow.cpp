@@ -123,7 +123,7 @@ void MainWindow::DisplayImage(){
         else{
            // QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
            // ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-            cv::imshow("test", frame);
+            cv::imshow("test", img);
         }
 
         /*
