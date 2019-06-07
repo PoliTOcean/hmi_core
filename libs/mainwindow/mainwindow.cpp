@@ -99,6 +99,8 @@ void MainWindow::DisplayImage(){
     if(!video || img.empty())
         return;
 
+    std::cout << "I'm here!" << std::endl;
+    
     Mat img_hls,res,frame,frame_rsz;
 
     cvtColor(img, img_hls, CV_BGR2HLS);
