@@ -44,7 +44,7 @@ void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
 
     unsigned int row = (double)rgb.GetReceivedDataSize()/(double)rgb.GetRows();
 
-    cv::imshow(cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(), row));
+    cv::imshow("test", cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(), row));
     //extCallback(cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(), row));
 }
 
