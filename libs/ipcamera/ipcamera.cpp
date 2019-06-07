@@ -30,7 +30,7 @@ IpCamera::IpCamera(std::function<void(cv::Mat)> extCb, int freqDivider)
         })
 {
     IpCamera::freqDivider = freqDivider;
-    extCallback = extCb;
+    IpCamera::extCallback = extCb;
 }
 
 void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
@@ -45,8 +45,8 @@ void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
 
     unsigned int row = (double)rgb.GetReceivedDataSize()/(double)rgb.GetRows();
 
-    cv::imshow("test", cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(), row));
-    //extCallback(cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(), row));
+    //cv::imshow("test", cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(), row));
+    IpCamera::extCallback(cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(), row));
 }
 
 IpCamera::~IpCamera()
