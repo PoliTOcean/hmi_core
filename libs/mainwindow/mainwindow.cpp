@@ -100,12 +100,13 @@ void MainWindow::DisplayImage(){
         return;
 
     std::cout << "I'm here!" << std::endl;
-    
-    Mat img_hls,res,frame,frame_rsz;
+
+    Mat img_hls, res, frame, frame_rsz;
 
     cvtColor(img, img_hls, CV_BGR2HLS);
     cvtColor(img, frame_rsz, CV_BGR2RGB);
     cv::resize(frame_rsz, frame, cv::Size(1024,720));
+
     if(mode == MODE::MODE_AUTO){
         //img = Vision::addCircle(frame,value_track);
         QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
@@ -120,8 +121,9 @@ void MainWindow::DisplayImage(){
             ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
         else{
-            QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+           // QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+           // ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+            cv::imshow("test", frame);
         }
 
         /*
