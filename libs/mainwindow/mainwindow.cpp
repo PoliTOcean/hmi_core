@@ -106,10 +106,10 @@ void MainWindow::DisplayImage(){
     Mat img_hls, res, frame, frame_rsz;
 
     std::lock_guard<std::mutex> lock(mtx);
-    cvtColor(img, img_hls, CV_BGR2HLS);
-    cvtColor(img, frame_rsz, CV_BGR2RGB);
+   // cvtColor(img, img_hls, CV_BGR2HLS);
+   // cvtColor(img, frame_rsz, CV_BGR2RGB);
+    cv::resize(img, frame, cv::Size(1024,720));
     mtx.unlock();
-    cv::resize(frame_rsz, frame, cv::Size(1024,720));
 
     if(mode == MODE::MODE_AUTO){
         //img = Vision::addCircle(frame,value_track);
