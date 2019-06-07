@@ -35,7 +35,7 @@ public:
     void setJoystick(bool connected);
     void setAtMega(bool connected);
     void messageArrived(const std::string& payload, const std::string& topic);
-    void setFrame(cv::Mat frame);
+    void setFrame(const cv::Mat& frame);
     
     QImage imdisplay;  //This will create QImage which is shown in Qt label
     QTimer* Timer;   // A timer is needed in GUI application
@@ -62,14 +62,14 @@ signals:
 private:
     bool video,snap_b;
     Ui::MainWindow *ui;
-    Mat img;
+    Mat& img;
     QIcon icon,icon2,video_icon,auto_icon,shapes_icon,home_icon,cannon_icon;
     QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon;
     MODE mode = MODE::MODE_HOME;
     //AutoDrive autodrive;
     int value_track;
-    Mat img_hls,res,frame,frame_rsz;
 
+    static cv::Mat& getDefaultFrame();
 };
 
 #endif // MAINWINDOW_H

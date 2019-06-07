@@ -16,7 +16,8 @@ using namespace Politocean::Constants;
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     camera( std::bind(&MainWindow::setFrame, this, std::placeholders::_1), 2 ),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    img(MainWindow::getDefaultFrame())
 {
 
     /* SETUP UI*/
@@ -89,19 +90,25 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::setFrame(cv::Mat frame)
+cv::Mat& MainWindow::getDefaultFrame() {
+    cv::Mat frame;
+    return frame;
+}
+
+void MainWindow::setFrame(const cv::Mat& frame)
 {
     img = frame;
     this->frameArrived();
 }
 
 void MainWindow::DisplayImage(){
-
     if(!video || img.empty())
         return;
 
-    cvtColor(img,img_hls,CV_BGR2HLS);
-    cvtColor(img,frame_rsz,CV_BGR2RGB);
+    Mat img_hls,res,frame,frame_rsz;
+
+    cvtColor(img, img_hls, CV_BGR2HLS);
+    cvtColor(img, frame_rsz, CV_BGR2RGB);
     cv::resize(frame_rsz, frame, cv::Size(1024,720));
     if(mode == MODE::MODE_AUTO){
         //img = Vision::addCircle(frame,value_track);
