@@ -95,7 +95,6 @@ void MainWindow::setFrame(const cv::Mat frame)
 {
     std::lock_guard<std::mutex> lock(mtx);
     img = frame;
-    //cv::imshow("test", img);
     this->frameArrived();
 }
 
@@ -106,10 +105,10 @@ void MainWindow::DisplayImage(){
     Mat img_hls, res, frame, frame_rsz;
 
     std::lock_guard<std::mutex> lock(mtx);
-   // cvtColor(img, img_hls, CV_BGR2HLS);
-    //cvtColor(img, frame, CV_BGR2RGB);
-   // cv::resize(img, frame, cv::Size(1024,720));
+    cvtColor(img, frame_rsz, CV_BGR2RGB);
     mtx.unlock();
+
+    cv::resize(frame_rsz, frame, cv::Size(1024,720));
 
     if(mode == MODE::MODE_AUTO){
         //img = Vision::addCircle(frame,value_track);
@@ -120,13 +119,17 @@ void MainWindow::DisplayImage(){
     else if(mode  == MODE::MODE_HOME){
         //VISION TEST:
         if(ui->debugCheck->isChecked()){
+            std::lock_guard<std::mutex> lock(mtx);
+            cvtColor(img, img_hls, CV_BGR2HLS);
+            mtx.unlock();
             cv::Mat filtered = Vision::filterRed(img_hls);
             QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
             ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
         else{
-            QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
-            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+            cv::imshow("test", frame);
+           // QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+           // ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
 
         /*
