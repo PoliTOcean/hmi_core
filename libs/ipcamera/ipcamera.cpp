@@ -17,8 +17,6 @@ IpCamera::IpCamera(std::function<void(cv::Mat)> extCb, int freqDivider)
     :   camera(nullptr), reconnecting(false), active(true), started(false),
         monitor([&]() {
             while (active) {
-                while (!started) std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
                 reconnect()->join();
 
                 while (!updated) std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -92,7 +90,6 @@ std::thread* IpCamera::reconnect()
                 if (error == PGRERROR_OK)
                 {
                     reconnecting = false;
-                    camera->StartCapture( callback, this );
                 }
                 else {
                     std::cout << error.GetType() << " " << error.GetDescription() << std::endl;
