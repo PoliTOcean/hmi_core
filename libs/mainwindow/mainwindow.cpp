@@ -88,7 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 MainWindow::~MainWindow()
 {
-    ipcamera.stop();
+    camera.stop();
     delete ui;
 }
 
