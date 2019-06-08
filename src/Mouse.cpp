@@ -9,6 +9,7 @@
 
 #include "PolitoceanConstants.h"
 #include "PolitoceanUtils.hpp"
+
 #include <X11/Xlib.h>
 
 #define X_MOUSE 9
@@ -95,7 +96,7 @@ std::vector<int> Listener::axes(){
 
 int main(void) {
 	
-	MqttClient& subscriber = MqttClient::getInstance(Rov::ATMEGA_ID, Rov::IP_ADDRESS);
+	MqttClient& subscriber = MqttClient::getInstance("hmi", Rov::IP_ADDRESS);
 	
 	Listener listener;
 
