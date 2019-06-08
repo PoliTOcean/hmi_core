@@ -167,13 +167,13 @@ int main(void) {
             event.xbutton.y = lastMouse[Y];
             event.xbutton.state = 0;
 
-            XSendEvent(dpy, root_window, True, ButtonPressMask, &event);
+            if(XSendEvent(dpy, root_window, True, ButtonPressMask, &event)==0) std::cerr << "Errore!\n";
             XFlush(dpy);
             usleep(100000);
 
             event.type = ButtonRelease;
             event.xbutton.state = 0x100;
-            XSendEvent(dpy, root_window, True, ButtonReleaseMask, &event);
+            if(XSendEvent(dpy, root_window, True, ButtonReleaseMask, &event)==0) std::cerr << "Errore!\n";
             click = false;
         }
 
