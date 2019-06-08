@@ -110,10 +110,9 @@ int main(void) {
     int width  = DisplayWidth(dpy, scr);
 	std::cout << "Screen size : x: " << width << "\thegiht: " << height << std::endl;
 	
-	std::vector<int> contr;
 	while(1)
 	{
-		contr = listener.axes();
+		std::vector<int> contr = listener.axes();
 		contr[X_MOUSE] = Politocean::map(contr[X_MOUSE], SHRT_MIN, SHRT_MAX, 0, width);
 		contr[Y_MOUSE] = Politocean::map(contr[Y_MOUSE], SHRT_MIN, SHRT_MAX, 0, height);
 
