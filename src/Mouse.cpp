@@ -1,8 +1,9 @@
-#include <X11/Xlib.h>
 #include <iostream>
 #include <queue>
 #include <thread>
 #include <chrono>
+
+#include <X11/Xlib.h>
 
 #include <json.hpp>
 
