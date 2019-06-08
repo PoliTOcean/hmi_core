@@ -155,7 +155,7 @@ int main(void) {
             event.xbutton.button = Button1; // left button
             event.xbutton.state = 0;
 
-            XSendEvent(dpy, root_window, True, ButtonPressMask, &event);
+            XSendEvent(dpy, PointerWindow, True, ButtonPressMask, &event);
             XFlush(dpy);
             usleep(1000);
 
