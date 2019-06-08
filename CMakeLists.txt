@@ -58,6 +58,7 @@ endif()
 
 
 # install
+set(CMAKE_INSTALL_PREFIX:PATH /usr)
 include(GNUInstallDirs)
 
 install ( TARGETS ${PolitoceanHmi_LIBS} ${PolitoceanCommon_LIBS} 
