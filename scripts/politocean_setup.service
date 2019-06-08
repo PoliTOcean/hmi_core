@@ -1,7 +1,9 @@
 [Unit]
 Description=PoliTOcean setup service
 After=network.target
-StartLimitIntervalSec=0
+After=networking.service
+After=network-manager.service
+StartLimitIntervalSec=5
 
 [Service]
 Type=simple
