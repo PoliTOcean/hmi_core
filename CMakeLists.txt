@@ -68,7 +68,3 @@ install ( TARGETS ${PolitoceanHmi_LIBS} ${PolitoceanCommon_LIBS}
 install ( TARGETS PolitoceanGUI PolitoceanCommands PolitoceanJoystick
           RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
           PERMISSIONS WORLD_READ WORLD_EXECUTE )
-
-install ( FILES data/politocean.desktop
-          DESTINATION ${CMAKE_INSTALL_DATADIR}
-          PERMISSIONS WORLD_READ WORLD_WRITE WORLD_EXECUTE)
