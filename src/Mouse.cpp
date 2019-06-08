@@ -13,12 +13,12 @@
 
 #include <X11/Xlib.h>
 
-#define X_MOUSE      0
-#define Y_MOUSE      1
-#define X_MOUSE_AXIS 9
-#define Y_MOUSE_AXIS 10
-#define PX_MAX_STEP  50
-#define AXIS_OFFSET  4681
+#define X_MOUSE         0
+#define Y_MOUSE         1
+#define X_MOUSE_AXIS    9
+#define Y_MOUSE_AXIS    10
+#define PX_MAX_STEP     50
+#define AXIS_OFFSET     4681
 
 using namespace Politocean;
 
@@ -125,12 +125,16 @@ int main(void) {
         std::vector<int> axes = listener.axes();
 
         std::vector<int> newMouse(2, 0);
-        newMouse[X_MOUSE] = lastMouse[X_MOUSE]+Politocean::map(axes[X_MOUSE_AXIS]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
-        newMouse[Y_MOUSE] = lastMouse[Y_MOUSE]+Politocean::map(axes[Y_MOUSE_AXIS]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
+        int dx = Politocean::map(axes[X_MOUSE_AXIS]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
+        int dy = Politocean::map(axes[Y_MOUSE_AXIS]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
 
+        if(dx==0 && dy==0) continue;
+
+        newMouse[X_MOUSE] = lastMouse[X_MOUSE]+dx;
         if(newMouse[X_MOUSE] < 0) newMouse[X_MOUSE] = 0;
         else if(newMouse[X_MOUSE] > width) newMouse[X_MOUSE] = width;
 
+        newMouse[Y_MOUSE] = lastMouse[Y_MOUSE]+dy; 
         if(newMouse[Y_MOUSE] < 0) newMouse[Y_MOUSE] = 0;
         else if(newMouse[Y_MOUSE] > height) newMouse[Y_MOUSE] = height;
         
