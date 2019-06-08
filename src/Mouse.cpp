@@ -13,8 +13,11 @@
 
 #include <X11/Xlib.h>
 
-#define X_MOUSE 9
-#define Y_MOUSE 10
+#define X_MOUSE      0
+#define Y_MOUSE      1
+#define X_MOUSE_AXIS 9
+#define Y_MOUSE_AXIS 10
+#define PX_MAX_STEP  50
 
 using namespace Politocean;
 
@@ -112,34 +115,29 @@ int main(void) {
     std::cout << "Screen size : x: " << width << "\thegiht: " << height << std::endl;
 
     bool first = true;
-    std::vector<int> lastMouse;
-
+    std::vector<int> lastMouse(2, 0);
     while(1)
     {
         if (!listener.isAxesUpdated())
             continue ;
 
-        std::vector<int> currentMouse = listener.axes();
-        if(currentMouse[X_MOUSE]==0 && currentMouse[Y_MOUSE]==0)
-            continue;
-        currentMouse[X_MOUSE] = Politocean::map(currentMouse[X_MOUSE], SHRT_MIN, SHRT_MAX, 0, width);
-        currentMouse[Y_MOUSE] = Politocean::map(currentMouse[Y_MOUSE], SHRT_MIN, SHRT_MAX, 0, height);
+        std::vector<int> axes = listener.axes();
 
-        if (first)
-        {
-            lastMouse = std::vector<int>(currentMouse.size(), 0);
-            first = false;
-        }
+        std::vector<int> newMouse(2, 0);
+        newMouse[X_MOUSE] = Politocean::map(axes[X_MOUSE_AXIS], SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
+        newMouse[Y_MOUSE] = Politocean::map(axes[Y_MOUSE_AXIS], SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
 
-        if (currentMouse == lastMouse)
-            continue ;
-        int dx = currentMouse[X_MOUSE] - lastMouse[X_MOUSE];
-        int dy = currentMouse[Y_MOUSE] - lastMouse[Y_MOUSE];
+        if(newMouse[X_MOUSE] < 0) newMouse[X_MOUSE] = 0;
+        else if(newMouse[X_MOUSE] > width) newMouse[X_MOUSE] = width;
 
-        XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, dx, dy);
+        if(newMouse[Y_MOUSE] < 0) newMouse[Y_MOUSE] = 0;
+        else if(newMouse[Y_MOUSE] > height) newMouse[Y_MOUSE] = height;
+
+        int dx = newMouse[X_MOUSE] - lastMouse[X_MOUSE];
+        int dy = newMouse[Y_MOUSE] - lastMouse[Y_MOUSE];        
+        XWarpPointer(dpy, None, root_window, lastMouse[X_MOUSE], lastMouse[Y_MOUSE], 0, 0, dx, dy);
         XFlush(dpy);
 
-        lastMouse = currentMouse;
 	}
 }
 
