@@ -154,15 +154,12 @@ int main(void) {
         if (click) {
             event.type = ButtonPress;
             event.xbutton.button = Button1; // left button
-            event.xbutton.state = 0;
-
             if (XSendEvent(dpy, PointerWindow, True, ButtonPressMask, &event)==0)
                 logger::getInstance().log(logger::WARNING, "Error while sending the mouse button event.");
             XFlush(dpy);
             usleep(1000);
 
             event.type = ButtonRelease;
-            event.xbutton.state = 0x100;
             if(XSendEvent(dpy, PointerWindow, True, ButtonReleaseMask, &event)==0)
                 logger::getInstance().log(logger::WARNING, "Error while sending the mouse button event.");
             XFlush(dpy);
