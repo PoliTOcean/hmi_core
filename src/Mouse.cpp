@@ -8,7 +8,8 @@
 
 #include <json.hpp>
 
-#include "MqttClient.h"
+#include <logger.h>
+#include <MqttClient.h>
 
 #include "PolitoceanConstants.h"
 #include "PolitoceanUtils.hpp"
@@ -135,10 +136,34 @@ int main(void) {
         int dx = Politocean::map(axes[Commands::Axes::X_MOUSE]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
         int dy = Politocean::map(axes[Commands::Axes::Y_MOUSE]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
         
-        int bini;
-        unsigned int binui;
-        Window binw;
-        XQueryPointer(dpy, root_window, &binw, &binw, &lastMouse[X], &lastMouse[Y], &bini, &bini, &binui);
+        XEvent event;
+        memset (&event, 0, sizeof (event));
+        event.xbutton.same_screen = True;
+        event.xbutton.subwindow = root_window;
+        while (event.xbutton.subwindow)
+        {
+            event.xbutton.window = event.xbutton.subwindow;
+            XQueryPointer (dpy, event.xbutton.window,
+                    &event.xbutton.root, &event.xbutton.subwindow,
+                    &event.xbutton.x_root, &event.xbutton.y_root,
+                    &event.xbutton.x, &event.xbutton.y,
+                    &event.xbutton.state);
+        }
+
+        if (click) {
+            event.type = ButtonPress;
+            event.xbutton.button = Button1; // left button
+            event.xbutton.state = 0;
+
+            XSendEvent(dpy, root_window, True, ButtonPressMask, &event);
+            XFlush(dpy);
+            usleep(100000);
+
+            event.type = ButtonRelease;
+            event.xbutton.state = 0x100;
+            XSendEvent(dpy, root_window, True, ButtonReleaseMask, &event);
+            click = false;
+        }
 
         newMouse[X] = lastMouse[X]+dx;
         if(newMouse[X] < 0) newMouse[X] = 0;
@@ -150,32 +175,6 @@ int main(void) {
         
         XWarpPointer(dpy, None, root_window, lastMouse[X], lastMouse[Y], 0, 0, newMouse[X], newMouse[Y]);
         lastMouse = newMouse;
-
-        if (click) {
-            std::cout << "clicked!\n";
-            XEvent event;
-            memset(&event, 0x00, sizeof(event));
-            event.type = ButtonPress;
-            event.xbutton.button = Button1;
-            event.xbutton.same_screen = True;
-            event.xbutton.root = root_window;
-            event.xbutton.window = root_window;
-            event.xbutton.subwindow = 0;
-            event.xbutton.x_root = lastMouse[X];
-            event.xbutton.y_root = lastMouse[Y];
-            event.xbutton.x = lastMouse[X];
-            event.xbutton.y = lastMouse[Y];
-            event.xbutton.state = 0;
-
-            if(XSendEvent(dpy, root_window, True, ButtonPressMask, &event)==0) std::cerr << "Errore!\n";
-            XFlush(dpy);
-            usleep(100000);
-
-            event.type = ButtonRelease;
-            event.xbutton.state = 0x100;
-            if(XSendEvent(dpy, root_window, True, ButtonReleaseMask, &event)==0) std::cerr << "Errore!\n";
-            click = false;
-        }
 
         XFlush(dpy);
 	}
