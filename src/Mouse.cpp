@@ -129,9 +129,8 @@ int main(void) {
             first = false;
         }
 
-        if (currentMouse == lastMouse)
+        if (currentMouse == lastMouse || currentMouse[X_MOUSE]==0 && currentMouse[Y_MOUSE]==0)
             continue ;
-        
         int dx = currentMouse[X_MOUSE] - lastMouse[X_MOUSE];
         int dy = currentMouse[Y_MOUSE] - lastMouse[Y_MOUSE];
 
