@@ -12,6 +12,8 @@
 #define X_MOUSE 9
 #define Y_MOUSE 10
 
+using namespace Politocean;
+
 typedef struct button_t
 {
     int id;
@@ -110,7 +112,7 @@ int main(void) {
 	while(1)
 	{
 		contr = listener.axes();
-		contr[X_MOUSE] = Politocean::map(contr[X_MOUSE], SHRT_MIN, SHRT_MAX, 0, widht);
+		contr[X_MOUSE] = Politocean::map(contr[X_MOUSE], SHRT_MIN, SHRT_MAX, 0, width);
 		contr[Y_MOUSE] = Politocean::map(contr[Y_MOUSE], SHRT_MIN, SHRT_MAX, 0, height);
 
 
