@@ -36,7 +36,6 @@ private:
     Direction direction;
     Direction path[MAX_PATH];
     Mat grid;
-    logger& LOGGER;
 
 };
 
