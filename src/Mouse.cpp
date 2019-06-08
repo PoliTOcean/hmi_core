@@ -124,8 +124,8 @@ int main(void) {
         std::vector<int> axes = listener.axes();
 
         std::vector<int> newMouse(2, 0);
-        newMouse[X_MOUSE] = Politocean::map(axes[X_MOUSE_AXIS], SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
-        newMouse[Y_MOUSE] = Politocean::map(axes[Y_MOUSE_AXIS], SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
+        newMouse[X_MOUSE] = lastMouse[X_MOUSE]+Politocean::map(axes[X_MOUSE_AXIS], SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
+        newMouse[Y_MOUSE] = lastMouse[Y_MOUSE]+Politocean::map(axes[Y_MOUSE_AXIS], SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
 
         if(newMouse[X_MOUSE] < 0) newMouse[X_MOUSE] = 0;
         else if(newMouse[X_MOUSE] > width) newMouse[X_MOUSE] = width;
