@@ -59,8 +59,6 @@ endif()
 
 # install
 include(GNUInstallDirs)
-find_package(PolitoceanHmi REQUIRED)
-find_package(PolitoceanCommon REQUIRED)
 
 install ( TARGETS ${PolitoceanHmi_LIBS} ${PolitoceanCommon_LIBS} 
           LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
