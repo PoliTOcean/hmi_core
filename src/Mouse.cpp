@@ -3,14 +3,13 @@
 #include <thread>
 #include <chrono>
 
-#include <X11/Xlib.h>
-
 #include <json.hpp>
 
 #include "MqttClient.h"
 
 #include "PolitoceanConstants.h"
 #include "PolitoceanUtils.hpp"
+#include <X11/Xlib.h>
 
 #define X_MOUSE 9
 #define Y_MOUSE 10
