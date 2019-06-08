@@ -164,6 +164,8 @@ int main(void) {
             click = false;
         }
 
+        if (dx==0 && dy==0) continue;
+        
         lastMouse[X] = event.xbutton.x_root;
         lastMouse[Y] = event.xbutton.y_root;
         newMouse[X] = lastMouse[X]+dx;
