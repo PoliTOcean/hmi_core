@@ -111,17 +111,26 @@ int main(void) {
     int width  = DisplayWidth(dpy, scr);
     std::cout << "Screen size : x: " << width << "\thegiht: " << height << std::endl;
 
+    std::vector<int> lastMouse = {-1};
     while(1)
     {
         if (!listener.isAxesUpdated())
             continue ;
 
-        std::vector<int> contr = listener.axes();
-        contr[X_MOUSE] = Politocean::map(contr[X_MOUSE], SHRT_MIN, SHRT_MAX, 0, width);
-        contr[Y_MOUSE] = Politocean::map(contr[Y_MOUSE], SHRT_MIN, SHRT_MAX, 0, height);
+        std::vector<int> currentMouse = listener.axes();
+        currentMouse[X_MOUSE] = Politocean::map(currentMouse[X_MOUSE], SHRT_MIN, SHRT_MAX, 0, width);
+        currentMouse[Y_MOUSE] = Politocean::map(currentMouse[Y_MOUSE], SHRT_MIN, SHRT_MAX, 0, height);
 
-        XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, contr[X_MOUSE], contr[Y_MOUSE]);
+        if (currentMouse == lastMouse)
+            continue ;
+        
+        int dx = currentMouse[X_MOUSE] - lastMouse[X_MOUSE];
+        int dy = currentMouse[Y_MOUSE] - lastMouse[Y_MOUSE];
+
+        XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, dx, dy);
         XFlush(dpy);
+
+        lastMouse = currentMouse;
 
         std::this_thread::sleep_for(std::chrono::microseconds(10));
 	}
