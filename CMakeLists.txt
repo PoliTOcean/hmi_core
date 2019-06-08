@@ -23,17 +23,17 @@ include_directories(politocean_common/include)
 add_subdirectory(libs)
 
 # Add executable
-add_executable(JoystickPublisher src/JoystickPublisher.cpp)
-add_executable(Gui src/gui.cpp)
-add_executable(CommandParser src/CommandParser.cpp)
+add_executable(PolitoceanJoystick src/JoystickPublisher.cpp)
+add_executable(PolitoceanGUI src/gui.cpp)
+add_executable(PolitoceanCommands src/CommandParser.cpp)
     
 # Linking the libraries
-target_link_libraries(JoystickPublisher -lpthread
+target_link_libraries(PolitoceanJoystick -lpthread
     PolitoceanHmi::Joystick
     PolitoceanCommon::mqttLogger
     PolitoceanCommon::MqttClient)
 
-target_link_libraries(Gui -lpthread
+target_link_libraries(PolitoceanGUI -lpthread
     # Add here all the libraries as:
     # Name_of_the_library       --- if it's internal (e.g. Publisher)
     # -lname_of_the_library     --- if it's a standard c++ library (e.g. -lpthread)
@@ -42,7 +42,7 @@ target_link_libraries(Gui -lpthread
     PolitoceanCommon::MqttClient
     PolitoceanCommon::logger)
     
-target_link_libraries(CommandParser -lpthread
+target_link_libraries(PolitoceanCommands -lpthread
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::MqttClient)
 
@@ -55,3 +55,16 @@ IF( BUILD_TESTS )
         PolitoceanCommon::MqttClient
         PolitoceanCommon::mqttLogger)
 endif()
+
+
+# install
+include(GNUInstallDirs)
+find_package(PolitoceanHmi REQUIRED)
+find_package(PolitoceanCommon REQUIRED)
+
+install ( TARGETS ${PolitoceanHmi_LIBS} ${PolitoceanCommon_LIBS} 
+          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+          PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install ( TARGETS PolitoceanGUI PolitoceanCommands PolitoceanJoystick
+          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
