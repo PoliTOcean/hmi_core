@@ -13,14 +13,13 @@
 
 #include <X11/Xlib.h>
 
-#define X_MOUSE         0
-#define Y_MOUSE         1
-#define X_MOUSE_AXIS    9
-#define Y_MOUSE_AXIS    10
+#define X 0
+#define Y 1
 #define PX_MAX_STEP     50
 #define AXIS_OFFSET     4681
 
 using namespace Politocean;
+using namespace Politocean::Constants;
 
 typedef struct button_t
 {
@@ -115,30 +114,46 @@ int main(void) {
     int width  = DisplayWidth(dpy, scr);
     std::cout << "Screen size : x: " << width << "\thegiht: " << height << std::endl;
 
-    bool first = true;
+    bool click = false;
     std::vector<int> lastMouse(2, 0);
     while(1)
     {
         if (!listener.isAxesUpdated())
-            continue ;
+            continue;
 
-        std::vector<int> axes = listener.axes();
-
-        std::vector<int> newMouse(2, 0);
-        int dx = Politocean::map(axes[X_MOUSE_AXIS]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
-        int dy = Politocean::map(axes[Y_MOUSE_AXIS]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
-
-        if(dx==0 && dy==0) continue;
-
-        newMouse[X_MOUSE] = lastMouse[X_MOUSE]+dx;
-        if(newMouse[X_MOUSE] < 0) newMouse[X_MOUSE] = 0;
-        else if(newMouse[X_MOUSE] > width) newMouse[X_MOUSE] = width;
-
-        newMouse[Y_MOUSE] = lastMouse[Y_MOUSE]+dy; 
-        if(newMouse[Y_MOUSE] < 0) newMouse[Y_MOUSE] = 0;
-        else if(newMouse[Y_MOUSE] > height) newMouse[Y_MOUSE] = height;
+        if (listener.isButtonUpdated())
+        {
+            button_t button = listener.button();
+            if (button.value && button.id == Commands::Buttons::CLICK_MOUSE)
+                click = true;
+        }
         
-        XWarpPointer(dpy, None, root_window, lastMouse[X_MOUSE], lastMouse[Y_MOUSE], 0, 0, newMouse[X_MOUSE], newMouse[Y_MOUSE]);
+        std::vector<int> axes = listener.axes();
+        std::vector<int> newMouse(2, 0);
+        int dx = Politocean::map(axes[Commands::Axes::X_MOUSE]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
+        int dy = Politocean::map(axes[Commands::Axes::Y_MOUSE]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
+        
+        int bini;
+        unsigned int binui;
+        Window binw;
+        XQueryPointer(dpy, root_window, &binw, &binw, &lastMouse[X], &lastMouse[Y], &bini, &bini, &binui);
+
+        newMouse[X] = lastMouse[X]+dx;
+        if(newMouse[X] < 0) newMouse[X] = 0;
+        else if(newMouse[X] > width) newMouse[X] = width;
+
+        newMouse[Y] = lastMouse[Y]+dy; 
+        if(newMouse[Y] < 0) newMouse[Y] = 0;
+        else if(newMouse[Y] > height) newMouse[Y] = height;
+        
+        XWarpPointer(dpy, None, root_window, lastMouse[X], lastMouse[Y], 0, 0, newMouse[X], newMouse[Y]);
+
+        if (click)
+        {
+
+        }
+            
+        
         XFlush(dpy);
 
         lastMouse = newMouse;
