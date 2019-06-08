@@ -111,7 +111,9 @@ int main(void) {
     int width  = DisplayWidth(dpy, scr);
     std::cout << "Screen size : x: " << width << "\thegiht: " << height << std::endl;
 
-    std::vector<int> lastMouse = { -1,-1,-1,-1,-1,-1,-1,-1,-1,-1 };
+    std::vector<int> lastMouse = std::vector<int>(11,-1);
+    std::cout << "last vector init\n";
+
     while(1)
     {
         if (!listener.isAxesUpdated())
@@ -120,6 +122,8 @@ int main(void) {
         std::vector<int> currentMouse = listener.axes();
         currentMouse[X_MOUSE] = Politocean::map(currentMouse[X_MOUSE], SHRT_MIN, SHRT_MAX, 0, width);
         currentMouse[Y_MOUSE] = Politocean::map(currentMouse[Y_MOUSE], SHRT_MIN, SHRT_MAX, 0, height);
+
+        std::cout << "X: " << currentMouse[X_MOUSE] << "\tY: " << currentMouse[Y_MOUSE] << std::endl;
 
         if (currentMouse == lastMouse)
             continue ;
