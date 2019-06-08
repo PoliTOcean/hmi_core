@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 #include <queue>
 #include <thread>
 #include <chrono>
@@ -123,7 +124,7 @@ int main(void) {
         for (auto it = contr.begin(); it != contr.end(); it++)
             std::cout << *it << "\t";
         std::cout << std::endl;
-        
+
         std::this_thread::sleep_for(std::chrono::microseconds(10));
 	}
 }
