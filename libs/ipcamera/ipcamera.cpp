@@ -1,61 +1,110 @@
 #include "ipcamera.h"
+#include <chrono>         // std::chrono::milliseconds
+#define DEFAULT_FREQ_DIVIDER 1
 
 using namespace FlyCapture2;
 
 namespace Politocean {
 
-IpCamera::IpCamera()
-{
-    //Connect the camera
-    FlyCapture2::Error error = camera.Connect( 0 );
-    if(error != PGRERROR_OK){
-        std::cout << "Impossibile accedere all'IpCamera" << std::endl;
-        ipcamera_active = false;
-        webcam.open(0);
-    }
-    else{
-        // Get the camera info and print it out
-        camera.GetCameraInfo( &camInfo );
-        std::cout << camInfo.vendorName << " "
-                  << camInfo.modelName << " "
-                  << camInfo.serialNumber << std::endl;
+std::function<void(cv::Mat)> IpCamera::extCallback;
+bool IpCamera::updated = false;
+int IpCamera::counterFrame = 0;
+int IpCamera::freqDivider = DEFAULT_FREQ_DIVIDER;
 
-        camera.StartCapture();
-        ipcamera_active = true;
-    }
+IpCamera::IpCamera(std::function<void(cv::Mat)> extCb) : IpCamera(extCb, DEFAULT_FREQ_DIVIDER) {}
+
+IpCamera::IpCamera(std::function<void(cv::Mat)> extCb, int freqDivider)
+    :   camera(nullptr), reconnecting(false), active(true), started(false),
+        monitor([&]() {
+            while (active) {
+                reconnect()->join();
+                if (started) camera->StartCapture( callback, this );
+
+                while (!updated) std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+                while (updated){
+                    updated = false;
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                }
+            }
+        })
+{
+    IpCamera::freqDivider = freqDivider;
+    IpCamera::extCallback = extCb;
+}
+
+void IpCamera::callback(FlyCapture2::Image *raw, const void *pCallbackData) {
+    IpCamera::updated = true;
+    IpCamera::counterFrame++;
+    if (IpCamera::counterFrame < IpCamera::freqDivider)
+        return;
+    IpCamera::counterFrame = 0;
+
+    Image rgb;
+    raw->Convert( FlyCapture2::PIXEL_FORMAT_BGR, &rgb );
+
+    unsigned int row = (double)rgb.GetReceivedDataSize()/(double)rgb.GetRows();
+
+    //cv::imshow("test", cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(), row));
+    IpCamera::extCallback(cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(), row));
 }
 
 IpCamera::~IpCamera()
 {
-    camera.StopCapture();
-    camera.Disconnect();
-
+    active = false;
+    monitor.join();
+    camera->StopCapture();
+    camera->Disconnect();
 }
 
-cv::Mat IpCamera::getFrame()
+void IpCamera::stop() {
+    started = false;
+    if (camera != nullptr)
+        camera->StopCapture();
+}
+
+void IpCamera::start() {
+    started = true;
+    if (camera != nullptr)
+        camera->StartCapture( callback, this );
+}
+
+std::thread* IpCamera::reconnect()
 {
-    Image raw;
-    cv::Mat img;
-    if(ipcamera_active){
-        FlyCapture2::Error error = camera.RetrieveBuffer(&raw);
-        if (error != PGRERROR_OK){
-                //std::cout << "network loss frame" << std::endl;
+    if (reconnecting) return new std::thread();
+
+    updated = false;
+    reconnecting = true;
+    std::cout << "Scanning for the GigE Camera...\n";
+
+    return new std::thread(
+        [&]() {
+            if (camera != nullptr) {
+                camera->StopCapture();
+                delete camera;
+            }
+
+            while (reconnecting)
+            {
+                camera = new Camera();
+                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                FlyCapture2::Error error = camera->Connect( 0 );
+                if (error == PGRERROR_OK)
+                {
+                    reconnecting = false;
+                }
+                else {
+                    std::cout << error.GetType() << " " << error.GetDescription() << std::endl;
+                    delete camera;
+                }
+            }
+            camera->GetCameraInfo( &camInfo );
+            std::cout << camInfo.vendorName << " "
+                    << camInfo.modelName << " "
+                    << camInfo.serialNumber << std::endl
+                    << camInfo.sensorResolution << " " << camInfo.sensorInfo << std::endl; 
         }
-        else{
-            Image rgb;
-            raw.Convert( FlyCapture2::PIXEL_FORMAT_BGR, &rgb );
-
-            unsigned int row = (double)rgb.GetReceivedDataSize()/(double)rgb.GetRows();
-
-
-            img = cv::Mat(rgb.GetRows(), rgb.GetCols(), CV_8UC3, rgb.GetData(),row);
-            //cv::imshow("test",img);
-        }
-    }
-    else{
-        webcam.read(img);
-    }
-    return img;
+    );
 }
 
 }

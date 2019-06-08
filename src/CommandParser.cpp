@@ -86,7 +86,7 @@ bool Listener::isButtonUpdated()
 
 bool Listener::isAxesUpdated()
 {
-    return !axes_.empty();
+    return isAxesUpdated_ && !axes_.empty();
 }
 
 void Listener::listenForAxes(const std::string& payload)
