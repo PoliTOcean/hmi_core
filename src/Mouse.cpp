@@ -105,7 +105,7 @@ int main(void) {
 
 	subscriber.subscribeTo(Topics::JOYSTICK_BUTTONS, &Listener::listenForButtons, &listener);
     subscriber.subscribeTo(Topics::JOYSTICK_AXES, &Listener::listenForAxes, &listener);
-
+/*
     Display* dpy = XOpenDisplay(0);
     int scr = XDefaultScreen(dpy);
     Window root_window = XRootWindow(dpy, scr);
@@ -126,5 +126,8 @@ int main(void) {
 		
 		std::this_thread::sleep_for(std::chrono::microseconds(10));
 	}
+*/
+
+    while(1);
 }
 
