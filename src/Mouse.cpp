@@ -118,7 +118,6 @@ int main(void) {
     std::cout << "Screen size : x: " << width << "\thegiht: " << height << std::endl;
 
     bool click = false;
-    std::vector<int> lastMouse(2, 0);
     while(1)
     {
         if (!listener.isAxesUpdated())
@@ -132,6 +131,7 @@ int main(void) {
         }
         
         std::vector<int> axes = listener.axes();
+        std::vector<int> lastMouse(2, 0);
         std::vector<int> newMouse(2, 0);
         int dx = Politocean::map(axes[Commands::Axes::X_MOUSE]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
         int dy = Politocean::map(axes[Commands::Axes::Y_MOUSE]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
@@ -165,6 +165,8 @@ int main(void) {
             click = false;
         }
 
+        lastMouse[X] = event.xbutton.x_root;
+        lastMouse[Y] = event.xbutton.y_root;
         newMouse[X] = lastMouse[X]+dx;
         if(newMouse[X] < 0) newMouse[X] = 0;
         else if(newMouse[X] > width) newMouse[X] = width;
