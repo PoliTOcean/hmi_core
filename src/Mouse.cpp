@@ -113,6 +113,9 @@ int main(void) {
 
     while(1)
     {
+        if (!listener.isAxesUpdated())
+            continue ;
+
         std::vector<int> contr = listener.axes();
 
         /*
@@ -120,7 +123,7 @@ int main(void) {
         XFlush(dpy);
         */
 
-        std::cout << "X: " << contr[X_MOUSE] << "\tY: " << contr[Y_MOUSE] << std::endl;
+        std::cout << "X: " << contr.at(X_MOUSE) << "\tY: " << contr.at(Y_MOUSE) << std::endl;
 
         std::this_thread::sleep_for(std::chrono::microseconds(10));
 	}
