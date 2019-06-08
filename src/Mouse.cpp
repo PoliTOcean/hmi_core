@@ -7,6 +7,8 @@
 #include <json.hpp>
 
 #include "MqttClient.h"
+
+#include "PolitoceanConstants.hpp"
 #include "PolitoceanUtils.hpp"
 
 #define X_MOUSE 9
