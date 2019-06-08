@@ -1,0 +1,14 @@
+[Unit]
+Description=PoliTOcean setup service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=120
+User=pto
+ExecStart=/usr/bin/bash /etc/init.d/setup_politocean.sh
+
+[Install]
+WantedBy=multi-user.target
