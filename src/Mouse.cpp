@@ -116,7 +116,7 @@ int main(void) {
 
     int height = DisplayHeight(dpy, scr);
     int width  = DisplayWidth(dpy, scr);
-    std::cout << "Screen size : x: " << width << "\thegiht: " << height << std::endl;
+    logger::getInstance().log(logger::CONFIG, string("Screen width: ")+to_string(width)+"\theight: "+to_string(height)+"\n");
 
     bool click = false;
     while(1)
@@ -131,16 +131,14 @@ int main(void) {
                 click = true;
         }
         
-        std::vector<int> axes = listener.axes();
-        std::vector<int> lastMouse(2, 0);
-        std::vector<int> newMouse(2, 0);
+        std::vector<int> axes = listener.axes(), lastMouse(2, 0), newMouse(2, 0);
         int dx = Politocean::map(axes[Commands::Axes::X_MOUSE]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
         int dy = Politocean::map(axes[Commands::Axes::Y_MOUSE]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
         
         XEvent event;
         memset (&event, 0, sizeof (event));
         event.xbutton.same_screen = True;
-        event.xbutton.subwindow = root_window;
+        event.xbutton.subwindow = DefaultRootWindow (dpy);
         while (event.xbutton.subwindow)
         {
             event.xbutton.window = event.xbutton.subwindow;
