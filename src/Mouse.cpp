@@ -120,6 +120,8 @@ int main(void) {
             continue ;
 
         std::vector<int> currentMouse = listener.axes();
+        if(currentMouse[X_MOUSE]==0 && currentMouse[Y_MOUSE]==0)
+            continue;
         currentMouse[X_MOUSE] = Politocean::map(currentMouse[X_MOUSE], SHRT_MIN, SHRT_MAX, 0, width);
         currentMouse[Y_MOUSE] = Politocean::map(currentMouse[Y_MOUSE], SHRT_MIN, SHRT_MAX, 0, height);
 
@@ -129,7 +131,7 @@ int main(void) {
             first = false;
         }
 
-        if (currentMouse == lastMouse || currentMouse[X_MOUSE]==0 && currentMouse[Y_MOUSE]==0)
+        if (currentMouse == lastMouse)
             continue ;
         int dx = currentMouse[X_MOUSE] - lastMouse[X_MOUSE];
         int dy = currentMouse[Y_MOUSE] - lastMouse[Y_MOUSE];
