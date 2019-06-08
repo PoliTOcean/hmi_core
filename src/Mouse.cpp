@@ -54,7 +54,10 @@ void Listener::listenForAxes(const std::string& payload)
 {
     auto c_map = nlohmann::json::parse(payload);
     std::vector<int> tmp = c_map.get<std::vector<int>>();
-	axes_ = {tmp[9], tmp[10]};
+    
+    for (auto it = tmp.begin(); it != tmp.end(); it++)
+        std::cout << *it << "\t";
+    std::cout << std::endl;
 	
     isAxesUpdated_ = true;
 }
