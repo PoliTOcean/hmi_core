@@ -152,6 +152,7 @@ int main(void) {
         lastMouse = newMouse;
 
         if (click) {
+            std::cout << "clicked!\n";
             XEvent event;
             memset(&event, 0x00, sizeof(event));
             event.type = ButtonPress;
