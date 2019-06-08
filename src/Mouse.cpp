@@ -117,8 +117,8 @@ int main(void) {
             continue ;
 
         std::vector<int> contr = listener.axes();
-        contr[X_MOUSE] = Politocean::map(contr.at(X_MOUSE), SHRT_MIN, SHRT_MAX, 0, width);
-        contr[X_MOUSE] = Politocean::map(contr.at(Y_MOUSE), SHRT_MIN, SHRT_MAX, 0, height);
+        contr[X_MOUSE] = Politocean::map(contr[X_MOUSE], SHRT_MIN, SHRT_MAX, 0, width);
+        contr[X_MOUSE] = Politocean::map(contr[Y_MOUSE], SHRT_MIN, SHRT_MAX, 0, height);
 
         XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, contr[X_MOUSE], contr[Y_MOUSE]);
         XFlush(dpy);
