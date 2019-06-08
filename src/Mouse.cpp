@@ -101,7 +101,7 @@ std::vector<int> Listener::axes(){
 
 int main(void) {
     
-    MqttClient& subscriber = MqttClient::getInstance("hmi", Hmi::IP_ADDRESS);
+    MqttClient& subscriber = MqttClient::getInstance(Hmi::MOUSE_ID, Hmi::IP_ADDRESS);
     
     Listener listener;
 
