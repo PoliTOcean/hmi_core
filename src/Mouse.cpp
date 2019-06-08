@@ -157,11 +157,12 @@ int main(void) {
 
             XSendEvent(dpy, root_window, True, ButtonPressMask, &event);
             XFlush(dpy);
-            usleep(100000);
+            usleep(1000);
 
             event.type = ButtonRelease;
             event.xbutton.state = 0x100;
-            XSendEvent(dpy, root_window, True, ButtonReleaseMask, &event);
+            XSendEvent(dpy, PointerWindow, True, ButtonReleaseMask, &event);
+            XFlush(dpy);
             click = false;
         }
 
