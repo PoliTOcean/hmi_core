@@ -68,6 +68,6 @@ install ( TARGETS ${PolitoceanHmi_LIBS} ${PolitoceanCommon_LIBS}
           LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
           PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install ( TARGETS PolitoceanGUI PolitoceanCommands PolitoceanJoystick
+install ( TARGETS PolitoceanGUI PolitoceanCommands PolitoceanJoystick PolitoceanMouse
           RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
           PERMISSIONS WORLD_READ WORLD_EXECUTE )
