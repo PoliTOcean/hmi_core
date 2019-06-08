@@ -47,7 +47,7 @@ target_link_libraries(PolitoceanCommands -lpthread
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::MqttClient)
 
-target_link_libraries(PolitoceanMouse
+target_link_libraries(PolitoceanMouse -lX11
         PolitoceanCommon::MqttClient)
 
 IF( BUILD_TESTS )
