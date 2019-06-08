@@ -101,7 +101,8 @@ std::vector<int> Listener::axes(){
 }
 
 int main(void) {
-    
+    logger::enableLevel(logger::CONFIG);
+
     MqttClient& subscriber = MqttClient::getInstance(Hmi::MOUSE_ID, Hmi::IP_ADDRESS);
     
     Listener listener;
@@ -155,13 +156,15 @@ int main(void) {
             event.xbutton.button = Button1; // left button
             event.xbutton.state = 0;
 
-            XSendEvent(dpy, PointerWindow, True, ButtonPressMask, &event);
+            if (XSendEvent(dpy, PointerWindow, True, ButtonPressMask, &event)==0)
+                logger::getInstance().log(logger::WARNING, "Error while sending the mouse button event.");
             XFlush(dpy);
             usleep(1000);
 
             event.type = ButtonRelease;
             event.xbutton.state = 0x100;
-            XSendEvent(dpy, PointerWindow, True, ButtonReleaseMask, &event);
+            if(XSendEvent(dpy, PointerWindow, True, ButtonReleaseMask, &event)==0)
+                logger::getInstance().log(logger::WARNING, "Error while sending the mouse button event.");
             XFlush(dpy);
             click = false;
         }
