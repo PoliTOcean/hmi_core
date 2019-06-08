@@ -18,7 +18,7 @@ using namespace Politocean::Constants;
 pid_t pid1, pid2;
 
 void signal_handler( int signal_num ) {
-    logger::getInstance().log(logger::CONFIG, "Signal received: "+to_string(signal_num)+"\n");
+    logger::getInstance().log(logger::CONFIG, "Exit: signal received: "+to_string(signal_num)+"\n");
     kill(pid2, signal_num);
     kill(pid1, signal_num);
     exit(signal_num);
