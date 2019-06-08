@@ -54,10 +54,7 @@ void Listener::listenForAxes(const std::string& payload)
 {
     auto c_map = nlohmann::json::parse(payload);
     std::vector<int> tmp = c_map.get<std::vector<int>>();
-    
-    for (auto it = tmp.begin(); it != tmp.end(); it++)
-        std::cout << *it << "\t";
-    std::cout << std::endl;
+	axes_ = {tmp[X_MOUSE], tmp[Y_MOUSE]};
 	
     isAxesUpdated_ = true;
 }
@@ -99,13 +96,13 @@ std::vector<int> Listener::axes(){
 
 int main(void) {
 	
-	MqttClient& subscriber = MqttClient::getInstance("hmi", Rov::IP_ADDRESS);
+	MqttClient& subscriber = MqttClient::getInstance("hmi", Hmi::IP_ADDRESS);
 	
 	Listener listener;
 
 	subscriber.subscribeTo(Topics::JOYSTICK_BUTTONS, &Listener::listenForButtons, &listener);
     subscriber.subscribeTo(Topics::JOYSTICK_AXES, &Listener::listenForAxes, &listener);
-/*
+
     Display* dpy = XOpenDisplay(0);
     int scr = XDefaultScreen(dpy);
     Window root_window = XRootWindow(dpy, scr);
@@ -126,8 +123,5 @@ int main(void) {
 		
 		std::this_thread::sleep_for(std::chrono::microseconds(10));
 	}
-*/
-
-    while(1);
 }
 
