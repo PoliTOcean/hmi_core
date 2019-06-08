@@ -132,12 +132,11 @@ int main(void) {
 
         if(newMouse[Y_MOUSE] < 0) newMouse[Y_MOUSE] = 0;
         else if(newMouse[Y_MOUSE] > height) newMouse[Y_MOUSE] = height;
-
-        int dx = newMouse[X_MOUSE] - lastMouse[X_MOUSE];
-        int dy = newMouse[Y_MOUSE] - lastMouse[Y_MOUSE];        
-        XWarpPointer(dpy, None, root_window, lastMouse[X_MOUSE], lastMouse[Y_MOUSE], 0, 0, dx, dy);
+        
+        XWarpPointer(dpy, None, root_window, lastMouse[X_MOUSE], lastMouse[Y_MOUSE], 0, 0, newMouse[X_MOUSE], newMouse[Y_MOUSE]);
         XFlush(dpy);
 
+        lastMouse = newMouse;
 	}
 }
 
