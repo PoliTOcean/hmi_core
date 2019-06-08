@@ -4,6 +4,8 @@
 #include <thread>
 #include <chrono>
 
+#include <unistd.h>
+
 #include <json.hpp>
 
 #include "MqttClient.h"
@@ -147,16 +149,34 @@ int main(void) {
         else if(newMouse[Y] > height) newMouse[Y] = height;
         
         XWarpPointer(dpy, None, root_window, lastMouse[X], lastMouse[Y], 0, 0, newMouse[X], newMouse[Y]);
-
-        if (click)
-        {
-
-        }
-            
-        
-        XFlush(dpy);
-
         lastMouse = newMouse;
+
+        if (click) {
+            XEvent event;
+            memset(&event, 0x00, sizeof(event));
+            event.type = ButtonPress;
+            event.xbutton.button = Button1;
+            event.xbutton.same_screen = True;
+            event.xbutton.root = root_window;
+            event.xbutton.window = root_window;
+            event.xbutton.subwindow = 0;
+            event.xbutton.x_root = lastMouse[X];
+            event.xbutton.y_root = lastMouse[Y];
+            event.xbutton.x = lastMouse[X];
+            event.xbutton.y = lastMouse[Y];
+            event.xbutton.state = 0;
+
+            XSendEvent(dpy, root_window, True, ButtonPressMask, &event);
+            XFlush(dpy);
+            usleep(100000);
+
+            event.type = ButtonRelease;
+            event.xbutton.state = 0x100;
+            XSendEvent(dpy, root_window, True, ButtonReleaseMask, &event);
+            click = false;
+        }
+
+        XFlush(dpy);
 	}
 }
 
