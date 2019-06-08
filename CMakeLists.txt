@@ -26,6 +26,7 @@ add_subdirectory(libs)
 add_executable(PolitoceanJoystick src/JoystickPublisher.cpp)
 add_executable(PolitoceanGUI src/gui.cpp)
 add_executable(PolitoceanCommands src/CommandParser.cpp)
+add_executable(PolitoceanMouse src/Mouse.cpp)
     
 # Linking the libraries
 target_link_libraries(PolitoceanJoystick -lpthread
@@ -46,6 +47,8 @@ target_link_libraries(PolitoceanCommands -lpthread
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::MqttClient)
 
+target_link_libraries(PolitoceanMouse -lX11
+        PolitoceanCommon::MqttClient)
 
 IF( BUILD_TESTS )
     #test section
@@ -65,6 +68,6 @@ install ( TARGETS ${PolitoceanHmi_LIBS} ${PolitoceanCommon_LIBS}
           LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
           PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install ( TARGETS PolitoceanGUI PolitoceanCommands PolitoceanJoystick
+install ( TARGETS PolitoceanGUI PolitoceanCommands PolitoceanJoystick PolitoceanMouse
           RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
           PERMISSIONS WORLD_READ WORLD_EXECUTE )

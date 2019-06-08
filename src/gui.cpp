@@ -15,7 +15,7 @@ using namespace std;
 using namespace Politocean;
 using namespace Politocean::Constants;
 
-pid_t pid1, pid2;
+pid_t pid1, pid2, pid3;
 
 void signal_handler( int signal_num ) {
     logger::getInstance().log(logger::CONFIG, "Exit: signal received: "+to_string(signal_num)+"\n");
@@ -31,11 +31,15 @@ int main(int argc, char *argv[])
     char *args[]={"",NULL};
     pid1 = fork();
     if (pid1 == 0)
-        execvp(args[0]="PolitoceanJoystick",args);
+        execvp(args[0]="PolitoceanJoystick", args);
     
     pid2 = fork();
     if (pid2 == 0)
-        execvp(args[0]="PolitoceanCommands",args);
+        execvp(args[0]="PolitoceanCommands", args);
+
+    pid3 = fork();
+    if(pid3==0)
+        execvp(args[0]="PolitoceanMouse", args);
 
     signal(SIGABRT, signal_handler);
     signal(SIGINT, signal_handler);
