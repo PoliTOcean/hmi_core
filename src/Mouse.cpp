@@ -111,7 +111,7 @@ int main(void) {
     int width  = DisplayWidth(dpy, scr);
     std::cout << "Screen size : x: " << width << "\thegiht: " << height << std::endl;
 
-    std::vector<int> lastMouse = std::vector<int>(11,0);
+    std::vector<int> lastMouse = std::vector<int>(12,0);
 
     while(1)
     {
