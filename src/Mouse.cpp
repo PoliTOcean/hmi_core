@@ -86,7 +86,7 @@ bool Listener::isButtonUpdated()
 
 bool Listener::isAxesUpdated()
 {
-    return !axes_.empty();
+    return isAxesUpdated_ && !axes_.empty();
 }
 
 std::vector<int> Listener::axes(){
@@ -139,8 +139,6 @@ int main(void) {
         XFlush(dpy);
 
         lastMouse = currentMouse;
-
-        std::this_thread::sleep_for(std::chrono::microseconds(10));
 	}
 }
 
