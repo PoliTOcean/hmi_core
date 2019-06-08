@@ -15,11 +15,19 @@ using namespace std;
 using namespace Politocean;
 using namespace Politocean::Constants;
 
+pid_t pid1, pid2;
+
+void signal_handler( int signal_num ) {
+    logger::getInstance().log(logger::CONFIG, "Signal received: "+to_string(signal_num)+"\n");
+    kill(pid2, signal_num);
+    kill(pid1, signal_num);
+    exit(signal_num);
+}
+
 int main(int argc, char *argv[])
 {
     logger::enableLevel(logger::DEBUG);
 
-    pid_t pid1, pid2;
     char *args[]={"",NULL};
     pid1 = fork();
     if (pid1 == 0)
@@ -29,6 +37,10 @@ int main(int argc, char *argv[])
     if (pid2 == 0)
         execvp(args[0]="PolitoceanCommands",args);
 
+    signal(SIGABRT, signal_handler);
+    signal(SIGINT, signal_handler);
+    signal(SIGTERM, signal_handler);
+    
     MqttClient& subscriber = MqttClient::getInstance(Hmi::GUI_ID, Hmi::IP_ADDRESS);
 
     QApplication a(argc, argv);
@@ -41,8 +53,7 @@ int main(int argc, char *argv[])
 
     int result = a.exec();
 
-    kill(pid2, SIGTERM);
-    kill(pid1, SIGTERM);
+    signal_handler(SIGTERM);
 
     return result;
 }
