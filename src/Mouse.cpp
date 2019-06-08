@@ -119,9 +119,8 @@ int main(void) {
         XWarpPointer(dpy, None, root_window, 0, 0, 0, 0, contr[0], contr[1]);
         XFlush(dpy);
         */
-        for (auto it = contr.begin(); it != contr.end(); it++)
-            std::cout << *it << "\t";
-        std::cout << std::endl;
+
+        std::cout << "X: " << contr[X_MOUSE] << "\tY: " << contr[Y_MOUSE] << std::endl;
 
         std::this_thread::sleep_for(std::chrono::microseconds(10));
 	}
