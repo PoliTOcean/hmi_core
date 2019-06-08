@@ -26,6 +26,7 @@ add_subdirectory(libs)
 add_executable(PolitoceanJoystick src/JoystickPublisher.cpp)
 add_executable(PolitoceanGUI src/gui.cpp)
 add_executable(PolitoceanCommands src/CommandParser.cpp)
+add_executable(PolitoceanMouse src/Mouse.cpp)
     
 # Linking the libraries
 target_link_libraries(PolitoceanJoystick -lpthread
@@ -46,6 +47,8 @@ target_link_libraries(PolitoceanCommands -lpthread
         PolitoceanCommon::mqttLogger
         PolitoceanCommon::MqttClient)
 
+target_link_libraries(PolitoceanCommands -lpthread
+        PolitoceanCommon::MqttClient)
 
 IF( BUILD_TESTS )
     #test section
