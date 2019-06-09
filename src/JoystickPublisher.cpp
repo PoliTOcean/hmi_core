@@ -18,6 +18,9 @@
 
 #include "json.hpp"
 
+#include "Component.hpp"
+#include "ComponentsManager.hpp"
+
 using namespace Politocean;
 using namespace Politocean::Constants;
 
@@ -177,6 +180,8 @@ int main(int argc, const char *argv[])
 	Joystick joystick;
 	Listener listener;
 
+	ComponentsManager::Init(Hmi::COMPONENTS_ID);
+
 	// Try to connect to the joystick device.
 	// If error has caught, terminate with EXIT_FAILURE
 	while (!joystick.isConnected())
@@ -207,6 +212,7 @@ int main(int argc, const char *argv[])
 
 		std::cerr << "Joystick device disconnected" << std::endl;
 		
+
 		talker.stopTalking();
 
 		while (!joystick.isConnected())

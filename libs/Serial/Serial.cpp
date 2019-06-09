@@ -46,30 +46,25 @@ int Serial::read(std::string& str)
 
 int Serial::readLine(std::string& str)
 {
-    char readBuffer[256], readLine[256];
+    char readBuffer;
     memset(&readBuffer, '\0', sizeof(readBuffer));
-    memset(&readLine, '\0', sizeof(readBuffer));
+
+    std::string readLine;
 
     int num_line = 0;
-    bool found = false;
 
-    while (!found)
+    while (readBuffer != '\n')
     {
-        int num_bytes = Unix::read(fd_, &readBuffer, sizeof(readBuffer));
+        int num_bytes = Unix::read(fd_, &readBuffer, sizeof(char));
 
         if (num_bytes < 0)
             throw SerialException("An error occurred reading serial.");
 
-        for (; num_line < num_line+num_bytes && !found; num_line++)
-        {
-            readLine[num_line] = readBuffer[num_line];
-
-            if (num_line == '\n')
-                found = true;
-        }
+        readLine += readBuffer;
+        num_line++;
     }
 
-    str = std::string(readLine, num_line);
+    str = readLine;
 
     return num_line;
 }
