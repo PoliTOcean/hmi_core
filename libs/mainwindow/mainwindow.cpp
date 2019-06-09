@@ -4,6 +4,7 @@
 #include "vision.h"
 #include "ipcamera.h"
 #include <iostream>
+#include <sstream>
 #include "PolitoceanConstants.h"
 #include <mutex>
 
@@ -337,4 +338,12 @@ void MainWindow::messageArrived(const std::string& payload, const std::string& t
     else if(topic == "TOPIC_MESSAGE"){
         this->messageArrived(QString::fromStdString(payload),0);
     }
+}
+
+void MainWindow::sensorArrived(Types::Vector<Sensor<float>> payload){
+    this->sensors_ = payload;
+    stringstream ss;
+    for(auto item : payload)
+        ss << item  << " ";
+    logger::getInstance().log(logger::CONFIG,ss.str());
 }

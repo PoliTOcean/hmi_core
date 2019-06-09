@@ -58,6 +58,8 @@ int main(int argc, char *argv[])
 
     subscriber.subscribeToFamily(Topics::LOGS, &MainWindow::messageArrived, &gui);
     subscriber.subscribeTo(Topics::COMPONENTS, &MainWindow::messageArrived, &gui);
+    subscriber.subscribeTo(Topics::SENSORS, &MainWindow::sensorArrived, &gui);
+
 
     int result = a.exec();
 
