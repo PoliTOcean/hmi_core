@@ -44,6 +44,31 @@ int Serial::read(std::string& str)
     return num_bytes;
 }
 
+int Serial::readLine(std::string& str)
+{
+    char readBuffer;
+    memset(&readBuffer, '\0', sizeof(readBuffer));
+
+    std::string readLine;
+
+    int num_line = 0;
+
+    while (readBuffer != '\n')
+    {
+        int num_bytes = Unix::read(fd_, &readBuffer, sizeof(char));
+
+        if (num_bytes < 0)
+            throw SerialException("An error occurred reading serial.");
+
+        readLine += readBuffer;
+        num_line++;
+    }
+
+    str = readLine;
+
+    return num_line;
+}
+
 termios TTY::tty_ = { 0 };
 
 void Serial::close()
