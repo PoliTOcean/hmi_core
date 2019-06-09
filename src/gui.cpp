@@ -23,8 +23,9 @@ pid_t pid1, pid2, pid3;
 
 void signal_handler( int signal_num ) {
     logger::getInstance().log(logger::CONFIG, "Exit: signal received: "+to_string(signal_num)+"\n");
-    kill(pid2, signal_num);
     kill(pid1, signal_num);
+    kill(pid2, signal_num);
+    kill(pid3, signal_num);
     exit(signal_num);
 }
 

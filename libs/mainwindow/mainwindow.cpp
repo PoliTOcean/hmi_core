@@ -85,6 +85,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     value_track = 0;
     snap_b = false;
+
+    setVideoStart();
 }
 
 MainWindow::~MainWindow()
@@ -307,7 +309,7 @@ void MainWindow::startMeasure()
 }
 
 void MainWindow::messageArrived(const std::string& payload, const std::string& topic){
-    std::cout << topic << ":\t" << payload << std::endl;
+  /*  std::cout << topic << ":\t" << payload << std::endl;
     if(topic == "TOPIC_COMPONTENTS"){
         if(payload == "JOYSTICK_ON"){
             this->setJoystick(true);
@@ -328,22 +330,13 @@ void MainWindow::messageArrived(const std::string& payload, const std::string& t
         }
 
     }
-
+*/
     /* ERROR MESSAGE */
-    else if(topic == Topics::ERRORS){
+    if(topic == Topics::ERRORS){
         this->messageArrived(QString::fromStdString(payload),-1);
-    }
-
-    /* COMUNICATION MESSAGE */
-    else if(topic == "TOPIC_MESSAGE"){
-        this->messageArrived(QString::fromStdString(payload),0);
     }
 }
 
 void MainWindow::sensorArrived(Types::Vector<Sensor<float>> payload){
     this->sensors_ = payload;
-    stringstream ss;
-    for(auto item : payload)
-        ss << item  << " ";
-    logger::getInstance().log(logger::CONFIG,ss.str());
 }
