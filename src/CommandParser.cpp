@@ -236,9 +236,9 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
                     topic = Topics::COMMANDS;
 
                     if (value && ComponentsManager::GetComponentState(component_t::POWER) == Component::Status::ENABLED)
-                        action = Actions::ON;
-                    else if (value && ComponentsManager::GetComponentState(component_t::POWER) == Component::Status::DISABLED)
                         action = Actions::OFF;
+                    else if (value && ComponentsManager::GetComponentState(component_t::POWER) == Component::Status::DISABLED)
+                        action = Actions::ON;
                     else
                         break;
                     
