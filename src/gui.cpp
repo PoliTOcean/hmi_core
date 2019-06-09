@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     MainWindow gui;
     gui.show();
 
-    subscriber.subscribeTo(Topics::LOGS+"#", &MainWindow::messageArrived, &gui);
+    subscriber.subscribeToFamily(Topics::LOGS, &MainWindow::messageArrived, &gui);
     subscriber.subscribeTo(Topics::COMPONENTS, &MainWindow::messageArrived, &gui);
 
     int result = a.exec();
