@@ -85,6 +85,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     value_track = 0;
     snap_b = false;
+
+    setVideoStart();
 }
 
 MainWindow::~MainWindow()
@@ -328,7 +330,7 @@ void MainWindow::messageArrived(const std::string& payload, const std::string& t
         }
 
     }
-
+*/
     /* ERROR MESSAGE */
     if(topic == Topics::ERRORS){
         this->messageArrived(QString::fromStdString(payload),-1);
