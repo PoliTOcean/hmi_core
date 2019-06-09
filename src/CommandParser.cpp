@@ -14,6 +14,8 @@
 #include "PolitoceanExceptions.hpp"
 #include "mqttLogger.h"
 
+#include <Reflectables/Vector.hpp>
+
 #include "ComponentsManager.hpp"
 
 using namespace Politocean;
@@ -42,10 +44,9 @@ class Listener {
     bool isButtonUpdated_ = false;
     bool isAxesUpdated_ = false;
 
-    std::vector<int> axes_;
+    Types::Vector<int> axes_;
 
-    std::mutex mutexAxs_, mutexBtn_;
-
+    std::mutex mutexBtn_;
 
 public:
     void listenForButtons(const std::string& payload);
@@ -53,7 +54,7 @@ public:
 
     button_t button();
 
-    std::vector<int> axes();
+    Types::Vector<int> axes();
 
     bool isButtonUpdated();
     bool isAxesUpdated();
@@ -62,8 +63,13 @@ public:
 void Listener::listenForButtons(const std::string& payload)
 {
 	std::lock_guard<std::mutex> lock(mutexBtn_);
-    int btn  = static_cast<int>(std::stoi(payload));
 
+    int btn = 0;
+    try {
+        btn  = static_cast<int>(std::stoi(payload));
+    } catch(...) {
+        logger::getInstance().log(logger::WARNING, "Error in receiving buttons");
+    }
     buttons_.push( button_t(btn & 0x7F, (btn >> 7) & 0x01) );
 
     isButtonUpdated_ = true;
@@ -93,15 +99,13 @@ bool Listener::isAxesUpdated()
 
 void Listener::listenForAxes(const std::string& payload)
 {
-   	std::lock_guard<std::mutex> lock(mutexAxs_);
     auto c_map = nlohmann::json::parse(payload);
     axes_ = c_map.get<std::vector<int>>();
 
     isAxesUpdated_ = true;
 }
 
-std::vector<int> Listener::axes(){
-   	std::lock_guard<std::mutex> lock(mutexAxs_);
+Types::Vector<int> Listener::axes(){
     isAxesUpdated_ = false;
     return axes_;
 }
@@ -154,7 +158,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
                 continue;
             }
                 
-            std::vector<int> axes = listener.axes();
+            Types::Vector<int> axes = listener.axes();
 
             if(axes[Axes::X] != prevAxes.at(Axes::X)
                 || axes[Axes::Y] != prevAxes.at(Axes::Y)
@@ -168,8 +172,8 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
                     axes[Axes::PITCH]
                 };
 
-                nlohmann::json atmega = atmega_axes;
-                publisher.publish(Topics::AXES, atmega.dump());
+                Types::Vector<int> atmega = atmega_axes;
+                publisher.publish(Topics::AXES, atmega);
                 
                 prevAxes[Axes::X] = axes[Axes::X];
                 prevAxes[Axes::Y] = axes[Axes::Y];

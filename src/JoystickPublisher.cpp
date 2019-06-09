@@ -21,6 +21,8 @@
 #include "Component.hpp"
 #include "ComponentsManager.hpp"
 
+#include <Reflectables/Vector.hpp>
+
 using namespace Politocean;
 using namespace Politocean::Constants;
 
@@ -107,9 +109,9 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::JOYSTICK));
 
-			nlohmann::json j_map = listener.axes();
+			Types::Vector<int> axes = listener.axes();
 
-			publisher.publish(Topics::JOYSTICK_AXES, j_map.dump());
+			publisher.publish(Topics::JOYSTICK_AXES, axes);
 		}
 
 		isTalking_ = false;
