@@ -14,6 +14,8 @@
 #include "PolitoceanExceptions.hpp"
 #include "mqttLogger.h"
 
+#include "ComponentsManager.hpp"
+
 using namespace Politocean;
 using namespace Politocean::Constants;
 using namespace Politocean::Constants::Commands;
@@ -203,8 +205,6 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
     });
 
     buttonTalker_ = new std::thread([&]() {
-
-        map<int, bool> state = {{Buttons::MOTORS,false}};
         while (publisher.is_connected())
         {
 
@@ -234,16 +234,14 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
                 
                 case Buttons::MOTORS:
                     topic = Topics::COMMANDS;
-                    if (value && !state[id])
-                    {
+
+                    if (value && ComponentsManager::GetComponentState(component_t::POWER) == Component::Status::ENABLED)
                         action = Actions::ON;
-                        state[id] = true;
-                    }
-                    else if (value && state[id])
-                    {
+                    else if (value && ComponentsManager::GetComponentState(component_t::POWER) == Component::Status::DISABLED)
                         action = Actions::OFF;
-                        state[id] = false;
-                    }
+                    else
+                        break;
+                    
                     break;
 
                 case Buttons::RESET:
@@ -401,10 +399,11 @@ int main(int argc, const char* argv[])
 {
     logger::enableLevel(logger::INFO);
 
-    Talker talker;
-
     MqttClient& hmiClient = MqttClient::getInstance(Constants::Hmi::CMD_ID, Constants::Hmi::IP_ADDRESS);
     Listener listener;
+    Talker talker;
+    
+    ComponentsManager::Init(Hmi::CMD_ID);
 
     mqttLogger& ptoLogger = mqttLogger::getInstance(hmiClient);
     ptoLogger.setPublishLevel(logger::CONFIG);
