@@ -8,7 +8,7 @@ add_subdirectory(autodrive)
 add_subdirectory(ipcamera)
 add_subdirectory(mainwindow)
 add_subdirectory(vision)
-
+add_subdirectory(Serial)
 
 # Install and export (do not touch this part)
 install(

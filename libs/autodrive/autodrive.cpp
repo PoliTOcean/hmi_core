@@ -1,5 +1,6 @@
 #include "autodrive.h"
 #define K 10000
+#define LIB_TAG "Autodrive: "
 
 namespace Politocean {
 
@@ -9,15 +10,15 @@ AutoDrive::AutoDrive() : AutoDrive(Direction::UP)
 {
 }
 
-AutoDrive::AutoDrive(Direction startDirection)
+AutoDrive::AutoDrive(Direction startDirection) : direction(startDirection)
 {
-    direction = startDirection;
     grid = imread("images/grid.png",CV_LOAD_IMAGE_COLOR);
     currentPos.x = 50;
     currentPos.y = 50;
     if(!grid.data )                              // Check for invalid input
     {
-        //TO DO: use logger: std::cout <<  "Could not open or find the image" << std::endl ;
+        //TODO exception
+        logger::getInstance().log(logger::INFO, string(LIB_TAG) + "Could not open or find the image");
     }
 }
 
@@ -43,9 +44,9 @@ Direction AutoDrive::updateDirection(Mat frame)
             ss << "{\"X\":"<< -K << ", \"Y\":0, \"MOTORS_ON\":0, \"MOTOROS_OFF\":0}";
             out_string = ss.str();
 
-            publisher.publish(Topics::AUTODRIVE,out_string);
-            // TO DO: mqttLogger: publisher.publish(MESSAGE_TOPIC,"AUTODRIVE: direction left");
-            /** TO DO: implement JSON **/
+            publisher.publish(Topics::AUTODRIVE, out_string);
+            mqttLogger::getInstance(publisher).log(logger::DEBUG, string(LIB_TAG)+" direction left");
+            // TODO implement JSON / Reflectable
 
             currentPos.x = currentPos.x - 100;
         }

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string.h>
 
-#include "Serial.h"
+#include "Serial.hpp"
 
 namespace Unix
 {

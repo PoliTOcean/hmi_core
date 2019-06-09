@@ -11,6 +11,10 @@
 #include <unistd.h>
 #include <signal.h>
 
+#define JOYSTICK  "PolitoceanJoystick"
+#define COMMANDS  "PolitoceanCommands"
+#define MOUSE     "PolitoceanMouse"
+
 using namespace std;
 using namespace Politocean;
 using namespace Politocean::Constants;
@@ -31,15 +35,15 @@ int main(int argc, char *argv[])
     char *args[]={"",NULL};
     pid1 = fork();
     if (pid1 == 0)
-        execvp(args[0]="PolitoceanJoystick", args);
+        execvp(args[0]=JOYSTICK, args);
     
     pid2 = fork();
     if (pid2 == 0)
-        execvp(args[0]="PolitoceanCommands", args);
+        execvp(args[0]=COMMANDS, args);
 
     pid3 = fork();
     if(pid3==0)
-        execvp(args[0]="PolitoceanMouse", args);
+        execvp(args[0]=MOUSE, args);
 
     signal(SIGABRT, signal_handler);
     signal(SIGINT, signal_handler);
