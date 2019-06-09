@@ -30,7 +30,7 @@ void Serial::open()
 
 int Serial::read(std::string& str)
 {
-    char readBuffer [256];
+    char readBuffer[256];
     memset(&readBuffer, '\0', sizeof(readBuffer));
     
     int num_bytes = Unix::read(fd_, &readBuffer, sizeof(readBuffer));

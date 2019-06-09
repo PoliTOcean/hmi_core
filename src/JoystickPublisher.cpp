@@ -18,6 +18,9 @@
 
 #include "json.hpp"
 
+#include "Component.hpp"
+#include "ComponentsManager.hpp"
+
 using namespace Politocean;
 using namespace Politocean::Constants;
 
@@ -177,6 +180,8 @@ int main(int argc, const char *argv[])
 	Joystick joystick;
 	Listener listener;
 
+	ComponentsManager::Init(Hmi::COMPONENTS_ID);
+
 	// Try to connect to the joystick device.
 	// If error has caught, terminate with EXIT_FAILURE
 	while (!joystick.isConnected())
@@ -187,12 +192,12 @@ int main(int argc, const char *argv[])
 		}
 		catch (const JoystickException& e)
 		{
-			std::cerr << e.what() << std::endl;
+			ComponentsManager::SetComponentState(component_t::JOYSTICK, Component::Status::ERROR);
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 
-	std::cout << "Joystick device is connected.\n" << std::endl;
+	ComponentsManager::SetComponentState(component_t::JOYSTICK, Component::Status::ENABLED);
 
 	// Start reading data from the joystick device.
 	joystick.startReading(&Listener::listen, &listener);
@@ -205,8 +210,8 @@ int main(int argc, const char *argv[])
 		if (joystick.isConnected())
 			continue ;
 
-		std::cerr << "Joystick device disconnected" << std::endl;
-		
+		ComponentsManager::SetComponentState(component_t::JOYSTICK, Component::Status::ERROR);
+
 		talker.stopTalking();
 
 		while (!joystick.isConnected())
@@ -230,7 +235,7 @@ int main(int argc, const char *argv[])
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}
 
-		std::cout << "Joystick device is connected." << std::endl;
+		ComponentsManager::SetComponentState(component_t::JOYSTICK, Component::Status::ENABLED);
 		
 		talker.startTalking(joystickPublisher, listener);
 	}

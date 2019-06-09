@@ -32,7 +32,8 @@ add_executable(PolitoceanMouse src/Mouse.cpp)
 target_link_libraries(PolitoceanJoystick -lpthread
     PolitoceanHmi::Joystick
     PolitoceanCommon::mqttLogger
-    PolitoceanCommon::MqttClient)
+    PolitoceanCommon::MqttClient
+    PolitoceanCommon::Component)
 
 target_link_libraries(PolitoceanGUI -lpthread
     # Add here all the libraries as:
@@ -42,11 +43,13 @@ target_link_libraries(PolitoceanGUI -lpthread
     PolitoceanHmi::Serial
     PolitoceanCommon::mqttLogger
     PolitoceanCommon::MqttClient
-    PolitoceanCommon::logger)
+    PolitoceanCommon::logger
+    PolitoceanCommon::Component)
     
 target_link_libraries(PolitoceanCommands -lpthread
         PolitoceanCommon::mqttLogger
-        PolitoceanCommon::MqttClient)
+        PolitoceanCommon::MqttClient
+        PolitoceanCommon::Component)
 
 target_link_libraries(PolitoceanMouse -lX11
         PolitoceanCommon::MqttClient)
