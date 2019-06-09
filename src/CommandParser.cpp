@@ -134,7 +134,6 @@ public:
 
 void Talker::startTalking(MqttClient& publisher, Listener& listener)
 {
-
     if (isTalking_)
         return ;
 
@@ -401,7 +400,7 @@ bool Talker::isTalking()
 
 int main(int argc, const char* argv[])
 {
-    logger::enableLevel(logger::INFO);
+    logger::enableLevel(logger::DEBUG);
 
     MqttClient& hmiClient = MqttClient::getInstance(Constants::Hmi::CMD_ID, Constants::Hmi::IP_ADDRESS);
     Listener listener;
