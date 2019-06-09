@@ -30,7 +30,7 @@ void Serial::open()
 
 int Serial::read(std::string& str)
 {
-    char readBuffer [256];
+    char readBuffer[256];
     memset(&readBuffer, '\0', sizeof(readBuffer));
     
     int num_bytes = Unix::read(fd_, &readBuffer, sizeof(readBuffer));
@@ -42,6 +42,36 @@ int Serial::read(std::string& str)
         str = std::string(readBuffer, num_bytes);
 
     return num_bytes;
+}
+
+int Serial::readLine(std::string& str)
+{
+    char readBuffer[256], readLine[256];
+    memset(&readBuffer, '\0', sizeof(readBuffer));
+    memset(&readLine, '\0', sizeof(readBuffer));
+
+    int num_line = 0;
+    bool found = false;
+
+    while (!found)
+    {
+        int num_bytes = Unix::read(fd_, &readBuffer, sizeof(readBuffer));
+
+        if (num_bytes < 0)
+            throw SerialException("An error occurred reading serial.");
+
+        for (; num_line < num_line+num_bytes && !found; num_line++)
+        {
+            readLine[num_line] = readBuffer[num_line];
+
+            if (num_line == '\n')
+                found = true;
+        }
+    }
+
+    str = std::string(readLine, num_line);
+
+    return num_line;
 }
 
 termios TTY::tty_ = { 0 };

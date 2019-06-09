@@ -54,6 +54,7 @@ public:
     void setBaudRate(BaudRate baudRate);
 
     int read(std::string& str);
+    int readLine(std::string& str);
 };
 
 class SerialException : public std::exception
