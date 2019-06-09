@@ -101,7 +101,7 @@ std::vector<int> Listener::axes(){
 }
 
 int main(void) {
-    logger::enableLevel(logger::CONFIG);
+    logger::enableLevel(logger::DEBUG);
 
     MqttClient& subscriber = MqttClient::getInstance(Hmi::MOUSE_ID, Hmi::IP_ADDRESS);
     
