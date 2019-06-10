@@ -1,5 +1,4 @@
 #include "Reflectable.hpp"
-
 #include "json.hpp"
 
 using namespace Reflectable;
@@ -32,12 +31,10 @@ namespace Politocean
             }
             catch (const std::exception& e)
             {
-                logger::getInstance().log(logger::WARNING, "An error occured while parsing button: ", e);
                 throw ReflectableParsingException(std::string("An error occurred while parsing button: ")+e.what());
             }
             catch (...) 
             {
-                logger::getInstance().log(logger::WARNING, "An error occured while parsing button.");
                 throw ReflectableParsingException("An error occurred while parsing button.");
             }
             return Button(id, value);
