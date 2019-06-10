@@ -21,7 +21,6 @@ MainWindow::MainWindow(QWidget *parent) :
     camera( std::bind(&MainWindow::setFrame, this, std::placeholders::_1), 2 ),
     ui(new Ui::MainWindow)
 {
-
     /* SETUP UI*/
     ui->setupUi(this);
     
@@ -448,7 +447,7 @@ void MainWindow::messageArrived(const std::string& payload, const std::string& t
     }
 
     /* ERROR MESSAGE */
-    if(topic == Topics::ERRORS){
+    if(topic == Topics::Logs::ERRORS){
         this->messageArrived(QString::fromStdString(payload),-1);
     }
 }

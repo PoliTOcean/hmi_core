@@ -13,6 +13,8 @@ using namespace FlyCapture2;
 
 class IpCamera
 {
+    const std::string LIB_TAG = "IpCamera";
+
 public:
     IpCamera(std::function<void(cv::Mat)> extCb);
     IpCamera(std::function<void(cv::Mat)> extCb, int freqDivider);

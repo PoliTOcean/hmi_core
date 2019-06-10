@@ -13,10 +13,9 @@
 #include "PolitoceanExceptions.hpp"
 #include "PolitoceanConstants.h"
 
-#include "logger.h"
-#include "mqttLogger.h"
+#include <mqttLogger.h>
 
-#include "json.hpp"
+#include <json.hpp>
 
 #include "Component.hpp"
 #include "ComponentsManager.hpp"
@@ -156,19 +155,13 @@ bool Talker::isTalking()
  * Main section
  *************************************************************/
 
-#define DFLT_CLIENT_ID "JoystickPublisher"
-#define MAX_JOYSTICK_CONNECTION_RETRY 5
-
 int main(int argc, const char *argv[])
-{
-    logger::enableLevel(logger::DEBUG);
-	
+{	
+    mqttLogger::setRootTag(argv[0]);
+
 	// Create a publisher object and a talker.
 	MqttClient& joystickPublisher = MqttClient::getInstance(Hmi::JOYSTICK_ID, Hmi::IP_ADDRESS);
 	Talker talker;
-
-	mqttLogger& logger = mqttLogger::getInstance(joystickPublisher);
-    logger.setPublishLevel(logger::CONFIG);
 	
 	// Create a joystick object and a listener.
 	Joystick joystick;
@@ -186,6 +179,7 @@ int main(int argc, const char *argv[])
 		}
 		catch (const JoystickException& e)
 		{
+			mqttLogger::getInstance().log(logger::WARNING, "Joystick not connected.");
 			ComponentsManager::SetComponentState(component_t::JOYSTICK, Component::Status::ERROR);
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -210,8 +204,8 @@ int main(int argc, const char *argv[])
 		int nretry = 0;
 		while (!joystick.isConnected())
 		{
-			logger::getInstance().log(logger::WARNING, "Joystick disconnected! Retrying to connect...");
-			logger::getInstance().log(logger::INFO, "Atttempt: " + to_string(nretry++));
+			mqttLogger::getInstance().log(logger::WARNING, "Joystick disconnected! Trying to reconnect...");
+			mqttLogger::getInstance().log(logger::INFO, "Reconnection attempt: " + to_string(nretry++));
 
 			try
 			{
@@ -219,7 +213,7 @@ int main(int argc, const char *argv[])
 			}
 			catch(const JoystickException& e)
 			{
-				logger::getInstance().log(logger::WARNING, e);
+				mqttLogger::getInstance().log(logger::WARNING, e);
 			}
 			
 			std::this_thread::sleep_for(std::chrono::seconds(1));

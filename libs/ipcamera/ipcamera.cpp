@@ -1,12 +1,11 @@
 #include "ipcamera.h"
 #include <chrono>         // std::chrono::milliseconds
-#include <logger.h>
+#include <mqttLogger.h>
 #include <string>
 #include <sstream>
 
 #define DEFAULT_FREQ_DIVIDER 1
 
-const std::string LIB_TAG = "Ipcamera: ";
 
 using namespace FlyCapture2;
 
@@ -81,7 +80,7 @@ std::thread* IpCamera::reconnect()
 
     updated = false;
     reconnecting = true;
-    logger::getInstance().log(logger::CONFIG, LIB_TAG + "Scanning for the GigE Camera...");
+    mqttLogger::getInstance(LIB_TAG).log(logger::CONFIG, "Scanning for the GigE Camera...");
 
     return new std::thread(
         [&]() {
@@ -100,18 +99,18 @@ std::thread* IpCamera::reconnect()
                     reconnecting = false;
                 }
                 else {
-                    logger::getInstance().log(logger::WARNING, LIB_TAG + "Could not connect to the GigE Camera: ");
-                    logger::getInstance().log(logger::INFO, LIB_TAG + std::to_string(error.GetType()) + " " + error.GetDescription());
-                    logger::getInstance().log(logger::WARNING, LIB_TAG + "Retrying...");
+                    mqttLogger::getInstance(LIB_TAG).log(logger::WARNING, "Could not connect to the GigE Camera: ");
+                    mqttLogger::getInstance(LIB_TAG).log(logger::INFO, std::to_string(error.GetType()) + " " + error.GetDescription());
+                    mqttLogger::getInstance(LIB_TAG).log(logger::WARNING, "Retrying...");
                     delete camera;
                 }
             }
             camera->GetCameraInfo( &camInfo );
 
             std::stringstream ss;
-            ss  << LIB_TAG << " " << camInfo.vendorName << " " << camInfo.modelName << " " << camInfo.serialNumber << std::endl
+            ss  << camInfo.vendorName << " " << camInfo.modelName << " " << camInfo.serialNumber << std::endl
                 << camInfo.sensorResolution << " " << camInfo.sensorInfo;
-            logger::getInstance().log(logger::CONFIG, ss.str()); 
+            mqttLogger::getInstance(LIB_TAG).log(logger::CONFIG, ss.str()); 
         }
     );
 }

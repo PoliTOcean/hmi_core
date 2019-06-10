@@ -8,7 +8,7 @@
 
 #include <json.hpp>
 
-#include <logger.h>
+#include <mqttLogger.h>
 #include <MqttClient.h>
 
 #include "PolitoceanConstants.h"
@@ -85,8 +85,9 @@ Types::Vector<int> Listener::axes(){
     return axes_;
 }
 
-int main(void) {
-    logger::enableLevel(logger::DEBUG);
+int main(int argc, char *argv[])
+{
+    mqttLogger::setRootTag(argv[0]);
 
     MqttClient& subscriber = MqttClient::getInstance(Hmi::MOUSE_ID, Hmi::IP_ADDRESS);
     
@@ -101,7 +102,7 @@ int main(void) {
 
     int height = DisplayHeight(dpy, scr);
     int width  = DisplayWidth(dpy, scr);
-    logger::getInstance().log(logger::CONFIG, string("Screen width: ")+to_string(width)+"\theight: "+to_string(height)+"\n");
+    mqttLogger::getInstance().log(logger::CONFIG, string("Screen width: ")+to_string(width)+"\theight: "+to_string(height)+"\n");
 
     bool click = false;
     while(1)
@@ -138,13 +139,13 @@ int main(void) {
             event.type = ButtonPress;
             event.xbutton.button = Button1; // left button
             if (XSendEvent(dpy, PointerWindow, True, ButtonPressMask, &event)==0)
-                logger::getInstance().log(logger::WARNING, "Error while sending the mouse button event.");
+                mqttLogger::getInstance().log(logger::WARNING, "Error while sending the mouse button event.");
             XFlush(dpy);
             usleep(1000);
 
             event.type = ButtonRelease;
             if(XSendEvent(dpy, PointerWindow, True, ButtonReleaseMask, &event)==0)
-                logger::getInstance().log(logger::WARNING, "Error while sending the mouse button event.");
+                mqttLogger::getInstance().log(logger::WARNING, "Error while sending the mouse button event.");
             XFlush(dpy);
             click = false;
         }
