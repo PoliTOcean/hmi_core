@@ -39,7 +39,7 @@ class Listener {
 
 public:
     void listenForButtons(Button button);
-    void listenForAxes(const std::string& payload);
+    void listenForAxes(Types::Vector<int> axes);
 
     Button button();
 
@@ -79,15 +79,15 @@ bool Listener::isAxesUpdated()
     return isAxesUpdated_ && !axes_.empty();
 }
 
-void Listener::listenForAxes(const std::string& payload)
+void Listener::listenForAxes(Types::Vector<int> axes)
 {
-    auto c_map = nlohmann::json::parse(payload);
-    axes_ = c_map.get<std::vector<int>>();
+    axes_ = axes;
 
     isAxesUpdated_ = true;
 }
 
-Types::Vector<int> Listener::axes(){
+Types::Vector<int> Listener::axes()
+{
     isAxesUpdated_ = false;
     return axes_;
 }

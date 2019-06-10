@@ -21,6 +21,7 @@
 #include "Component.hpp"
 #include "ComponentsManager.hpp"
 
+#include "Button.hpp"
 #include <Reflectables/Vector.hpp>
 
 using namespace Politocean;
@@ -118,7 +119,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 	});
 
 	buttonTalker_ = new std::thread([&]() {
-		unsigned char button;
+		unsigned char btn;
 
 		while (isTalking_)
 		{			
@@ -126,8 +127,10 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 			{
 				continue;
 			}
-			button = listener.button();
-			publisher.publish(Topics::JOYSTICK_BUTTONS, std::to_string(button));
+			btn = listener.button();
+
+			Button button(btn & 0x7F, (btn >> 7) & 0x01);
+			publisher.publish(Topics::JOYSTICK_BUTTONS, button);
 		}
 
 		isTalking_ = false;
