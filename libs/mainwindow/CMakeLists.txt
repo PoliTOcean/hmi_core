@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 project(Joystick VERSION 1.0.0 LANGUAGES CXX)
 
-SET(OpenCV_DIR /home/pto/installation/OpenCV-3.4.4/share/OpenCV/)
 find_package(OpenCV REQUIRED)
 
 # find Qt5 and required components
@@ -33,6 +32,7 @@ target_link_libraries(mainwindow
                                 PolitoceanCommon::logger
                                 PolitoceanCommon::MqttClient
                                 PolitoceanCommon::mqttLogger
+                                PolitoceanCommon::Sensor
 				PolitoceanHmi::ipcamera
 				PolitoceanHmi::vision
                                 Qt5::Core

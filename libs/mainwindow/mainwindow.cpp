@@ -4,6 +4,7 @@
 #include "vision.h"
 #include "ipcamera.h"
 #include <iostream>
+#include <sstream>
 #include "PolitoceanConstants.h"
 #include <mutex>
 
@@ -12,22 +13,17 @@
 
 using namespace Politocean;
 using namespace Politocean::Constants;
+
 std::mutex mtx;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
+    camera( std::bind(&MainWindow::setFrame, this, std::placeholders::_1), 2 ),
     ui(new Ui::MainWindow)
 {
 
     /* SETUP UI*/
     ui->setupUi(this);
-
-    /* OPEN WEBCAM */
-    try{
-        //cap.open("/dev/video0");
-    }catch(...){
-        std::cout << "ERRORE" << std::endl;
-    }
     
     //INIT PRIVATE VARIABLE
     video = true;
@@ -91,66 +87,79 @@ MainWindow::MainWindow(QWidget *parent) :
 
     value_track = 150;
     snap_b = false;
+
+    setVideoStart();
 }
 
 MainWindow::~MainWindow()
 {
-    cap.release();
+    camera.stop();
     delete ui;
 }
 
-void MainWindow::setFrame(cv::Mat frame)
+void MainWindow::setFrame(const cv::Mat frame)
 {
-    mtx.lock();
-    img = frame;
+    std::lock_guard<std::mutex> lock(mtx);
+    img = frame.clone();
     this->frameArrived();
-    mtx.unlock();
 }
 
 void MainWindow::DisplayImage(){
+    if(!video || img.empty())
+        return;
 
+    Mat frame, frame_rsz;
 
-    if(video){
-        mtx.lock();
-        if(!img.empty()){
-            cvtColor(img,img_hls,CV_BGR2HLS);
-            cvtColor(img,frame_rsz,CV_BGR2RGB);
-            cv::resize(frame_rsz, frame, cv::Size(1024,720));
-            if(mode == MODE::MODE_AUTO){
-                //img = Vision::addCircle(frame,value_track);
-                QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
-                ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-            }
+    std::lock_guard<std::mutex> lock(mtx);
+    cvtColor(img, frame_rsz, CV_BGR2RGB);
+    mtx.unlock();
 
-            else if(mode  == MODE::MODE_HOME){
-                //VISION TEST:
-                cv::Mat filtered = Vision::filterRed(img_hls);
-                if(ui->debugCheck->isChecked()){
-                    QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
-                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                }
-                else{
-                    QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                }
+    cv::resize(frame_rsz, frame, cv::Size(1024,720));
 
-                /*
-                //Mat filtered = Vision::filterRed(img_hls);
-                Mat grid_mat = autodrive.getGrid();
-                //autodrive.updateDirection(filtered);
-                QImage grid((uchar*)grid_mat.data, grid_mat.cols, grid_mat.rows, grid_mat.step, QImage::Format_RGB888);
-                ui->gridLabel->setPixmap(QPixmap::fromImage(grid));
-                if(ui->debugCheck->isChecked()){
-                    QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
-                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                }
-                else{
-                    QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
-                    ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-                }*/
-            }
+    if(mode == MODE::MODE_AUTO){
+        //img = Vision::addCircle(frame,value_track);
+        std::lock_guard<std::mutex> lock(mtx);
+        QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
+        mtx.unlock();
 
-            else if(mode == MODE::MODE_SHAPES){
+        ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+    }
+
+    else if(mode  == MODE::MODE_HOME){
+        //VISION TEST:
+        if(ui->debugCheck->isChecked()){
+            cv::Mat img_hls;
+
+            std::lock_guard<std::mutex> lock(mtx);
+            cvtColor(img, img_hls, CV_BGR2HLS);
+            mtx.unlock();
+
+            cv::Mat filtered = Vision::filterRed(img_hls);
+            QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+        }
+        else{
+            QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+        }
+
+        /*
+        //Mat filtered = Vision::filterRed(img_hls);
+        Mat grid_mat = autodrive.getGrid();
+        //autodrive.updateDirection(filtered);
+        QImage grid((uchar*)grid_mat.data, grid_mat.cols, grid_mat.rows, grid_mat.step, QImage::Format_RGB888);
+        ui->gridLabel->setPixmap(QPixmap::fromImage(grid));
+        if(ui->debugCheck->isChecked()){
+            QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+        }
+        else{
+            QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+        }*/
+    }
+
+    else if(mode == MODE::MODE_SHAPES){
 
                 shape = Vision::getImageBlackShape(frame,value_track);
                 ui->display_image_2->setVisible(true);
@@ -215,7 +224,7 @@ void MainWindow::DisplayImage(){
 
                     imwrite( str, frame );
                     cnt = 2;
-                    snap_b = false;
+            snap_b = false;
 
                 }
 /*
@@ -252,9 +261,9 @@ void MainWindow::DisplayImage(){
                     QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);
                     ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
 
-                }
-            }
         }
+    }
+}
 
         else{
       //      logPublisher.logError("Impossibile accedere alla webcam");
@@ -269,11 +278,13 @@ void MainWindow::setVideoStart()
     //TOOGLE START VIDEO
     video = !video;
     if(video){
-        ui->error_video->setIcon(QIcon());  }
+        camera.start();
+        ui->error_video->setIcon(QIcon());
+    }
     else{
+        camera.stop();
         ui->error_video->setIcon(video_icon);
         ui->error_video->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
-
     }
 }
 
@@ -440,12 +451,11 @@ void MainWindow::messageArrived(const std::string& payload, const std::string& t
     }
 
     /* ERROR MESSAGE */
-    else if(topic == Topics::ERRORS){
+    if(topic == Topics::ERRORS){
         this->messageArrived(QString::fromStdString(payload),-1);
     }
+}
 
-    /* COMUNICATION MESSAGE */
-    else if(topic == "TOPIC_MESSAGE"){
-        this->messageArrived(QString::fromStdString(payload),0);
-    }
+void MainWindow::sensorArrived(Types::Vector<Sensor<float>> payload){
+    this->sensors_ = payload;
 }

@@ -11,6 +11,8 @@
 #include "mqttLogger.h"
 #include "MqttClient.h"
 #include "ipcamera.h"
+#include "Sensor.h"
+#include "Reflectables/Vector.hpp"
 
 
 using namespace Politocean;
@@ -36,14 +38,13 @@ public:
     void setJoystick(bool connected);
     void setAtMega(bool connected);
     void messageArrived(const std::string& payload, const std::string& topic);
-
+    void sensorArrived(Types::Vector<Sensor<float>> payload);
+    void setFrame(const cv::Mat frame);
     
     QImage imdisplay;  //This will create QImage which is shown in Qt label
     QTimer* Timer;   // A timer is needed in GUI application
-    void setFrame(cv::Mat frame);
-    //IpCamera cam;
-    VideoCapture cap;
     IpCamera camera;
+    Types::Vector<Sensor<float>> sensors_; // vector of sensors
 
     ~MainWindow();
 
@@ -74,8 +75,6 @@ private:
     //AutoDrive autodrive;
     int value_track,cnt,i=0,mean=0;
     Point left,right;
-    Mat img_hls,res,frame,frame_rsz;
-
 };
 
 #endif // MAINWINDOW_H
