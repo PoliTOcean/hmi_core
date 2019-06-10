@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 3.5)
-project(vision VERSION 1.0.0 LANGUAGES CXX)
+project(Serial VERSION 1.0.0 LANGUAGES CXX)
 
 find_package(OpenCV REQUIRED)
 
-add_library(vision SHARED
-        vision.cpp)
+add_library(Serial SHARED
+        Serial.cpp)
 
-add_library(PolitoceanHmi::vision ALIAS vision)
+add_library(PolitoceanHmi::Serial ALIAS Serial)
 
-target_include_directories(vision
+target_include_directories(Serial
         PUBLIC
             $<INSTALL_INTERFACE:include>
             $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -16,15 +16,15 @@ target_include_directories(vision
             ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(vision 
+target_link_libraries(Serial 
                                 PolitoceanCommon::logger
                                 ${OpenCV_LIBS})
 
-target_compile_features(vision PRIVATE cxx_auto_type)
-target_compile_options(vision PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)
+target_compile_features(Serial PRIVATE cxx_auto_type)
+target_compile_options(Serial PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)
 
 include(GNUInstallDirs)
-install(TARGETS vision
+install(TARGETS Serial
         EXPORT PolitoceanHmiTargets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

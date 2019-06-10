@@ -2,6 +2,17 @@ cmake_minimum_required(VERSION 3.5)
 project(PolitoceanHmi)
 
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_BUILD_TYPE Debug)
+
+if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
+  message(FATAL_ERROR "
+	In-source builds are not allowed.
+	Please, create a separate directory for build files (e.g. build/).
+	Delete CMakeCache.txt, make a separate dir and try again.
+	")
+endif()
+
+include_directories(include)
 
 # Add politocean common libs
 add_subdirectory(politocean_common)
@@ -14,27 +25,59 @@ include_directories(politocean_common/include)
 add_subdirectory(libs)
 
 # Add executable
-add_executable(JoystickPublisher src/JoystickPublisher.cpp)
-add_executable(Gui src/gui.cpp)
-add_executable(CommandParser src/CommandParser.cpp)
-
+add_executable(PolitoceanJoystick src/JoystickPublisher.cpp)
+add_executable(PolitoceanGUI src/gui.cpp)
+add_executable(PolitoceanCommands src/CommandParser.cpp)
+add_executable(PolitoceanMouse src/Mouse.cpp)
+add_executable(PolitoceanPhMeter src/PhMeter.cpp)
+    
 # Linking the libraries
-target_link_libraries(JoystickPublisher -lpthread
+target_link_libraries(PolitoceanJoystick -lpthread
     PolitoceanHmi::Joystick
-
     PolitoceanCommon::mqttLogger
-    PolitoceanCommon::MqttClient)
+    PolitoceanCommon::MqttClient
+    PolitoceanCommon::Component)
 
-target_link_libraries(Gui 
+target_link_libraries(PolitoceanGUI -lpthread
     # Add here all the libraries as:
-    # Name_of_the_library       --- if it's internal (e.g. Publisher)
+    # Name_of_the_library       --- if it's internal (e.g. MqttClient)
     # -lname_of_the_library     --- if it's a standard c++ library (e.g. -lpthread)
     PolitoceanHmi::mainwindow
-
-    PolitoceanCommon::Subscriber
-    PolitoceanCommon::logger)
+    PolitoceanHmi::Serial
+    PolitoceanCommon::mqttLogger
+    PolitoceanCommon::MqttClient
+    PolitoceanCommon::logger
+    PolitoceanCommon::Component)
     
-target_link_libraries(CommandParser -lpthread
+target_link_libraries(PolitoceanCommands -lpthread
         PolitoceanCommon::mqttLogger
+        PolitoceanCommon::MqttClient
+        PolitoceanCommon::Component)
+
+target_link_libraries(PolitoceanMouse -lX11
         PolitoceanCommon::MqttClient)
 
+target_link_libraries(PolitoceanPhMeter
+        PolitoceanHmi::Serial)
+
+IF( BUILD_TESTS )
+    #test section
+    find_package(Catch2 REQUIRED)
+    add_executable(MqttTest test/MqttTest.cpp)
+    target_link_libraries(MqttTest Catch2::Catch2
+        PolitoceanCommon::MqttClient
+        PolitoceanCommon::mqttLogger)
+endif()
+
+
+# install
+set(CMAKE_INSTALL_PREFIX:PATH /usr)
+include(GNUInstallDirs)
+
+install ( TARGETS ${PolitoceanHmi_LIBS} ${PolitoceanCommon_LIBS} 
+          LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+          PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+install ( TARGETS PolitoceanGUI PolitoceanCommands PolitoceanJoystick PolitoceanMouse
+          RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+          PERMISSIONS WORLD_READ WORLD_EXECUTE )
