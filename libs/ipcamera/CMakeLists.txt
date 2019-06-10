@@ -17,7 +17,7 @@ target_include_directories(ipcamera
 )
 
 target_link_libraries(ipcamera -lpthread
-                                PolitoceanCommon::logger
+                                PolitoceanCommon::mqttLogger
                                 ${OpenCV_LIBS}
                                 -lflycapture)
 

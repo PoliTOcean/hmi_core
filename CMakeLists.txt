@@ -47,7 +47,8 @@ target_link_libraries(PolitoceanGUI -lpthread
     PolitoceanCommon::mqttLogger
     PolitoceanCommon::MqttClient
     PolitoceanCommon::logger
-    PolitoceanCommon::Component)
+    PolitoceanCommon::Component
+    PolitoceanCommon::Sensor)
     
 target_link_libraries(PolitoceanCommands -lpthread
         PolitoceanCommon::mqttLogger
@@ -55,7 +56,8 @@ target_link_libraries(PolitoceanCommands -lpthread
         PolitoceanCommon::Component)
 
 target_link_libraries(PolitoceanMouse -lX11
-        PolitoceanCommon::MqttClient)
+        PolitoceanCommon::MqttClient
+        PolitoceanCommon::mqttLogger)
 
 target_link_libraries(PolitoceanPhMeter
         PolitoceanHmi::Serial)

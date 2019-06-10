@@ -2,14 +2,14 @@
  * @author pettinz
  */
 
-#include "Joystick.h"
-#include "logger.h"
+#include <Joystick.h>
 #include <fcntl.h>
 #include <sstream>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <mqttLogger.h>
 
-#include "PolitoceanExceptions.hpp"
+#include <PolitoceanExceptions.hpp>
 
 namespace Politocean {
 
@@ -28,7 +28,7 @@ void Joystick::connect()
     info << "Joystick detected: " << name_of_joystick << "\n\t";
     info << num_of_axes << " axis\n\t";
     info << num_of_buttons << "buttons";
-    logger::getInstance().log(logger::CONFIG, info.str());
+    mqttLogger::getInstance(LIB_TAG).log(logger::CONFIG, info.str());
     // End logging
 
     axes_.resize(num_of_axes, 0);

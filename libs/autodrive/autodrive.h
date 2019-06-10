@@ -21,6 +21,7 @@ enum class Direction{
 
 class AutoDrive
 {
+    static const std::string LIB_TAG;
 
 public:
     AutoDrive();
@@ -37,6 +38,8 @@ private:
     Mat grid;
 
 };
+
+const std::string AutoDrive::LIB_TAG = "Autodrive";
 
 }
 
