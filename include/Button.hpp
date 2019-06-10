@@ -30,11 +30,16 @@ namespace Politocean
                 id      = j_map["id"];
                 value   = j_map["value"];
             }
-            catch (...)
+            catch (const std::exception& e)
             {
-                throw ReflectableParsingException("An error occurred parsing button.");
+                logger::getInstance().log(logger::WARNING, "An error occured while parsing button: ", e);
+                throw ReflectableParsingException(std::string("An error occurred while parsing button: ")+e.what());
             }
-
+            catch (...) 
+            {
+                logger::getInstance().log(logger::WARNING, "An error occured while parsing button.");
+                throw ReflectableParsingException("An error occurred while parsing button.");
+            }
             return Button(id, value);
         }
 

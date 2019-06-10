@@ -196,7 +196,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 
             if (!listener.isButtonUpdated())
             {
-			    std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::JOYSTICK));
+			    std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::COMMANDS));
                 continue;
             }
             

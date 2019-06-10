@@ -1,6 +1,7 @@
 #include "autodrive.h"
 #define K 10000
-#define LIB_TAG "Autodrive: "
+
+const std::string LIB_TAG = "Autodrive: ";
 
 namespace Politocean {
 
@@ -17,8 +18,7 @@ AutoDrive::AutoDrive(Direction startDirection) : direction(startDirection)
     currentPos.y = 50;
     if(!grid.data )                              // Check for invalid input
     {
-        //TODO exception
-        logger::getInstance().log(logger::INFO, string(LIB_TAG) + "Could not open or find the image");
+        logger::getInstance().log(logger::WARNING, LIB_TAG + "Could not open or find the image");
     }
 }
 

@@ -107,7 +107,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 	axesTalker_ = new std::thread([&]() {
 		while (isTalking_)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::JOYSTICK));
+			std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::COMMANDS));
 
 			Types::Vector<int> axes = listener.axes();
 
@@ -124,7 +124,6 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 		{			
 			if (!listener.isButtonUpdated())
 			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::JOYSTICK));
 				continue;
 			}
 			button = listener.button();
@@ -206,7 +205,6 @@ int main(int argc, const char *argv[])
 	// Start talker talking
 	talker.startTalking(joystickPublisher, listener);
 
-	int nretry = 0;
 	while (joystickPublisher.is_connected())
 	{
 		if (joystick.isConnected())
@@ -216,9 +214,11 @@ int main(int argc, const char *argv[])
 
 		talker.stopTalking();
 
+		int nretry = 0;
 		while (!joystick.isConnected())
 		{
-			std::cout << "\tRetry to reconnect... " << nretry++ << std::endl;
+			logger::getInstance().log(logger::WARNING, "Joystick disconnected! Retrying to connect...");
+			logger::getInstance().log(logger::INFO, "Atttempt: " + to_string(nretry++));
 			/*
 			/*
 			if (nretry >= MAX_JOYSTICK_CONNECTION_RETRY)
@@ -231,7 +231,7 @@ int main(int argc, const char *argv[])
 			}
 			catch(const JoystickException& e)
 			{
-				std::cerr << e.what() << '\n';
+				logger::getInstance().log(logger::WARNING, e);
 			}
 			
 			std::this_thread::sleep_for(std::chrono::seconds(1));
