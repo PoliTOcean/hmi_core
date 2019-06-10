@@ -179,6 +179,7 @@ int main(int argc, const char *argv[])
 		}
 		catch (const JoystickException& e)
 		{
+			mqttLogger::getInstance().log(logger::WARNING, "Joystick not connected.");
 			ComponentsManager::SetComponentState(component_t::JOYSTICK, Component::Status::ERROR);
 		}
 		std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -203,8 +204,8 @@ int main(int argc, const char *argv[])
 		int nretry = 0;
 		while (!joystick.isConnected())
 		{
-			mqttLogger::getInstance().log(logger::WARNING, "Joystick disconnected! Retrying to connect...");
-			mqttLogger::getInstance().log(logger::INFO, "Atttempt: " + to_string(nretry++));
+			mqttLogger::getInstance().log(logger::WARNING, "Joystick disconnected! Trying to reconnect...");
+			mqttLogger::getInstance().log(logger::INFO, "Reconnection attempt: " + to_string(nretry++));
 
 			try
 			{

@@ -331,7 +331,7 @@ void MainWindow::messageArrived(const std::string& payload, const std::string& t
     }
 */
     /* ERROR MESSAGE */
-    if(topic == Topics::ERRORS){
+    if(topic == Topics::Logs::ERRORS){
         this->messageArrived(QString::fromStdString(payload),-1);
     }
 }
