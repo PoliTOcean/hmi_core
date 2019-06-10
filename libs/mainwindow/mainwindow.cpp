@@ -108,7 +108,7 @@ void MainWindow::DisplayImage(){
     if(!video || img.empty())
         return;
 
-    Mat frame, frame_rsz;
+    Mat frame, frame_rsz, res;
 
     std::lock_guard<std::mutex> lock(mtx);
     cvtColor(img, frame_rsz, CV_BGR2RGB);
@@ -262,9 +262,6 @@ void MainWindow::DisplayImage(){
                     ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
 
         }
-    }
-}
-
         else{
       //      logPublisher.logError("Impossibile accedere alla webcam");
             //ui->startVideo->click();
