@@ -169,16 +169,6 @@ int main(int argc, const char *argv[])
 
 	mqttLogger& logger = mqttLogger::getInstance(joystickPublisher);
     logger.setPublishLevel(logger::CONFIG);
-	// Try to connect the publisher
-	try
-	{
-		joystickPublisher.connect();
-	}
-	catch(const mqttException& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-
 	
 	// Create a joystick object and a listener.
 	Joystick joystick;
@@ -222,11 +212,6 @@ int main(int argc, const char *argv[])
 		{
 			logger::getInstance().log(logger::WARNING, "Joystick disconnected! Retrying to connect...");
 			logger::getInstance().log(logger::INFO, "Atttempt: " + to_string(nretry++));
-			/*
-			/*
-			if (nretry >= MAX_JOYSTICK_CONNECTION_RETRY)
-				std::cerr << "Cannot reconnect to joystick device" << std::endl;
-			*/
 
 			try
 			{
