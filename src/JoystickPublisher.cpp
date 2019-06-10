@@ -21,6 +21,7 @@
 #include "Component.hpp"
 #include "ComponentsManager.hpp"
 
+#include "Button.hpp"
 #include <Reflectables/Vector.hpp>
 
 using namespace Politocean;
@@ -107,7 +108,7 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 	axesTalker_ = new std::thread([&]() {
 		while (isTalking_)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::JOYSTICK));
+			std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::COMMANDS));
 
 			Types::Vector<int> axes = listener.axes();
 
@@ -118,17 +119,18 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 	});
 
 	buttonTalker_ = new std::thread([&]() {
-		unsigned char button;
+		unsigned char btn;
 
 		while (isTalking_)
 		{			
 			if (!listener.isButtonUpdated())
 			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::JOYSTICK));
 				continue;
 			}
-			button = listener.button();
-			publisher.publish(Topics::JOYSTICK_BUTTONS, std::to_string(button));
+			btn = listener.button();
+
+			Button button(btn & 0x7F, (btn >> 7) & 0x01);
+			publisher.publish(Topics::JOYSTICK_BUTTONS, button);
 		}
 
 		isTalking_ = false;
@@ -159,24 +161,14 @@ bool Talker::isTalking()
 
 int main(int argc, const char *argv[])
 {
-	logger::enableLevel(logger::INFO);
-
+    logger::enableLevel(logger::DEBUG);
+	
 	// Create a publisher object and a talker.
 	MqttClient& joystickPublisher = MqttClient::getInstance(Hmi::JOYSTICK_ID, Hmi::IP_ADDRESS);
 	Talker talker;
 
 	mqttLogger& logger = mqttLogger::getInstance(joystickPublisher);
     logger.setPublishLevel(logger::CONFIG);
-	// Try to connect the publisher
-	try
-	{
-		joystickPublisher.connect();
-	}
-	catch(const mqttException& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-
 	
 	// Create a joystick object and a listener.
 	Joystick joystick;
@@ -206,7 +198,6 @@ int main(int argc, const char *argv[])
 	// Start talker talking
 	talker.startTalking(joystickPublisher, listener);
 
-	int nretry = 0;
 	while (joystickPublisher.is_connected())
 	{
 		if (joystick.isConnected())
@@ -216,14 +207,11 @@ int main(int argc, const char *argv[])
 
 		talker.stopTalking();
 
+		int nretry = 0;
 		while (!joystick.isConnected())
 		{
-			std::cout << "\tRetry to reconnect... " << nretry++ << std::endl;
-			/*
-			/*
-			if (nretry >= MAX_JOYSTICK_CONNECTION_RETRY)
-				std::cerr << "Cannot reconnect to joystick device" << std::endl;
-			*/
+			logger::getInstance().log(logger::WARNING, "Joystick disconnected! Retrying to connect...");
+			logger::getInstance().log(logger::INFO, "Atttempt: " + to_string(nretry++));
 
 			try
 			{
@@ -231,7 +219,7 @@ int main(int argc, const char *argv[])
 			}
 			catch(const JoystickException& e)
 			{
-				std::cerr << e.what() << '\n';
+				logger::getInstance().log(logger::WARNING, e);
 			}
 			
 			std::this_thread::sleep_for(std::chrono::seconds(1));

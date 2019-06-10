@@ -12,6 +12,8 @@ if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
 	")
 endif()
 
+include_directories(include)
+
 # Add politocean common libs
 add_subdirectory(politocean_common)
 include_directories(politocean_common/include)
@@ -27,6 +29,7 @@ add_executable(PolitoceanJoystick src/JoystickPublisher.cpp)
 add_executable(PolitoceanGUI src/gui.cpp)
 add_executable(PolitoceanCommands src/CommandParser.cpp)
 add_executable(PolitoceanMouse src/Mouse.cpp)
+add_executable(PolitoceanPhMeter src/PhMeter.cpp)
     
 # Linking the libraries
 target_link_libraries(PolitoceanJoystick -lpthread
@@ -53,6 +56,9 @@ target_link_libraries(PolitoceanCommands -lpthread
 
 target_link_libraries(PolitoceanMouse -lX11
         PolitoceanCommon::MqttClient)
+
+target_link_libraries(PolitoceanPhMeter
+        PolitoceanHmi::Serial)
 
 IF( BUILD_TESTS )
     #test section

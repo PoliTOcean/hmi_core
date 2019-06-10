@@ -14,32 +14,21 @@
 #include "PolitoceanExceptions.hpp"
 #include "mqttLogger.h"
 
-#include <Reflectables/Vector.hpp>
+#include "Reflectables/Vector.hpp"
 
 #include "ComponentsManager.hpp"
+#include "Button.hpp"
 
 using namespace Politocean;
 using namespace Politocean::Constants;
 using namespace Politocean::Constants::Commands;
+
 /**************************************************************
  * Listener class for Joystick device
  *************************************************************/
 
-typedef struct button_t
-{
-    int id;
-    unsigned int value;
-
-    button_t(int id, int value) : id(id), value(value) {}
-
-    bool operator==(const button_t &o) const {
-        return id == o.id && value == o.value;
-    }
-
-} button_t;
-
 class Listener {
-    std::queue<button_t> buttons_;
+    std::queue<Button> buttons_;
 
     bool isButtonUpdated_ = false;
     bool isAxesUpdated_ = false;
@@ -49,10 +38,10 @@ class Listener {
     std::mutex mutexBtn_;
 
 public:
-    void listenForButtons(const std::string& payload);
-    void listenForAxes(const std::string& payload);
+    void listenForButtons(Button button);
+    void listenForAxes(Types::Vector<int> axes);
 
-    button_t button();
+    Button button();
 
     Types::Vector<int> axes();
 
@@ -60,31 +49,24 @@ public:
     bool isAxesUpdated();
 };
 
-void Listener::listenForButtons(const std::string& payload)
+void Listener::listenForButtons(Button button)
 {
-	std::lock_guard<std::mutex> lock(mutexBtn_);
-
-    int btn = 0;
-    try {
-        btn  = static_cast<int>(std::stoi(payload));
-    } catch(...) {
-        logger::getInstance().log(logger::WARNING, "Error in receiving buttons");
-    }
-    buttons_.push( button_t(btn & 0x7F, (btn >> 7) & 0x01) );
+    buttons_.push(button);
 
     isButtonUpdated_ = true;
 }
 
-button_t Listener::button()
+Button Listener::button()
 {
    	std::lock_guard<std::mutex> lock(mutexBtn_);
-    if (!buttons_.empty())
-    {
-        button_t button = buttons_.front();
-        buttons_.pop();
-        return button;
-    }
-    return button_t(-1, 0);
+    
+    if (buttons_.empty())
+        return Button(-1, 0);
+    
+    Button button = buttons_.front();
+    buttons_.pop();
+    
+    return button;
 }
 
 bool Listener::isButtonUpdated()
@@ -97,15 +79,15 @@ bool Listener::isAxesUpdated()
     return isAxesUpdated_ && !axes_.empty();
 }
 
-void Listener::listenForAxes(const std::string& payload)
+void Listener::listenForAxes(Types::Vector<int> axes)
 {
-    auto c_map = nlohmann::json::parse(payload);
-    axes_ = c_map.get<std::vector<int>>();
+    axes_ = axes;
 
     isAxesUpdated_ = true;
 }
 
-Types::Vector<int> Listener::axes(){
+Types::Vector<int> Listener::axes()
+{
     isAxesUpdated_ = false;
     return axes_;
 }
@@ -214,13 +196,13 @@ void Talker::startTalking(MqttClient& publisher, Listener& listener)
 
             if (!listener.isButtonUpdated())
             {
-			    std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::JOYSTICK));
+			    std::this_thread::sleep_for(std::chrono::milliseconds(Timing::Milliseconds::COMMANDS));
                 continue;
             }
             
-            button_t button = listener.button();
-            int id      = button.id;
-            int value   = button.value;
+            Button button   = listener.button();
+            int id          = button.getId();
+            int value       = button.getValue();
             
 
             string action = Actions::NONE;

@@ -1,6 +1,12 @@
 #include "ipcamera.h"
 #include <chrono>         // std::chrono::milliseconds
+#include <logger.h>
+#include <string>
+#include <sstream>
+
 #define DEFAULT_FREQ_DIVIDER 1
+
+const std::string LIB_TAG = "Ipcamera: ";
 
 using namespace FlyCapture2;
 
@@ -75,7 +81,7 @@ std::thread* IpCamera::reconnect()
 
     updated = false;
     reconnecting = true;
-    std::cout << "Scanning for the GigE Camera...\n";
+    logger::getInstance().log(logger::CONFIG, LIB_TAG + "Scanning for the GigE Camera...");
 
     return new std::thread(
         [&]() {
@@ -94,15 +100,18 @@ std::thread* IpCamera::reconnect()
                     reconnecting = false;
                 }
                 else {
-                    std::cout << error.GetType() << " " << error.GetDescription() << std::endl;
+                    logger::getInstance().log(logger::WARNING, LIB_TAG + "Could not connect to the GigE Camera: ");
+                    logger::getInstance().log(logger::INFO, LIB_TAG + std::to_string(error.GetType()) + " " + error.GetDescription());
+                    logger::getInstance().log(logger::WARNING, LIB_TAG + "Retrying...");
                     delete camera;
                 }
             }
             camera->GetCameraInfo( &camInfo );
-            std::cout << camInfo.vendorName << " "
-                    << camInfo.modelName << " "
-                    << camInfo.serialNumber << std::endl
-                    << camInfo.sensorResolution << " " << camInfo.sensorInfo << std::endl; 
+
+            std::stringstream ss;
+            ss  << LIB_TAG << " " << camInfo.vendorName << " " << camInfo.modelName << " " << camInfo.serialNumber << std::endl
+                << camInfo.sensorResolution << " " << camInfo.sensorInfo;
+            logger::getInstance().log(logger::CONFIG, ss.str()); 
         }
     );
 }

@@ -14,6 +14,9 @@
 #include "PolitoceanConstants.h"
 #include "PolitoceanUtils.hpp"
 
+#include "Button.hpp"
+#include "Reflectables/Vector.hpp"
+
 #include <X11/Xlib.h>
 
 #define X 0
@@ -24,65 +27,47 @@
 using namespace Politocean;
 using namespace Politocean::Constants;
 
-typedef struct button_t
-{
-    int id;
-    unsigned int value;
-
-    button_t(int id, int value) : id(id), value(value) {}
-
-    bool operator==(const button_t &o) const {
-        return id == o.id && value == o.value;
-    }
-
-} button_t;
-
 class Listener {
-    std::queue<button_t> buttons_;
+    std::queue<Button> buttons_;
 
     bool isButtonUpdated_ = false;
     bool isAxesUpdated_ = false;
 
-    std::vector<int> axes_;
+    Types::Vector<int> axes_;
 
 public:
-    void listenForButtons(const std::string& payload);
-    void listenForAxes(const std::string& payload);
+    void listenForButtons(Button button);
+    void listenForAxes(Types::Vector<int> axes);
 
-    button_t button();
+    Button button();
 
-    std::vector<int> axes();
+    Types::Vector<int> axes();
 
     bool isButtonUpdated();
     bool isAxesUpdated();
 };
 
-void Listener::listenForAxes(const std::string& payload)
+void Listener::listenForAxes(Types::Vector<int> axes)
 {
-    auto c_map = nlohmann::json::parse(payload);
-    axes_ = c_map.get<std::vector<int>>();
-	
+    axes_ = axes;
     isAxesUpdated_ = true;
 }
 
-void Listener::listenForButtons(const std::string& payload)
+void Listener::listenForButtons(Button button)
 {
-    int btn = static_cast<int>(std::stoi(payload));
-
-    buttons_.push(button_t(btn & 0x7F, (btn >> 7) & 0x01));
-
+    buttons_.push(button);
     isButtonUpdated_ = true;
 }
 
-button_t Listener::button()
+Button Listener::button()
 {
-    if (!buttons_.empty())
-    {
-        button_t button = buttons_.front();
-        buttons_.pop();
-        return button;
-    }
-    return button_t(-1, 0);
+    if (buttons_.empty())
+        return Button(-1,0);
+
+    Button button = buttons_.front();
+    buttons_.pop();
+    
+    return button;
 }
 
 bool Listener::isButtonUpdated()
@@ -95,13 +80,13 @@ bool Listener::isAxesUpdated()
     return isAxesUpdated_ && !axes_.empty();
 }
 
-std::vector<int> Listener::axes(){
+Types::Vector<int> Listener::axes(){
     isAxesUpdated_ = false;
     return axes_;
 }
 
 int main(void) {
-    logger::enableLevel(logger::CONFIG);
+    logger::enableLevel(logger::DEBUG);
 
     MqttClient& subscriber = MqttClient::getInstance(Hmi::MOUSE_ID, Hmi::IP_ADDRESS);
     
@@ -126,12 +111,12 @@ int main(void) {
 
         if (listener.isButtonUpdated())
         {
-            button_t button = listener.button();
-            if (button.value && button.id == Commands::Buttons::CLICK_MOUSE)
+            Button button = listener.button();
+            if (button.getValue() && button.getId() == Commands::Buttons::CLICK_MOUSE)
                 click = true;
         }
         
-        std::vector<int> axes = listener.axes(), lastMouse(2, 0), newMouse(2, 0);
+        Types::Vector<int> axes = listener.axes(), lastMouse(2, 0), newMouse(2, 0);
         int dx = Politocean::map(axes[Commands::Axes::X_MOUSE]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
         int dy = Politocean::map(axes[Commands::Axes::Y_MOUSE]-AXIS_OFFSET, SHRT_MIN, SHRT_MAX, -PX_MAX_STEP, PX_MAX_STEP);
         
