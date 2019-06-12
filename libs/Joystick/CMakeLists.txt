@@ -14,7 +14,7 @@ target_include_directories(Joystick
             ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(Joystick -lpthread PolitoceanCommon::logger)
+target_link_libraries(Joystick -lpthread PolitoceanCommon::mqttLogger)
 
 target_compile_features(Joystick PRIVATE cxx_auto_type)
 target_compile_options(Joystick PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)

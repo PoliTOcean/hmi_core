@@ -12,7 +12,7 @@
 
 #include "PolitoceanConstants.h"
 #include "PolitoceanExceptions.hpp"
-#include "mqttLogger.h"
+#include <mqttLogger.h>
 
 #include "Reflectables/Vector.hpp"
 
@@ -383,16 +383,13 @@ bool Talker::isTalking()
 
 int main(int argc, const char* argv[])
 {
-    logger::enableLevel(logger::INFO);
+    mqttLogger::setRootTag(argv[0]);
 
     MqttClient& hmiClient = MqttClient::getInstance(Constants::Hmi::CMD_ID, Constants::Hmi::IP_ADDRESS);
     Listener listener;
     Talker talker;
     
     ComponentsManager::Init(Hmi::CMD_ID);
-
-    mqttLogger& ptoLogger = mqttLogger::getInstance(hmiClient);
-    ptoLogger.setPublishLevel(logger::CONFIG);
 
     hmiClient.subscribeTo(Topics::JOYSTICK_BUTTONS, &Listener::listenForButtons, &listener);
     hmiClient.subscribeTo(Topics::JOYSTICK_AXES, &Listener::listenForAxes, &listener);

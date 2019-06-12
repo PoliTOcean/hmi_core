@@ -18,6 +18,7 @@ namespace Politocean {
 
 class Joystick
 {
+    const std::string& LIB_TAG = "Joystick";
     std::string device_;
 
     int fd, num_of_axes, num_of_buttons;
