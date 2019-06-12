@@ -57,11 +57,13 @@ slots:    // A slot or function is defined which will be intiated by timer
     void startMeasure();
     void valueTrackbar(int value);
     void setMessageConsole(QString message, int type);
+    void setSensorsLabel();
 
 signals:
     void componentChanged();
     void messageArrived(QString msg,int type);
     void frameArrived();
+    void sensorsUpdating();
 
 private:
     bool video,snap_b;

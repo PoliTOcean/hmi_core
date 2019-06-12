@@ -322,8 +322,8 @@ border-radius: 10px;</string>
    <widget class="QSlider" name="trackbar_circle">
     <property name="geometry">
      <rect>
-      <x>1100</x>
-      <y>120</y>
+      <x>1690</x>
+      <y>20</y>
       <width>121</width>
       <height>51</height>
      </rect>
@@ -335,8 +335,8 @@ border-radius: 10px;</string>
    <widget class="QLCDNumber" name="lcdNumberTrackbar">
     <property name="geometry">
      <rect>
-      <x>1233</x>
-      <y>130</y>
+      <x>1820</x>
+      <y>10</y>
       <width>51</width>
       <height>31</height>
      </rect>
@@ -397,8 +397,8 @@ border-radius: 10px;</string>
    <widget class="QLabel" name="gradient_8">
     <property name="geometry">
      <rect>
-      <x>1220</x>
-      <y>390</y>
+      <x>330</x>
+      <y>20</y>
       <width>50</width>
       <height>45</height>
      </rect>
@@ -416,8 +416,8 @@ border-radius: 10px;</string>
    <widget class="QPushButton" name="term_sensor">
     <property name="geometry">
      <rect>
-      <x>1220</x>
-      <y>380</y>
+      <x>330</x>
+      <y>10</y>
       <width>50</width>
       <height>50</height>
      </rect>
@@ -451,16 +451,16 @@ border-width: 1px;</string>
      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600; color:#204a87;&quot;&gt;-- PoliTOcean Carassius v2.0:&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:600; color:#204a87;&quot;&gt;-- PoliTOcean Carassius v2.0:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'Ubuntu'; font-size:11pt;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QPushButton" name="home_3">
     <property name="geometry">
      <rect>
-      <x>1220</x>
-      <y>310</y>
+      <x>100</x>
+      <y>10</y>
       <width>50</width>
       <height>50</height>
      </rect>
@@ -479,8 +479,8 @@ p, li { white-space: pre-wrap; }
    <widget class="QLabel" name="gradient_9">
     <property name="geometry">
      <rect>
-      <x>1220</x>
-      <y>320</y>
+      <x>100</x>
+      <y>20</y>
       <width>50</width>
       <height>45</height>
      </rect>
@@ -545,52 +545,6 @@ border-radius: 10px;</string>
     </property>
     <property name="text">
      <string/>
-    </property>
-   </widget>
-   <widget class="QSlider" name="trackbar_circle_2">
-    <property name="geometry">
-     <rect>
-      <x>1100</x>
-      <y>190</y>
-      <width>121</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
-   <widget class="QLCDNumber" name="lcdNumberTrackbar_2">
-    <property name="geometry">
-     <rect>
-      <x>1233</x>
-      <y>200</y>
-      <width>51</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLCDNumber" name="lcdNumberTrackbar_3">
-    <property name="geometry">
-     <rect>
-      <x>1233</x>
-      <y>270</y>
-      <width>51</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QSlider" name="trackbar_circle_3">
-    <property name="geometry">
-     <rect>
-      <x>1100</x>
-      <y>260</y>
-      <width>121</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
     </property>
    </widget>
    <widget class="QCheckBox" name="debugCheck">
@@ -683,6 +637,47 @@ border-radius: 10px;</string>
      <string/>
     </property>
    </widget>
+   <widget class="QLabel" name="pressure_label">
+    <property name="geometry">
+     <rect>
+      <x>162</x>
+      <y>19</y>
+      <width>71</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>0.0°</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="temperature_label">
+    <property name="geometry">
+     <rect>
+      <x>400</x>
+      <y>20</y>
+      <width>71</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>0.0°</string>
+    </property>
+   </widget>
+   <zorder>logoLabel</zorder>
    <zorder>error_video</zorder>
    <zorder>gridLabel</zorder>
    <zorder>display_image_2</zorder>
@@ -703,12 +698,7 @@ border-radius: 10px;</string>
    <zorder>console</zorder>
    <zorder>gradient_10</zorder>
    <zorder>measure_button</zorder>
-   <zorder>trackbar_circle_2</zorder>
-   <zorder>lcdNumberTrackbar_2</zorder>
-   <zorder>lcdNumberTrackbar_3</zorder>
-   <zorder>trackbar_circle_3</zorder>
    <zorder>debugCheck</zorder>
-   <zorder>logoLabel</zorder>
    <zorder>gradient_11</zorder>
    <zorder>joystick_status_2</zorder>
    <zorder>gradient_12</zorder>
@@ -720,6 +710,8 @@ border-radius: 10px;</string>
    <zorder>home</zorder>
    <zorder>shapes_recognize</zorder>
    <zorder>term_sensor</zorder>
+   <zorder>pressure_label</zorder>
+   <zorder>temperature_label</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

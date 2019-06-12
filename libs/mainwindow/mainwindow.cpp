@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /*TIMER DISPLAY CAMERAS*/
     connect(this, SIGNAL(frameArrived()), this, SLOT(DisplayImage()));
+    connect(this, SIGNAL(sensorsUpdating()),this, SLOT(setSensorsLabel()));
 
     /*CONNECTION BUTTONS*/
     connect(ui->startVideo,SIGNAL(clicked()),SLOT(setVideoStart()));
@@ -339,4 +340,17 @@ void MainWindow::messageArrived(const std::string& payload, const std::string& t
 
 void MainWindow::sensorArrived(Types::Vector<Sensor<float>> payload){
     this->sensors_ = payload;
+    this->sensorsUpdating();
+}
+
+void MainWindow::setSensorsLabel()
+{
+    for(Sensor<float> s : sensors_){
+        if(s.getType() == sensor_t::PRESSURE){
+            ui->pressure_label->setText(QString::number(s.getValue()));
+        }
+        else if(s.getType() == sensor_t::TEMPERATURE_INT){
+            ui->temperature_label->setText(QString::number(s.getValue()));
+        }
+    }
 }
