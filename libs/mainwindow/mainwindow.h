@@ -12,6 +12,7 @@
 #include "MqttClient.h"
 #include "ipcamera.h"
 #include "Sensor.h"
+#include "Component.hpp"
 #include "Reflectables/Vector.hpp"
 
 
@@ -39,6 +40,7 @@ public:
     void setAtMega(bool connected);
     void messageArrived(const std::string& payload, const std::string& topic);
     void sensorArrived(Types::Vector<Sensor<float>> payload);
+    void componentArrived(std::vector<Component> payload);
     void setFrame(const cv::Mat frame);
     void phRead();
     
@@ -77,6 +79,7 @@ private:
     //AutoDrive autodrive;
     int value_track;
     std::thread* ph_thread;
+    std::vector<Component> components_;
 
     static void phMeasure(MainWindow* gui);
 };

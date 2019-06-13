@@ -360,11 +360,13 @@ void MainWindow::sensorArrived(Types::Vector<Sensor<float>> payload){
     this->sensorsUpdating();
 }
 
-/*
-void MainWindow::componentArrived(std::vector<Politocean::Component> payload){
 
+void MainWindow::componentArrived(std::vector<Politocean::Component> payload)
+{
+    this->components_ = payload;
+    this->componentChanged();
 }
-*/
+
 
 void MainWindow::setSensorsLabel()
 {
