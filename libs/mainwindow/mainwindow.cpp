@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include "PolitoceanConstants.h"
+#include "Serial.hpp"
 #include <mutex>
 
 #define sizeIconMenu 80
@@ -38,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->home,SIGNAL(clicked()),SLOT(modeHome()));
     connect(ui->shapes_recognize,SIGNAL(clicked()),SLOT(modeShapes()));
     connect(ui->measure_button,SIGNAL(clicked()),SLOT(startMeasure()));
+    connect(ui->ph_button,SIGNAL(clicked()),SLOT(phRead()));
 
     /* WIDGET CONNECTIONS */
     connect(ui->trackbar_circle,SIGNAL(valueChanged(int)),this,SLOT(valueTrackbar(int)));
@@ -86,6 +88,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     value_track = 0;
     snap_b = false;
+    ph_read = false;
 
     setVideoStart();
 }
@@ -96,6 +99,30 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::phMeasure(MainWindow* gui)
+{
+    std::string ph;
+    Serial serial("tty/ACM0");
+    while(gui->ph_read){
+        serial.readLine(ph);
+        std::string delimiter = ";";
+        std::string ph_string = ph.substr(1, ph.find(delimiter));
+        std::string temp_string = ph.substr(2, ph.find(delimiter));
+        gui->ui->ph_label->setText("PH: "+QString::fromStdString(ph_string));
+        gui->ui->temp_label->setText("Temp "+QString::fromStdString(temp_string));
+    }
+}
+
+void MainWindow::phRead()
+{
+    if(!ph_read){
+        ph_thread = new std::thread(phMeasure,this);
+    }
+    else{
+        ph_read = false;
+    }
+
+}
 void MainWindow::setFrame(const cv::Mat frame)
 {
     std::lock_guard<std::mutex> lock(mtx);
@@ -206,7 +233,7 @@ void MainWindow::setMessageConsole(QString msg,int type)
     }
 
     else if(type == 0){
-        label = "[MESSAGE]: ";
+        label = "[INFO]: ";
         color_black = "<span style=\"font-weight:600;\">";
         color_black.append(label);
         color_black.append("</span>");
@@ -215,7 +242,7 @@ void MainWindow::setMessageConsole(QString msg,int type)
     }
 
     else if(type == 1){
-        label = "[COMPONENT]: ";
+        label = "[WARNING]: ";
         color_yellow = "<span style=\"font-weight:600;color:#204a87;\">";
         color_yellow.append(label);
         color_yellow.append("</span>");
@@ -307,34 +334,24 @@ void MainWindow::valueTrackbar(int value)
 void MainWindow::startMeasure()
 {
     snap_b = true;
+
+    if(mode  == MODE::MODE_HOME){
+    }
 }
 
 void MainWindow::messageArrived(const std::string& payload, const std::string& topic){
-  /*  std::cout << topic << ":\t" << payload << std::endl;
-    if(topic == "TOPIC_COMPONTENTS"){
-        if(payload == "JOYSTICK_ON"){
-            this->setJoystick(true);
-            this->messageArrived("Joystick connected",1);
 
-        }
-        else if(payload == "JOYSTICK_OFF"){
-            this->setJoystick(false);
-            this->messageArrived("Joystick disconnected",1);
-        }
-        if(payload == "ATMEGA_ON"){
-            this->setAtMega(true);
-            this->messageArrived("ATMega connected",1);
-        }
-        else if(payload == "ATMEGA_OFF"){
-            this->setAtMega(false);
-            this->messageArrived("ATMega disconnected",1);
-        }
-
-    }
-*/
     /* ERROR MESSAGE */
-    if(topic == Topics::ERRORS){
+    if(topic == Logger::LOGS_PATH + Logger::Levels::ERROR){
+        this->messageArrived(QString::fromStdString(payload),0);
+    }
+
+    else if(topic == Logger::LOGS_PATH + Logger::Levels::INFO){
         this->messageArrived(QString::fromStdString(payload),-1);
+    }
+
+    else if(topic == Logger::LOGS_PATH + Logger::Levels::WARNING){
+        this->messageArrived(QString::fromStdString(payload),1);
     }
 }
 
@@ -342,6 +359,12 @@ void MainWindow::sensorArrived(Types::Vector<Sensor<float>> payload){
     this->sensors_ = payload;
     this->sensorsUpdating();
 }
+
+/*
+void MainWindow::componentArrived(std::vector<Politocean::Component> payload){
+
+}
+*/
 
 void MainWindow::setSensorsLabel()
 {

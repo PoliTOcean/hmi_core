@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     gui.show();
 
     subscriber.subscribeToFamily(Topics::LOGS, &MainWindow::messageArrived, &gui);
-    subscriber.subscribeTo(Topics::COMPONENTS, &MainWindow::messageArrived, &gui);
+    //subscriber.subscribeTo(Topics::COMPONENTS, &MainWindow::componentArrived, &gui);
     subscriber.subscribeTo(Topics::SENSORS, &MainWindow::sensorArrived, &gui);
 
 

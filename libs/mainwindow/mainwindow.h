@@ -16,6 +16,7 @@
 
 
 using namespace Politocean;
+using namespace Politocean::Constants;
 using namespace cv;
 
 namespace Ui {
@@ -39,6 +40,7 @@ public:
     void messageArrived(const std::string& payload, const std::string& topic);
     void sensorArrived(Types::Vector<Sensor<float>> payload);
     void setFrame(const cv::Mat frame);
+    void phRead();
     
     QImage imdisplay;  //This will create QImage which is shown in Qt label
     QTimer* Timer;   // A timer is needed in GUI application
@@ -48,7 +50,7 @@ public:
     ~MainWindow();
 
 public
-slots:    // A slot or function is defined which will be intiated by timer
+slots:
     void DisplayImage();
     void setVideoStart();
     void modeAuto();
@@ -66,7 +68,7 @@ signals:
     void sensorsUpdating();
 
 private:
-    bool video,snap_b;
+    bool video,snap_b,ph_read;
     Ui::MainWindow *ui;
     cv::Mat img;
     QIcon icon,icon2,video_icon,auto_icon,shapes_icon,home_icon,cannon_icon;
@@ -74,6 +76,9 @@ private:
     MODE mode = MODE::MODE_HOME;
     //AutoDrive autodrive;
     int value_track;
+    std::thread* ph_thread;
+
+    static void phMeasure(MainWindow* gui);
 };
 
 #endif // MAINWINDOW_H
