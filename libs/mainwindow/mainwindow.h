@@ -73,15 +73,15 @@ signals:
 
 private:
     bool video,snap_b,ph_read;
+    double lenght_blue;
     Ui::MainWindow *ui;
     cv::Mat img;
     QIcon icon,icon2,video_icon,auto_icon,shapes_icon,home_icon,cannon_icon;
     QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon;
     MODE mode = MODE::MODE_HOME;
     //AutoDrive autodrive;
-    int value_track;
+    int value_track,num_average_lenght;
     std::thread* ph_thread;
-    std::vector<Component> components_;
 
     static void phMeasure(MainWindow* gui);
 };

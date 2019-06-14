@@ -86,6 +86,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->trackbar_circle->setMaximum(255);
 
     value_track = 0;
+    lenght_blue = 0;
+    num_average_lenght = 0;
     snap_b = false;
     ph_read = false;
 
@@ -130,6 +132,7 @@ void MainWindow::setFrame(const cv::Mat frame)
 }
 
 void MainWindow::DisplayImage(){
+    Mat img_hls;
     if(!video || img.empty())
         return;
 
@@ -137,6 +140,7 @@ void MainWindow::DisplayImage(){
 
     std::lock_guard<std::mutex> lock(mtx);
     cvtColor(img, frame_rsz, CV_BGR2RGB);
+    cvtColor(img,img_hls,CV_BGR2HLS);
     mtx.unlock();
 
     cv::resize(frame_rsz, frame, cv::Size(1024,720));
@@ -148,6 +152,15 @@ void MainWindow::DisplayImage(){
         mtx.unlock();
 
         ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+
+        if(Vision::checkCenter(img_hls)){
+            num_average_lenght++;
+            lenght_blue += Vision::getLenghtFromCenter(img_hls);
+            if(num_average_lenght > 10){
+                modeHome();
+                std::cout<< lenght_blue  << std::endl;
+            }
+        }
     }
 
     else if(mode  == MODE::MODE_HOME){
@@ -167,21 +180,6 @@ void MainWindow::DisplayImage(){
             QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
             ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
-
-        /*
-        //Mat filtered = Vision::filterRed(img_hls);
-        Mat grid_mat = autodrive.getGrid();
-        //autodrive.updateDirection(filtered);
-        QImage grid((uchar*)grid_mat.data, grid_mat.cols, grid_mat.rows, grid_mat.step, QImage::Format_RGB888);
-        ui->gridLabel->setPixmap(QPixmap::fromImage(grid));
-        if(ui->debugCheck->isChecked()){
-            QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
-            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-        }
-        else{
-            QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
-            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-        }*/
     }
 
     else if(mode == MODE::MODE_SHAPES){
@@ -287,6 +285,9 @@ void MainWindow::modeShapes()
 void MainWindow::modeHome()
 {
     mode = MODE::MODE_HOME;
+
+    lenght_blue = 0;
+
     ui->home->setIcon(home_icon_w);
     ui->home->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
