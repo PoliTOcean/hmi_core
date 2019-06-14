@@ -7,6 +7,7 @@
 #include <sstream>
 #include "PolitoceanConstants.h"
 #include "Serial.hpp"
+#include "ComponentsManager.hpp"
 #include <mutex>
 
 #define sizeIconMenu 80
@@ -66,8 +67,6 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     //SET ICON
-    ui->atMega_status->setIcon(icon);
-    ui->atMega_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
     ui->joystick_status->setIcon(icon2);
     ui->joystick_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
     ui->error_video->setIcon(video_icon);
@@ -316,13 +315,6 @@ void MainWindow::setJoystick(bool connected)
 void MainWindow::setAtMega(bool connected)
 {
 
-    if(connected){
-        ui->atMega_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
-    }
-    else{
-        ui->atMega_status->setStyleSheet("QPushButton{background-color: #c62828; }");
-    }
-
 }
 
 void MainWindow::valueTrackbar(int value)
@@ -361,10 +353,33 @@ void MainWindow::sensorArrived(Types::Vector<Sensor<float>> payload){
 }
 
 
-void MainWindow::componentArrived(std::vector<Politocean::Component> payload)
+void MainWindow::componentArrived(const std::string& payload, const std::string& topic)
 {
-    this->components_ = payload;
     this->componentChanged();
+}
+
+void MainWindow::setComponentStatus()
+{
+        if(ComponentsManager::GetComponentState(component_t::JOYSTICK) == Component::Status::ENABLED){
+            ui->joystick_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
+        }
+        else{
+            ui->joystick_status->setStyleSheet("QPushButton{background-color: #c62828; }");
+        }
+
+        if(ComponentsManager::GetComponentState(component_t::SHOULDER) == Component::Status::ENABLED){
+            ui->shoulder_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
+        }
+        else{
+            ui->shoulder_status->setStyleSheet("QPushButton{background-color: #c62828; }");
+        }
+
+        if(ComponentsManager::GetComponentState(component_t::POWER) == Component::Status::ENABLED){
+            ui->power_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
+        }
+        else{
+            ui->power_status->setStyleSheet("QPushButton{background-color: #c62828; }");
+        }
 }
 
 

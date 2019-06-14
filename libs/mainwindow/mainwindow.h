@@ -40,7 +40,8 @@ public:
     void setAtMega(bool connected);
     void messageArrived(const std::string& payload, const std::string& topic);
     void sensorArrived(Types::Vector<Sensor<float>> payload);
-    void componentArrived(std::vector<Component> payload);
+    void componentArrived(const std::string& payload, const std::string& topic);
+
     void setFrame(const cv::Mat frame);
     void phRead();
     
@@ -62,6 +63,7 @@ slots:
     void valueTrackbar(int value);
     void setMessageConsole(QString message, int type);
     void setSensorsLabel();
+    void setComponentStatus();
 
 signals:
     void componentChanged();
