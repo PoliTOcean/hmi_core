@@ -456,7 +456,7 @@ Mat Vision::getshape(Mat src,bool debug,int j,int final){
           else if(vtc==4 && fabs(contourArea(approx)) > 20 &&
                   isContourConvex(approx) ){
 
-              if(area>0 ){
+              if(area>0 && area<10000){
                   //compute the bounding box of the contour and use the
                   //bounding box to compute the aspect ratio
 
