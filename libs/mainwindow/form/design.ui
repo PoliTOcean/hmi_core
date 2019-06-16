@@ -48,7 +48,7 @@ border-width: 3px;
      <string/>
     </property>
    </widget>
-   <widget class="QLabel" name="display_image_2">
+   <widget class="my_qlabel" name="display_image_2">
     <property name="enabled">
      <bool>true</bool>
     </property>
@@ -59,6 +59,9 @@ border-width: 3px;
       <width>830</width>
       <height>720</height>
      </rect>
+    </property>
+    <property name="mouseTracking">
+     <bool>true</bool>
     </property>
     <property name="styleSheet">
      <string notr="true">border-style: solid;
@@ -640,6 +643,171 @@ border-radius: 10px;</string>
      <string/>
     </property>
    </widget>
+   <widget class="QLabel" name="lblMouse_R1">
+    <property name="geometry">
+     <rect>
+      <x>1481</x>
+      <y>820</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>D1 =</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblMouse_L">
+    <property name="geometry">
+     <rect>
+      <x>1601</x>
+      <y>800</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>L =</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblMouse_unit">
+    <property name="geometry">
+     <rect>
+      <x>1481</x>
+      <y>800</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1cm = </string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblMouse_R2">
+    <property name="geometry">
+     <rect>
+      <x>1601</x>
+      <y>820</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>D2 =</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="home_5">
+    <property name="geometry">
+     <rect>
+      <x>1170</x>
+      <y>800</y>
+      <width>50</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton
+{
+	background-color: #00838f ; 
+
+}</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="unit_conv">
+    <property name="geometry">
+     <rect>
+      <x>1230</x>
+      <y>810</y>
+      <width>111</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Size:</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="home_4">
+    <property name="geometry">
+     <rect>
+      <x>1390</x>
+      <y>800</y>
+      <width>81</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton
+{
+	background-color: #00838f ; 
+
+}</string>
+    </property>
+    <property name="text">
+     <string>calculate</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="home_6">
+    <property name="geometry">
+     <rect>
+      <x>1100</x>
+      <y>800</y>
+      <width>50</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton
+{
+	background-color: #00838f ; 
+
+}</string>
+    </property>
+    <property name="text">
+     <string>zoom</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="home_7">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>800</y>
+      <width>50</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton
+{
+	background-color: #00838f ; 
+
+}</string>
+    </property>
+    <property name="text">
+     <string>&lt;-</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="home_8">
+    <property name="geometry">
+     <rect>
+      <x>1020</x>
+      <y>800</y>
+      <width>50</width>
+      <height>50</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QPushButton
+{
+	background-color: #00838f ; 
+
+}</string>
+    </property>
+    <property name="text">
+     <string>-&gt;</string>
+    </property>
+   </widget>
    <zorder>error_video</zorder>
    <zorder>display_image</zorder>
    <zorder>display_image_2</zorder>
@@ -673,9 +841,26 @@ border-radius: 10px;</string>
    <zorder>home</zorder>
    <zorder>shapes_recognize</zorder>
    <zorder>term_sensor</zorder>
+   <zorder>lblMouse_R1</zorder>
+   <zorder>lblMouse_L</zorder>
+   <zorder>lblMouse_unit</zorder>
+   <zorder>lblMouse_R2</zorder>
+   <zorder>home_5</zorder>
+   <zorder>unit_conv</zorder>
+   <zorder>home_4</zorder>
+   <zorder>home_6</zorder>
+   <zorder>home_7</zorder>
+   <zorder>home_8</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>my_qlabel</class>
+   <extends>QLabel</extends>
+   <header location="global">my_qlabel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

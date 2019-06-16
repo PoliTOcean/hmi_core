@@ -1,8 +1,10 @@
 #include "mainwindow.h"
 #include "ui_design.h"
 #include <QTimer>
+#include "my_qlabel.h"
 #include "vision.h"
 #include "ipcamera.h"
+#include <QMouseEvent>
 #include <iostream>
 #include <sstream>
 #include "PolitoceanConstants.h"
@@ -37,6 +39,17 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->shapes_recognize,SIGNAL(clicked()),SLOT(modeShapes()));
     connect(ui->measure_button,SIGNAL(clicked()),SLOT(startMeasure()));
     connect(ui->cannon_measure,SIGNAL(clicked()),SLOT(modeCannon()));
+    connect(ui->home_4,SIGNAL(clicked()),SLOT(calculate()));
+    connect(ui->home_5,SIGNAL(clicked()),SLOT(change_unit()));
+    connect(ui->home_6,SIGNAL(clicked()),SLOT(zoom()));
+    connect(ui->home_7,SIGNAL(clicked()),SLOT(scroll_left()));
+    connect(ui->home_8,SIGNAL(clicked()),SLOT(scroll_right()));
+
+
+    //Mouse Callback for cannon mode
+    connect(ui->display_image_2,SIGNAL(Mouse_Pos()),this,SLOT(Mouse_current_pos()));
+    connect(ui->display_image_2,SIGNAL(Mouse_Pressed()),this,SLOT(Mouse_Pressed()));
+    connect(ui->display_image_2,SIGNAL(Mouse_Left()),this,SLOT(Mouse_left()));
 
     /* WIDGET CONNECTIONS */
     connect(ui->trackbar_circle,SIGNAL(valueChanged(int)),this,SLOT(valueTrackbar(int)));
@@ -86,7 +99,19 @@ MainWindow::MainWindow(QWidget *parent) :
 
     value_track = 150;
     snap_b = false;
-
+    cnt = 0;
+    left = Point(0,0);
+    right = Point(0,0);
+    a = 0;
+    b = 0;
+    l = 0;
+    i = 0;
+    unit = 0;
+    turn = 0;
+    snap = false;
+    snap_a = false;
+    previous = false;
+    next = false;
     setVideoStart();
 }
 
@@ -180,30 +205,35 @@ void MainWindow::DisplayImage(){
                  else if(ui->debugCheck->isChecked()){
 
                      debug = true;
-                     res = Vision::getshape(shape,debug,mean);
-
-
+                     res = Vision::getshape(shape,debug,mean,moda);
                      QImage cam1((uchar*)res.data, res.cols, res.rows, res.step,QImage::Format_RGB888);
                      ui->display_image->setPixmap(QPixmap::fromImage(cam1));
                  }
 
                if(snap_b){
                    shape = shape(roi);
-
                    debug = false;
-                    if(mean!=100){
+
+                   if(moda!=20){
                         mean++;
+                        res = Vision::getshape(shape,debug,mean,moda);
                     }
 
-
-                   res = Vision::getshape(shape,debug,mean);
-
-                   if(mean == 100 ){
-                       //mean=0;
+                   if(mean == 20 ){
+                       mean=0;
+                       moda++;
                        QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
                        ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
                        //snap_b = false;
                    }
+                   if(moda==10){
+                       res = Vision::getshape(shape,debug,mean,moda);
+                       QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
+                       ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+                       moda = 0;
+                       snap_b = false;
+                   }
+
 
 
                }
@@ -211,61 +241,82 @@ void MainWindow::DisplayImage(){
 
             }
 
-            else if(mode == MODE::MODE_CANNON){
-                ui->display_image_2->setVisible(true);
-                QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-                ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+    else if(mode == MODE::MODE_CANNON){
 
-                std::string str =  "images/cannon_mode"+to_string(i)+".jpg";
-                if(snap_b){
-                    i++;
-                    std::string str =  "images/cannon_mode"+to_string(i)+".jpg";
+        QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
+        ui->display_image->setPixmap(QPixmap::fromImage(cam1));
 
-                    imwrite( str, frame );
-                    cnt = 2;
+        if(snap_b){
+
+            str =  "images/cannon_mode"+std::to_string(i)+".png";
+            i++;
+            imwrite(str,img);
+            max = i;
+            cnt = 1;
             snap_b = false;
 
-                }
-/*
-                if(cnt == 1){
-
-                    Mat src = imread("/home/gianni/Downloads/cannon_mode.jpg");
-                    rectangle( src,left,right,Scalar( 255, 0, 0 ),1,LINE_8 );
-
-                    if(snap_a){
-
-                        Rect roi;
-                        roi.x = left.x;
-                        roi.y = left.y;
-                        roi.width = (right.y - left.y)*(640/480);
-                        roi.height= (right.y - left.y);
-
-                        Mat zoom = src(roi);
-                        cv::resize(zoom,zoom,src.size());
-                        imwrite( "/home/gianni/Downloads/cannon_mode.jpg", zoom );
-                        cnt = 2;
-
-                    }
-                    else{
-                        QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);
-                        ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
-                    }
-                }*/
-                if(cnt == 2){
-
-
-                    Mat src = imread(str);
-                    //line(src,left,right,Scalar(0,0,255),1,LINE_8);
-
-                    QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);
-                    ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
-
         }
-        else{
-      //      logPublisher.logError("Impossibile accedere alla webcam");
-            //ui->startVideo->click();
+        if(previous){
+            if(i!=0){
+                i--;
+                str =  "images/cannon_mode"+std::to_string(i)+".png";
+                cnt =1;
+            }
+
+            previous = false;
+        }
+        if(next){
+            if (i!=max){
+                i++;
+                str =  "images/cannon_mode"+std::to_string(i)+".png";
+                cnt =1;
+            }
+
+            next = false;
+        }
+
+
+        if(cnt == 1){
+            Mat src = imread(str);
+            //cv::resize(src,src,cv::Size(900,720));
+            rectangle( src,left,right,Scalar( 255, 255, 0 ),1,LINE_4 );
+
+
+            //ZOOM condition
+            if(snap_a){
+
+                Rect roi;
+                roi.x = left.x;
+                roi.y = left.y;
+                roi.width = (right.x - left.x);
+                roi.height= (right.x - left.x)*(900/720);
+
+                Mat zoom = src(roi);
+                cv::resize(zoom,zoom,cv::Size(900,720));
+                str =  "images/cannon_mode"+std::to_string(i)+".png";
+
+                imwrite( str, zoom );
+                cnt = 2;
+                snap_a = false;
+
+            }
+            else{
+                QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);
+                ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+
+            }
+        }
+        if(cnt == 2){
+            Mat src = imread(str);
+
+            line(src,left,right,Scalar(255,180,180),3,LINE_4);
+
+            QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);
+            ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+
         }
     }
+
     mtx.unlock();
 }
 
@@ -283,6 +334,7 @@ void MainWindow::setVideoStart()
         ui->error_video->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     }
 }
+
 
 
 void MainWindow::setMessageConsole(QString msg,int type)
@@ -454,4 +506,102 @@ void MainWindow::messageArrived(const std::string& payload, const std::string& t
 
 void MainWindow::sensorArrived(Types::Vector<Sensor<float>> payload){
     this->sensors_ = payload;
+}
+
+
+void MainWindow::Mouse_current_pos()
+{
+    if(snap){
+       left = Point(ui->display_image_2->x,ui->display_image_2->y);
+    }
+}
+
+void MainWindow::Mouse_Pressed()
+{
+        snap = true;
+        right = Point(ui->display_image_2->x,ui->display_image_2->y);
+
+}
+
+void MainWindow::Mouse_left()
+{
+        snap = false;
+}
+
+void MainWindow::change_unit(){
+
+    if(change == 1){
+        base = 19;
+        change++;
+
+    }
+    else if(change==2){
+        base = 9;
+        change++;
+    }
+    else if(change==3){
+        base = 5.5;
+        change=1;
+    }
+
+    ui->unit_conv->setText(QString("Size = %1 cm").arg(base));
+}
+
+
+void MainWindow::zoom(){
+      snap_a = !snap_a;
+}
+
+void MainWindow::scroll_left()
+{
+    previous = true;
+
+}
+
+void MainWindow::scroll_right()
+{
+    next = true;
+
+}
+
+void MainWindow::calculate()
+{
+
+    a = abs(left.x-right.x);
+    b = abs(left.y-right.y);
+    l = sqrt(pow(a,2) + pow(b,2));
+    if(turn == 0){
+
+        ui->lblMouse_unit->setText(QString("1cm = 0"));
+        ui->lblMouse_R1->setText(QString("D1 = 0"));
+        ui->lblMouse_R2->setText(QString("D2 = 0"));
+        ui->lblMouse_L->setText(QString("L = 0"));
+        turn++;
+    }
+    else if(turn == 1){
+        //convesion pixel in cm
+        unit = base/l;
+
+        ui->lblMouse_unit->setText(QString("1cm = %1 px").arg(unit));
+        turn++;
+    }
+    else if(turn==2){
+        L = l*unit;
+        ui->lblMouse_L->setText(QString("L = %1 cm").arg(L));
+        turn++;
+    }
+    else if(turn==3){
+        R1 = l*unit;
+        ui->lblMouse_R1->setText(QString("D1 = %1 cm").arg(R1));
+        turn++;
+
+    }
+    else{
+        R2 = l*unit;
+        ui->lblMouse_R2->setText(QString("D2 = %1 cm").arg(R2));
+        turn = 0;
+
+    }
+
+
 }

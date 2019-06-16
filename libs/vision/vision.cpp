@@ -107,7 +107,6 @@ Mat Vision::filterRed(Mat src)
     return res;
 }
 
-
 Mat Vision::filterBlue(Mat src)
 {
     Mat res,blueOnly,canny_output;
@@ -365,16 +364,17 @@ Mat Vision::getImageBlackShape(Mat src,int thresh){
 }
 
 
-int Vision::mean_mode( int numeri[100]){
+
+int Vision::mean_mode( int numeri[100],int length){
 
 
    //Qui comincia l'algoritmo di ricerca della moda
 
       int cont=0, max=0, pos=0,j=0,final;
 
-      for (int i=0; i<100; i++){
+      for (int i=0; i<length; i++){
           cont=0;
-          for (j=i+1; j<100; j++){
+          for (j=i+1; j<length; j++){
               //confronta il primo numero del vettore con numeri[i]+1;
               if (numeri[i]==numeri[j]){
                   cont++;
@@ -394,7 +394,7 @@ int Vision::mean_mode( int numeri[100]){
     return numeri[final];
 }
 
-Mat Vision::getshape(Mat src,bool debug,int j){
+Mat Vision::getshape(Mat src,bool debug,int j,int final){
 
     int cnt_tri = 0;
     int cnt_circ = 0;
@@ -406,7 +406,15 @@ Mat Vision::getshape(Mat src,bool debug,int j){
     static int rect[100];
     static int line[100];
 
-    //int pos[10][4];
+    static int circle_moda[100];
+    static int triangle_moda[100] ;
+    static int line_moda[100];
+    static int square_moda[100];
+
+
+
+
+
      Mat blank_img(720,830, CV_8UC3, Scalar(250, 250, 250));
 
      // Mat canny_output;
@@ -434,7 +442,7 @@ Mat Vision::getshape(Mat src,bool debug,int j){
           double area = contourArea(contours[i], true);
 
           //triangle
-          if(vtc==3 && fabs(contourArea(approx)) > 10 &&
+          if(vtc==3 && fabs(contourArea(approx)) > 20 &&
                   isContourConvex(approx) ){
               if(area>0 && cnt_tri<6){
                   Scalar color = Scalar( 255, 0,0 );
@@ -445,10 +453,10 @@ Mat Vision::getshape(Mat src,bool debug,int j){
 
               }
           //square or line
-          else if(vtc==4 && fabs(contourArea(approx)) > 10 &&
+          else if(vtc==4 && fabs(contourArea(approx)) > 20 &&
                   isContourConvex(approx) ){
 
-              if(area>0){
+              if(area>0 ){
                   //compute the bounding box of the contour and use the
                   //bounding box to compute the aspect ratio
 
@@ -480,7 +488,7 @@ Mat Vision::getshape(Mat src,bool debug,int j){
               }
 
           //circle
-          else if(vtc>=6 && fabs(contourArea(approx)) > 0.5 &&
+          else if(vtc>=6 && fabs(contourArea(approx)) > 20 &&
                   isContourConvex(approx) ){
               if(area>0 && cnt_circ<6){
                   Scalar color = Scalar( 0, 0,255 );
@@ -500,16 +508,34 @@ Mat Vision::getshape(Mat src,bool debug,int j){
         if(debug){
             return drawing;
             }
-        //acquisisco 10 campioni e ne faccio la moda
-      else if(j==100){
+        //acquisisco 20 campioni e ne faccio la moda
+      else if(j==20){
 
-            int circle_moda = Vision::mean_mode(circ);
-            int triangle_moda = Vision::mean_mode(tri);
-            int line_moda = Vision::mean_mode(line);
-            int square_moda = Vision::mean_mode(rect);
+            circle_moda[final] = Vision::mean_mode(circ,j);
+            triangle_moda[final] = Vision::mean_mode(tri,j);
+            line_moda[final] = Vision::mean_mode(line,j);
+            square_moda[final]= Vision::mean_mode(rect,j);
 
 
-            int pos[4] = {circle_moda,triangle_moda,line_moda,square_moda};
+            int pos[4] = {circle_moda[final],triangle_moda[final],line_moda[final],square_moda[final]};
+
+
+            Vision::Circle( blank_img, pos );
+            Vision::Triangle(blank_img, pos);
+            Vision::Line(blank_img, pos);
+            Vision::Rectangle(blank_img, pos);
+
+            return blank_img;
+        }
+        else if(final == 10){
+
+            int circle_final = Vision::mean_mode(circle_moda,final);
+            int triangle_final = Vision::mean_mode(triangle_moda,final);
+            int line_final = Vision::mean_mode(line_moda,final);
+            int square_final = Vision::mean_mode(square_moda,final);
+
+
+            int pos[4] = {circle_final,triangle_final,line_final,square_final};
 
 
             Vision::Circle( blank_img, pos );
@@ -522,7 +548,6 @@ Mat Vision::getshape(Mat src,bool debug,int j){
 
     return blank_img;
 }
-
 
 Mat Vision::addCircle(Mat src, int value)
 {

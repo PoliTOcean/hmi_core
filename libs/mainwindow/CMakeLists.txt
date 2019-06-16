@@ -11,10 +11,12 @@ find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 qt5_wrap_ui(ui_wrap form/design.ui)
-qt5_wrap_cpp(moc_sources mainwindow.h)
+qt5_wrap_cpp(moc_sources mainwindow.h my_qlabel.h)
 
 add_library(mainwindow SHARED
         mainwindow.cpp
+	my_qlabel.cpp
+	my_qlabel.h
         ${ui_wrap}
         ${moc_sources})
 
