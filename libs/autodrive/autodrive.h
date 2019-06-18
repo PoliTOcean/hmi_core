@@ -34,7 +34,7 @@ public:
 private:
     Point currentPos;
     Direction direction;
-    Direction path[MAX_PATH];
+    std::list<Direction> path;
     Mat grid;
 
 };
