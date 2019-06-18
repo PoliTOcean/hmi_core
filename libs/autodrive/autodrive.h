@@ -13,6 +13,7 @@
 namespace Politocean {
 
 enum class Direction{
+
     LEFT,
     RIGHT,
     UP,
@@ -25,21 +26,22 @@ class AutoDrive
 
 public:
     AutoDrive();
-    AutoDrive(Direction startDirection);
-    Direction updateDirection(Mat frame);
+    AutoDrive(Politocean::Direction startDirection);
+    Politocean::Direction updateDirection(Mat frame);
     Mat getGrid();
     void reset();
+    void setBluePosition();
 
 
 private:
+    int blue_pos;
     Point currentPos;
-    Direction direction;
-    std::list<Direction> path;
-    Mat grid;
+    Politocean::Direction direction;
+    std::list<Politocean::Direction> path;
+    Mat grid,grid_return;
 
 };
 
-const std::string AutoDrive::LIB_TAG = "Autodrive";
 
 }
 

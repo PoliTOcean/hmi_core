@@ -15,8 +15,8 @@ qt5_wrap_cpp(moc_sources mainwindow.h my_qlabel.h)
 
 add_library(mainwindow SHARED
         mainwindow.cpp
-	my_qlabel.cpp
-	my_qlabel.h
+        my_qlabel.cpp
+        my_qlabel.h
         ${ui_wrap}
         ${moc_sources})
 
@@ -39,6 +39,7 @@ target_link_libraries(mainwindow
                                 PolitoceanHmi::Serial
                                 PolitoceanHmi::ipcamera
                                 PolitoceanHmi::vision
+                                PolitoceanHmi::autodrive
                                 Qt5::Core
                                 Qt5::Gui
                                 Qt5::Widgets

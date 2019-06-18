@@ -8,7 +8,7 @@
 #include <opencv2/opencv.hpp>
 #include "ipcamera.h"
 #include "PolitoceanConstants.h"
-//#include "autodrive.h"
+#include "autodrive.h"
 #include "mqttLogger.h"
 #include "MqttClient.h"
 #include "ipcamera.h"
@@ -91,14 +91,14 @@ private:
     double R1,R2,L,a,b,l,unit;
     std::string str;
     Point left,right;
-    bool video,snap_b,ph_read;
+    bool video,snap_b,ph_read,checkBlue;
     double lenght_blue;
     Ui::MainWindow *ui;
 
     QIcon icon,icon2,video_icon,auto_icon,shapes_icon,home_icon,cannon_icon,shoulder_icon;
     QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon,depth_icon,ph_icon,cannon_icon_w;
     MODE mode = MODE::MODE_HOME;
-    //AutoDrive autodrive;
+    AutoDrive autodrive;
     int num_average_lenght;
     std::thread* ph_thread;
 

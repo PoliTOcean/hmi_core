@@ -131,6 +131,7 @@ MainWindow::MainWindow(QWidget *parent) :
     lenght_blue = 0;
     num_average_lenght = 0;
     ph_read = false;
+    checkBlue = false;
 
     setVideoStart();
 }
@@ -193,13 +194,22 @@ void MainWindow::DisplayImage(){
         mtx.unlock();
 
         ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-
-        if(Vision::checkCenter(img_hls)){
+        autodrive.updateDirection(img_hls);
+        if(checkBlue && Vision::checkCenter(img_hls)){
             num_average_lenght++;
             lenght_blue += Vision::getLenghtFromCenter(img_hls);
-            if(num_average_lenght > 10){
-                modeHome();
-                std::cout<< lenght_blue  << std::endl;
+            if(num_average_lenght > 5){
+                autodrive.setBluePosition();
+                std::ostringstream strs;
+                strs << lenght_blue;
+                std::string text  = "CRACK LENGTH: " + strs.str() + " cm";
+
+                setMessageConsole(QString::fromStdString(text),0);
+                Mat filtered = autodrive.getGrid();
+                QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
+                ui->display_image_2->setPixmap(QPixmap::fromImage(cam1));
+
+                checkBlue = false;
             }
         }
     }
@@ -432,6 +442,7 @@ void MainWindow::modeAuto()
 {
     //autodrive.reset();
     mode = MODE::MODE_AUTO;
+    checkBlue = true;
     ui->auto_drive->setIcon(auto_icon_w);
     ui->auto_drive->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
