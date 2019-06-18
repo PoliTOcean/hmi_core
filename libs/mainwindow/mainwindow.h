@@ -76,8 +76,8 @@ private:
     double lenght_blue;
     Ui::MainWindow *ui;
     cv::Mat img;
-    QIcon icon,icon2,video_icon,auto_icon,shapes_icon,home_icon,cannon_icon;
-    QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon;
+    QIcon icon,icon2,video_icon,auto_icon,shapes_icon,home_icon,cannon_icon,shoulder_icon;
+    QIcon auto_icon_w,shapes_icon_w,home_icon_w,term_icon,depth_icon,ph_icon;
     MODE mode = MODE::MODE_HOME;
     //AutoDrive autodrive;
     int value_track,num_average_lenght;

@@ -57,6 +57,9 @@ MainWindow::MainWindow(QWidget *parent) :
     home_icon_w.addFile(QString::fromUtf8("images/home_w.png"), QSize(), QIcon::Normal, QIcon::Off);
     cannon_icon.addFile(QString::fromUtf8("images/cannon.png"), QSize(), QIcon::Normal, QIcon::Off);
     term_icon.addFile(QString::fromUtf8("images/thermometer.png"), QSize(), QIcon::Normal, QIcon::Off);
+    depth_icon.addFile(QString::fromUtf8("images/depth.png"), QSize(), QIcon::Normal, QIcon::Off);
+    ph_icon.addFile(QString::fromUtf8("images/ph_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+    shoulder_icon.addFile(QString::fromUtf8("images/arm_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
 
     QPixmap pix;
     if(pix.load("images/LogoOcean.png")){
@@ -68,6 +71,10 @@ MainWindow::MainWindow(QWidget *parent) :
     //SET ICON
     ui->joystick_status->setIcon(icon2);
     ui->joystick_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
+    ui->power_status->setIcon(icon);
+    ui->power_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
+    ui->shoulder_status->setIcon(shoulder_icon);
+    ui->shoulder_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
     ui->error_video->setIcon(video_icon);
     ui->error_video->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     ui->auto_drive->setIcon(auto_icon);
@@ -80,6 +87,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->cannon_measure->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     ui->term_sensor->setIcon(term_icon);
     ui->term_sensor->setIconSize(QSize(sizeIconComponent,sizeIconComponent));
+    ui->depth_button->setIcon(depth_icon);
+    ui->depth_button->setIconSize(QSize(sizeIconComponent,sizeIconComponent));
+    ui->ph_button->setIcon(ph_icon);
+    ui->ph_button->setIconSize(QSize(sizeIconComponent,sizeIconComponent));
 
     //-> setting TRACKBAR
     ui->trackbar_circle->setMaximum(255);
