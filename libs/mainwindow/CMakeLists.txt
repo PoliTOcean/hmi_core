@@ -35,13 +35,15 @@ target_link_libraries(mainwindow
                                 PolitoceanCommon::MqttClient
                                 PolitoceanCommon::mqttLogger
                                 PolitoceanCommon::Sensor
-				PolitoceanHmi::ipcamera
-				PolitoceanHmi::vision
+                                PolitoceanCommon::Component
+                                PolitoceanHmi::Serial
+                                PolitoceanHmi::ipcamera
+                                PolitoceanHmi::vision
                                 Qt5::Core
                                 Qt5::Gui
                                 Qt5::Widgets
                                 ${OpenCV_LIBS}
-				-lpthread)
+                                -lpthread)
 
 target_compile_features(mainwindow PRIVATE cxx_auto_type)
 target_compile_options(mainwindow PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)

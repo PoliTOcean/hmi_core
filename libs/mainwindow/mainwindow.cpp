@@ -8,6 +8,8 @@
 #include <iostream>
 #include <sstream>
 #include "PolitoceanConstants.h"
+#include "Serial.hpp"
+#include "ComponentsManager.hpp"
 #include <mutex>
 
 #define sizeIconMenu 80
@@ -31,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     /*TIMER DISPLAY CAMERAS*/
     connect(this, SIGNAL(frameArrived()), this, SLOT(DisplayImage()));
+    connect(this, SIGNAL(sensorsUpdating()),this, SLOT(setSensorsLabel()));
 
     /*CONNECTION BUTTONS*/
     connect(ui->startVideo,SIGNAL(clicked()),SLOT(setVideoStart()));
@@ -38,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->home,SIGNAL(clicked()),SLOT(modeHome()));
     connect(ui->shapes_recognize,SIGNAL(clicked()),SLOT(modeShapes()));
     connect(ui->measure_button,SIGNAL(clicked()),SLOT(startMeasure()));
+
     connect(ui->cannon_measure,SIGNAL(clicked()),SLOT(modeCannon()));
     connect(ui->home_4,SIGNAL(clicked()),SLOT(calculate()));
     connect(ui->home_5,SIGNAL(clicked()),SLOT(change_unit()));
@@ -50,6 +54,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->display_image_2,SIGNAL(Mouse_Pos()),this,SLOT(Mouse_current_pos()));
     connect(ui->display_image_2,SIGNAL(Mouse_Pressed()),this,SLOT(Mouse_Pressed()));
     connect(ui->display_image_2,SIGNAL(Mouse_Left()),this,SLOT(Mouse_left()));
+    connect(ui->ph_button,SIGNAL(clicked()),SLOT(phRead()));
+
 
     /* WIDGET CONNECTIONS */
     connect(ui->trackbar_circle,SIGNAL(valueChanged(int)),this,SLOT(valueTrackbar(int)));
@@ -68,6 +74,9 @@ MainWindow::MainWindow(QWidget *parent) :
     home_icon_w.addFile(QString::fromUtf8("images/home_w.png"), QSize(), QIcon::Normal, QIcon::Off);
     cannon_icon.addFile(QString::fromUtf8("images/cannon.png"), QSize(), QIcon::Normal, QIcon::Off);
     term_icon.addFile(QString::fromUtf8("images/thermometer.png"), QSize(), QIcon::Normal, QIcon::Off);
+    depth_icon.addFile(QString::fromUtf8("images/depth.png"), QSize(), QIcon::Normal, QIcon::Off);
+    ph_icon.addFile(QString::fromUtf8("images/ph_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+    shoulder_icon.addFile(QString::fromUtf8("images/arm_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
 
     QPixmap pix;
     if(pix.load("images/LogoOcean.png")){
@@ -77,10 +86,12 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     //SET ICON
-    ui->atMega_status->setIcon(icon);
-    ui->atMega_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
     ui->joystick_status->setIcon(icon2);
     ui->joystick_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
+    ui->power_status->setIcon(icon);
+    ui->power_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
+    ui->shoulder_status->setIcon(shoulder_icon);
+    ui->shoulder_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
     ui->error_video->setIcon(video_icon);
     ui->error_video->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     ui->auto_drive->setIcon(auto_icon);
@@ -93,6 +104,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->cannon_measure->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     ui->term_sensor->setIcon(term_icon);
     ui->term_sensor->setIconSize(QSize(sizeIconComponent,sizeIconComponent));
+    ui->depth_button->setIcon(depth_icon);
+    ui->depth_button->setIconSize(QSize(sizeIconComponent,sizeIconComponent));
+    ui->ph_button->setIcon(ph_icon);
+    ui->ph_button->setIconSize(QSize(sizeIconComponent,sizeIconComponent));
 
     //-> setting TRACKBAR
     ui->trackbar_circle->setMaximum(255);
@@ -110,8 +125,13 @@ MainWindow::MainWindow(QWidget *parent) :
     turn = 0;
     snap = false;
     snap_a = false;
+
     previous = false;
     next = false;
+    lenght_blue = 0;
+    num_average_lenght = 0;
+    ph_read = false;
+
     setVideoStart();
 }
 
@@ -121,6 +141,30 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::phMeasure(MainWindow* gui)
+{
+    std::string ph;
+    Serial serial("tty/ACM0");
+    while(gui->ph_read){
+        serial.readLine(ph);
+        std::string delimiter = ";";
+        std::string ph_string = ph.substr(1, ph.find(delimiter));
+        std::string temp_string = ph.substr(2, ph.find(delimiter));
+        gui->ui->ph_label->setText("PH: "+QString::fromStdString(ph_string));
+        gui->ui->temp_label->setText("Temp "+QString::fromStdString(temp_string));
+    }
+}
+
+void MainWindow::phRead()
+{
+    if(!ph_read){
+        ph_thread = new std::thread(phMeasure,this);
+    }
+    else{
+        ph_read = false;
+    }
+
+}
 void MainWindow::setFrame(const cv::Mat frame)
 {
     std::lock_guard<std::mutex> lock(mtx);
@@ -129,6 +173,7 @@ void MainWindow::setFrame(const cv::Mat frame)
 }
 
 void MainWindow::DisplayImage(){
+    Mat img_hls;
     if(!video || img.empty())
         return;
 
@@ -136,6 +181,7 @@ void MainWindow::DisplayImage(){
 
     std::lock_guard<std::mutex> lock(mtx);
     cvtColor(img, frame_rsz, CV_BGR2RGB);
+    cvtColor(img,img_hls,CV_BGR2HLS);
     mtx.unlock();
 
     cv::resize(frame_rsz, frame, cv::Size(1024,720));
@@ -147,6 +193,15 @@ void MainWindow::DisplayImage(){
         mtx.unlock();
 
         ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+
+        if(Vision::checkCenter(img_hls)){
+            num_average_lenght++;
+            lenght_blue += Vision::getLenghtFromCenter(img_hls);
+            if(num_average_lenght > 10){
+                modeHome();
+                std::cout<< lenght_blue  << std::endl;
+            }
+        }
     }
 
     else if(mode  == MODE::MODE_HOME){
@@ -166,21 +221,6 @@ void MainWindow::DisplayImage(){
             QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
             ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
-
-        /*
-        //Mat filtered = Vision::filterRed(img_hls);
-        Mat grid_mat = autodrive.getGrid();
-        //autodrive.updateDirection(filtered);
-        QImage grid((uchar*)grid_mat.data, grid_mat.cols, grid_mat.rows, grid_mat.step, QImage::Format_RGB888);
-        ui->gridLabel->setPixmap(QPixmap::fromImage(grid));
-        if(ui->debugCheck->isChecked()){
-            QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
-            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-        }
-        else{
-            QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
-            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-        }*/
     }
 
     else if(mode == MODE::MODE_SHAPES){
@@ -352,7 +392,7 @@ void MainWindow::setMessageConsole(QString msg,int type)
     }
 
     else if(type == 0){
-        label = "[MESSAGE]: ";
+        label = "[INFO]: ";
         color_black = "<span style=\"font-weight:600;\">";
         color_black.append(label);
         color_black.append("</span>");
@@ -361,7 +401,7 @@ void MainWindow::setMessageConsole(QString msg,int type)
     }
 
     else if(type == 1){
-        label = "[COMPONENT]: ";
+        label = "[WARNING]: ";
         color_yellow = "<span style=\"font-weight:600;color:#204a87;\">";
         color_yellow.append(label);
         color_yellow.append("</span>");
@@ -401,7 +441,6 @@ void MainWindow::modeAuto()
     ui->shapes_recognize->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
     ui->gridLabel->setVisible(true);
-    ui->display_image_2->setVisible(false);
 }
 
 void MainWindow::modeShapes()
@@ -419,12 +458,15 @@ void MainWindow::modeShapes()
     ui->cannon_measure->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
     ui->gridLabel->setVisible(false);
-    ui->display_image_2->setVisible(false);
+
 }
 
 void MainWindow::modeHome()
 {
     mode = MODE::MODE_HOME;
+
+    lenght_blue = 0;
+
     ui->home->setIcon(home_icon_w);
     ui->home->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
@@ -436,7 +478,7 @@ void MainWindow::modeHome()
     ui->cannon_measure->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
     ui->gridLabel->setVisible(false);
-    ui->display_image_2->setVisible(false);
+
 
 }
 
@@ -455,13 +497,6 @@ void MainWindow::setJoystick(bool connected)
 void MainWindow::setAtMega(bool connected)
 {
 
-    if(connected){
-        ui->atMega_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
-    }
-    else{
-        ui->atMega_status->setStyleSheet("QPushButton{background-color: #c62828; }");
-    }
-
 }
 
 void MainWindow::valueTrackbar(int value)
@@ -473,39 +508,30 @@ void MainWindow::valueTrackbar(int value)
 void MainWindow::startMeasure()
 {
     snap_b = true;
+
+    if(mode  == MODE::MODE_HOME){
+    }
 }
 
 void MainWindow::messageArrived(const std::string& payload, const std::string& topic){
-    std::cout << topic << ":\t" << payload << std::endl;
-    if(topic == "TOPIC_COMPONTENTS"){
-        if(payload == "JOYSTICK_ON"){
-            this->setJoystick(true);
-            this->messageArrived("Joystick connected",1);
-
-        }
-        else if(payload == "JOYSTICK_OFF"){
-            this->setJoystick(false);
-            this->messageArrived("Joystick disconnected",1);
-        }
-        if(payload == "ATMEGA_ON"){
-            this->setAtMega(true);
-            this->messageArrived("ATMega connected",1);
-        }
-        else if(payload == "ATMEGA_OFF"){
-            this->setAtMega(false);
-            this->messageArrived("ATMega disconnected",1);
-        }
-
-    }
 
     /* ERROR MESSAGE */
-    if(topic == Topics::Logs::ERRORS){
+    if(topic == Logger::LOGS_PATH + Logger::Levels::ERROR){
+        this->messageArrived(QString::fromStdString(payload),0);
+    }
+
+    else if(topic == Logger::LOGS_PATH + Logger::Levels::INFO){
         this->messageArrived(QString::fromStdString(payload),-1);
+    }
+
+    else if(topic == Logger::LOGS_PATH + Logger::Levels::WARNING){
+        this->messageArrived(QString::fromStdString(payload),1);
     }
 }
 
 void MainWindow::sensorArrived(Types::Vector<Sensor<float>> payload){
     this->sensors_ = payload;
+    sensorsUpdating();
 }
 
 
@@ -602,6 +628,47 @@ void MainWindow::calculate()
         turn = 0;
 
     }
+}
 
 
+void MainWindow::componentArrived(const std::string& payload, const std::string& topic)
+{
+    this->componentChanged();
+}
+
+void MainWindow::setComponentStatus()
+{
+        if(ComponentsManager::GetComponentState(component_t::JOYSTICK) == Component::Status::ENABLED){
+            ui->joystick_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
+        }
+        else{
+            ui->joystick_status->setStyleSheet("QPushButton{background-color: #c62828; }");
+        }
+
+        if(ComponentsManager::GetComponentState(component_t::SHOULDER) == Component::Status::ENABLED){
+            ui->shoulder_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
+        }
+        else{
+            ui->shoulder_status->setStyleSheet("QPushButton{background-color: #c62828; }");
+        }
+
+        if(ComponentsManager::GetComponentState(component_t::POWER) == Component::Status::ENABLED){
+            ui->power_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
+        }
+        else{
+            ui->power_status->setStyleSheet("QPushButton{background-color: #c62828; }");
+        }
+}
+
+
+void MainWindow::setSensorsLabel()
+{
+    for(Sensor<float> s : sensors_){
+        if(s.getType() == sensor_t::PRESSURE){
+            ui->pressure_label->setText(QString::number(s.getValue()));
+        }
+        else if(s.getType() == sensor_t::TEMPERATURE_INT){
+            ui->temperature_label->setText(QString::number(s.getValue()));
+        }
+    }
 }

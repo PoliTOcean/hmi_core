@@ -47,6 +47,7 @@ Direction AutoDrive::updateDirection(Mat frame)
             mqttLogger::getInstance(LIB_TAG).log(logger::DEBUG, " direction left");
 
             currentPos.x = currentPos.x - 100;
+            path.push_back(Direction::LEFT);
         }
         else if(Vision::checkRight(frame)){
             direction = Direction::RIGHT;
@@ -62,6 +63,7 @@ Direction AutoDrive::updateDirection(Mat frame)
             /** TO DO: implement JSON **/
 
             currentPos.x = currentPos.x + 100;
+            path.push_back(Direction::RIGHT);
         }
     }
 
@@ -81,6 +83,7 @@ Direction AutoDrive::updateDirection(Mat frame)
             /** TO DO: implement JSON **/
 
             currentPos.y = currentPos.y - 100;
+            path.push_back(Direction::UP);
         }
         else if(Vision::checkBottom(frame)){
             direction = Direction::DOWN;
@@ -96,6 +99,7 @@ Direction AutoDrive::updateDirection(Mat frame)
             /** TO DO: implement JSON **/
 
             currentPos.y = currentPos.y + 100;
+
         }
     }
 

@@ -4,6 +4,10 @@
 
 namespace Politocean {
 
+
+
+#define TOLLERANCE_BLUE 100
+#define MINIMUM_BLUE 500
 using namespace std;
 Vision::Vision()
 {
@@ -48,6 +52,31 @@ bool Vision::checkLeft(Mat src)
 
     return false;
 }
+
+ bool Vision::checkCenter(cv::Mat src)
+ {
+     cv::Mat filtered_blue = Vision::filterBlue(src);
+     Rect roi_left,roi_right,roi_center;
+     
+     roi_left.width = src.size().width/4;
+     roi_left.height = src.size().height;
+     roi_left.x = 0;
+     roi_left.y = 0;
+
+     roi_right.width = src.size().width/4;
+     roi_right.height = src.size().height;
+     roi_right.x = src.size().width*3/4;;
+     roi_right.y = 0;
+
+     roi_center.width = src.size().width*2/4;
+     roi_center.height = src.size().height;
+     roi_center.x = src.size().width/4;
+     roi_center.y = 0;
+
+     if(countNonZero(filtered_blue(roi_left)) > TOLLERANCE_BLUE) return false;
+     if(countNonZero(filtered_blue(roi_right)) > TOLLERANCE_BLUE) return false;
+     if(countNonZero(filtered_blue(roi_center)) > MINIMUM_BLUE) return true;
+ }
 
 bool Vision::checkRight(Mat src)
 {
@@ -137,7 +166,8 @@ Mat Vision::filterBlack(Mat src)
     return res;
 }
 
-void Vision::getLenghtFromCenter(Mat src)
+
+double Vision::getLenghtFromCenter(Mat src)
 {
     int areaRed, areaBlue;
     int lato = 80;
@@ -185,7 +215,7 @@ void Vision::getLenghtFromCenter(Mat src)
          }
 
 
-    cout<< "Lunghezza Linea Blue: "<< length << " cm" << endl;
+    return length;
 }
 
 Mat Vision::addROI(Mat src, Rect roi){
@@ -415,7 +445,7 @@ Mat Vision::getshape(Mat src,bool debug,int j,int final){
 
 
 
-     Mat blank_img(720,830, CV_8UC3, Scalar(250, 250, 250));
+     Mat blank_img(830,720, CV_8UC3, Scalar(250, 250, 250));
 
      // Mat canny_output;
       vector<vector<Point> > contours;
