@@ -85,7 +85,7 @@ signals:
 
 private:
     bool debug,snap_a,snap,previous,next;
-    Mat img,shape;
+    Mat img,shape,src;
 
     int value_track,cnt,i=0,mean=0,change=1,base,turn,moda=0,max;
     double R1,R2,L,a,b,l,unit;

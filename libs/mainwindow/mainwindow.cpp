@@ -185,16 +185,16 @@ void MainWindow::DisplayImage(){
     cvtColor(img,img_hls,CV_BGR2HLS);
     mtx.unlock();
 
-    cv::resize(frame_rsz, frame, cv::Size(1024,720));
+    cv::resize(frame_rsz, frame, cv::Size(910,720));
 
     if(mode == MODE::MODE_AUTO){
         //img = Vision::addCircle(frame,value_track);
         std::lock_guard<std::mutex> lock(mtx);
-        QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
+        QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
         mtx.unlock();
 
         ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-        autodrive.updateDirection(img_hls);
+        autodrive.updateDirection(Vision::filterRed(img_hls));
         if(checkBlue && Vision::checkCenter(img_hls)){
             num_average_lenght++;
             lenght_blue += Vision::getLenghtFromCenter(img_hls);
@@ -206,7 +206,7 @@ void MainWindow::DisplayImage(){
 
                 setMessageConsole(QString::fromStdString(text),0);
                 Mat filtered = autodrive.getGrid();
-                QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
+                QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_RGB888);
                 ui->display_image_2->setPixmap(QPixmap::fromImage(cam1));
 
                 checkBlue = false;
@@ -293,7 +293,7 @@ void MainWindow::DisplayImage(){
 
     else if(mode == MODE::MODE_CANNON){
 
-        QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
+        QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
         ui->display_image->setPixmap(QPixmap::fromImage(cam1));
 
         if(snap_b){
@@ -325,13 +325,15 @@ void MainWindow::DisplayImage(){
             next = false;
         }
 
-
         if(cnt == 1){
-            Mat src = imread(str);
+            src = imread(str);
             //cv::resize(src,src,cv::Size(900,720));
+            cnt=2;
+        }
+
+
+        if(cnt == 2){
             rectangle( src,left,right,Scalar( 255, 255, 0 ),1,LINE_4 );
-
-
             //ZOOM condition
             if(snap_a){
 
@@ -339,14 +341,14 @@ void MainWindow::DisplayImage(){
                 roi.x = left.x;
                 roi.y = left.y;
                 roi.width = (right.x - left.x);
-                roi.height= (right.x - left.x)*(900/720);
+                roi.height= (right.x - left.x)*(830/720);
 
                 Mat zoom = src(roi);
-                cv::resize(zoom,zoom,cv::Size(900,720));
+                cv::resize(zoom,zoom,cv::Size(830,720));
                 str =  "images/cannon_mode"+std::to_string(i)+".png";
 
                 imwrite( str, zoom );
-                cnt = 2;
+                cnt = 3;
                 snap_a = false;
 
             }
@@ -356,7 +358,7 @@ void MainWindow::DisplayImage(){
 
             }
         }
-        if(cnt == 2){
+        if(cnt == 3){
             Mat src = imread(str);
 
             line(src,left,right,Scalar(255,180,180),3,LINE_4);

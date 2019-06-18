@@ -27,7 +27,7 @@ bool Vision::checkTop(Mat src)
 
     //COUNT NUMBER OF PIXEL != BLACK
     int n_pixels = countNonZero(src(roi));
-    addROI(src,roi);
+    //addROI(src,roi);
     if(n_pixels > TOLERANCE)
         return true;
 
@@ -46,7 +46,7 @@ bool Vision::checkLeft(Mat src)
 
     //COUNT NUMBER OF PIXEL != BLACK
     int n_pixels = countNonZero(src(roi));
-    addROI(src,roi);
+    //addROI(src,roi);
     if(n_pixels > TOLERANCE)
         return true;
 
@@ -80,6 +80,7 @@ bool Vision::checkLeft(Mat src)
 
 bool Vision::checkRight(Mat src)
 {
+
     //DEFINE ROI (Region Of Interest)
     Rect roi;
 
@@ -90,7 +91,7 @@ bool Vision::checkRight(Mat src)
 
     //COUNT NUMBER OF PIXEL != BLACK
     int n_pixels = countNonZero(src(roi));
-    addROI(src,roi);
+    //addROI(src,roi);
     if(n_pixels > TOLERANCE)
         return true;
 
@@ -110,7 +111,7 @@ bool Vision::checkBottom(Mat src)
 
     //COUNT NUMBER OF PIXEL != BLACK
     int n_pixels = countNonZero(src(roi));
-    addROI(src,roi);
+    //addROI(src,roi);
     if(n_pixels > TOLERANCE)
         return true;
 
@@ -445,7 +446,7 @@ Mat Vision::getshape(Mat src,bool debug,int j,int final){
 
 
 
-     Mat blank_img(830,720, CV_8UC3, Scalar(250, 250, 250));
+     Mat blank_img(720,830, CV_8UC3, Scalar(250, 250, 250));
 
      // Mat canny_output;
       vector<vector<Point> > contours;
