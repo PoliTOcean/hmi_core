@@ -22,7 +22,7 @@ enum class Direction{
 
 class AutoDrive
 {
-    static const std::string LIB_TAG;
+    const std::string LIB_TAG = "AutoDrive";
 
 public:
     AutoDrive();
