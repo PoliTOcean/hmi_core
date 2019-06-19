@@ -27,10 +27,11 @@ class AutoDrive
 public:
     AutoDrive();
     AutoDrive(Politocean::Direction startDirection);
-    Politocean::Direction updateDirection(Mat frame);
+    Politocean::Direction updateDirection(Mat frame); 
     Mat getGrid();
     void reset();
     void setBluePosition();
+    void init(Mat frame);
 
 
 private:

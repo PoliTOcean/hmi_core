@@ -45,7 +45,7 @@ public:
     void componentArrived(const std::string& payload, const std::string& topic);
 
     void setFrame(const cv::Mat frame);
-    void phRead();
+
     
     QImage imdisplay;  //This will create QImage which is shown in Qt label
     QTimer* Timer;   // A timer is needed in GUI application
@@ -69,6 +69,10 @@ slots:
     void zoom();
     void scroll_left();
     void scroll_right();
+    void setDepthOffset();
+    void getGrid();
+    void phRead();
+    void setPhValue();
 
 private slots:
     void Mouse_current_pos();
@@ -82,13 +86,14 @@ signals:
     void messageArrived(QString msg,int type);
     void frameArrived();
     void sensorsUpdating();
+    void phArrived();
 
 private:
     bool debug,snap_a,snap,previous,next;
-    Mat img,shape,src;
-
+    Mat img,shape,src,copy_src;
+    std::string ph_string, temp_string;
     int value_track,cnt,i=0,mean=0,change=1,base,turn,moda=0,max;
-    double R1,R2,L,a,b,l,unit;
+    double R1,R2,L,a,b,l,unit,depth_off,pressure;
     std::string str;
     Point left,right;
     bool video,snap_b,ph_read,checkBlue;

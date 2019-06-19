@@ -28,7 +28,8 @@ Mat AutoDrive::getGrid(){
         // return design 3
         final_grid = imread("images/grid_3.png");
         rectangle(final_grid,Point(blue_pos* (830/4),720/4),Point(830/6,720/6),
-                  Scalar(0,0,255));
+                 Scalar(255,0,0));
+        cvtColor(final_grid, final_grid, CV_BGR2RGB);
         return final_grid;
     }
 
@@ -36,7 +37,8 @@ Mat AutoDrive::getGrid(){
         // return design 5
         final_grid = imread("images/grid_5.png");
         rectangle(final_grid,Point(blue_pos* (830/4),720/4),Point(830/6,720/6),
-                  Scalar(0,0,255));
+                  Scalar(255,0,0));
+        cvtColor(final_grid, final_grid, CV_BGR2RGB);
         return final_grid;
     }
 
@@ -44,7 +46,8 @@ Mat AutoDrive::getGrid(){
         // return design 6
         final_grid = imread("images/grid_7.png");
         rectangle(final_grid,Point(blue_pos* (830/4),720/4),Point(830/6,720/6),
-                Scalar(0,0,255));
+                Scalar(255,0,0));
+        cvtColor(final_grid, final_grid, CV_BGR2RGB);
         return final_grid;
     }
 
@@ -56,14 +59,16 @@ Mat AutoDrive::getGrid(){
             // return design 2
             final_grid = imread("images/grid_2.png");
             rectangle(final_grid,Point(blue_pos* (830/4),720/4),Point(830/6,720/6),
-                      Scalar(0,0,255));
+                      Scalar(255,0,0));
+            cvtColor(final_grid, final_grid, CV_BGR2RGB);
             return final_grid;
         }
         else {
             // return design 1
             final_grid = imread("images/grid_1.png");
             rectangle(final_grid,Point(blue_pos* (830/4),720/4),Point(830/6,720/6),
-                      Scalar(0,0,255));
+                      Scalar(255,0,0));
+            cvtColor(final_grid, final_grid, CV_BGR2RGB);
             return final_grid;
         }
     }
@@ -72,14 +77,16 @@ Mat AutoDrive::getGrid(){
         // return design 4
         final_grid = imread("images/grid_4.png");
         rectangle(final_grid,Point(blue_pos* (830/4),720/4),Point(830/6,720/6),
-                  Scalar(0,0,255));
+                  Scalar(255,0,0));
+        cvtColor(final_grid, final_grid, CV_BGR2RGB);
         return final_grid;
     }
 
     //AN ERROR OCCURRED
     final_grid = imread("images/grid_3.png");
     rectangle(final_grid,Point(blue_pos* (830/4),720/4),Point(830/6,720/6),
-              Scalar(0,0,255));
+              Scalar(255,0,0));
+    cvtColor(final_grid, final_grid, CV_BGR2RGB);
     return final_grid;
 }
 
@@ -164,6 +171,23 @@ Politocean::Direction AutoDrive::updateDirection(Mat frame)
 void AutoDrive::setBluePosition()
 {
     blue_pos = path.size();
+}
+
+void AutoDrive::init(Mat frame)
+{
+    Mat filtered = Vision::filterRed(frame);
+    if(Vision::checkLeft(filtered)){
+        direction = Politocean::Direction::LEFT;
+    }
+    else if(Vision::checkRight(filtered)){
+        direction = Politocean::Direction::RIGHT;
+    }
+    else if(Vision::checkTop(filtered)){
+        direction = Politocean::Direction::UP;
+    }
+    else if(Vision::checkBottom(filtered)){
+        direction = Politocean::Direction::DOWN;
+    }
 }
 
 void AutoDrive::reset()

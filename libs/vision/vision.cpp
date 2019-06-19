@@ -385,7 +385,7 @@ Mat Vision::getImageBlackShape(Mat src,int thresh){
 
     /// Convert image to gray and blur it
     cvtColor( src, src_gray, CV_BGR2GRAY );
-    blur( src_gray, src_gray, Size(1,1) );
+    blur( src_gray, src_gray, Size(3,3) );
     Mat canny_output;
 
     /// Detect edges using canny

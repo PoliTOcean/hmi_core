@@ -34,6 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     /*TIMER DISPLAY CAMERAS*/
     connect(this, SIGNAL(frameArrived()), this, SLOT(DisplayImage()));
     connect(this, SIGNAL(sensorsUpdating()),this, SLOT(setSensorsLabel()));
+    connect(this, SIGNAL(phArrived()),this, SLOT(setPhValue()));
 
     /*CONNECTION BUTTONS*/
     connect(ui->startVideo,SIGNAL(clicked()),SLOT(setVideoStart()));
@@ -41,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->home,SIGNAL(clicked()),SLOT(modeHome()));
     connect(ui->shapes_recognize,SIGNAL(clicked()),SLOT(modeShapes()));
     connect(ui->measure_button,SIGNAL(clicked()),SLOT(startMeasure()));
+    connect(ui->depth_button,SIGNAL(clicked()),SLOT(setDepthOffset()));
 
     connect(ui->cannon_measure,SIGNAL(clicked()),SLOT(modeCannon()));
     connect(ui->home_4,SIGNAL(clicked()),SLOT(calculate()));
@@ -48,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->home_6,SIGNAL(clicked()),SLOT(zoom()));
     connect(ui->home_7,SIGNAL(clicked()),SLOT(scroll_left()));
     connect(ui->home_8,SIGNAL(clicked()),SLOT(scroll_right()));
+    connect(ui->grid_button,SIGNAL(clicked()),SLOT(getGrid()));
 
 
     //Mouse Callback for cannon mode
@@ -129,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent) :
     previous = false;
     next = false;
     lenght_blue = 0;
+    depth_off = 0;
     num_average_lenght = 0;
     ph_read = false;
     checkBlue = false;
@@ -145,20 +149,57 @@ MainWindow::~MainWindow()
 void MainWindow::phMeasure(MainWindow* gui)
 {
     std::string ph;
-    Serial serial("tty/ACM0");
+    Serial serial("/dev/ttyACM0");
+    serial.open();
+    //gui->setMessageConsole(QString::fromUtf8("Ph Thread ON"),0);
     while(gui->ph_read){
-        serial.readLine(ph);
-        std::string delimiter = ";";
-        std::string ph_string = ph.substr(1, ph.find(delimiter));
-        std::string temp_string = ph.substr(2, ph.find(delimiter));
-        gui->ui->ph_label->setText("PH: "+QString::fromStdString(ph_string));
-        gui->ui->temp_label->setText("Temp "+QString::fromStdString(temp_string));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        try{
+            serial.readLine(ph);
+
+            std::string delimiter = ";";
+            int pos = ph.find(delimiter);
+            ph.erase(0,pos+1);
+
+            pos = ph.find(delimiter);
+            gui->ph_string = ph.substr(0,pos);
+            ph.erase(0,pos+1);
+
+            pos = ph.find(delimiter);
+            gui->temp_string = ph.substr(0,pos);
+            ph.erase(0,pos+1);
+
+            gui->phArrived();
+            //gui->ui->ph_label->setText("PH: "+QString::fromStdString(ph_string));
+            //gui->ui->temp_label->setText("Temp "+QString::fromStdString(temp_string));
+         }
+        catch(SerialException e){
+            std::cerr << e.what()<< std::endl;
+        }
+        catch(...){
+
+        }
     }
+    try{
+        //serial.close();
+    }
+    catch(...){
+        //std::cerr << e.what() <<std::endl;
+    }
+}
+
+void MainWindow::setPhValue(){
+    ui->ph_label->setText("PH: "+QString::fromStdString(ph_string));
+    ui->temp_label->setText("Temp "+QString::fromStdString(temp_string));
+
 }
 
 void MainWindow::phRead()
 {
+    //setMessageConsole(QString::fromUtf8("Ph Thread ON"),0);
     if(!ph_read){
+        //setMessageConsole(QString::fromUtf8("Ph Thread ON"),0);
+        ph_read = true;
         ph_thread = new std::thread(phMeasure,this);
     }
     else{
@@ -173,6 +214,11 @@ void MainWindow::setFrame(const cv::Mat frame)
     this->frameArrived();
 }
 
+void MainWindow::setDepthOffset()
+{
+    depth_off = pressure;
+}
+
 void MainWindow::DisplayImage(){
     Mat img_hls;
     if(!video || img.empty())
@@ -182,47 +228,47 @@ void MainWindow::DisplayImage(){
 
     std::lock_guard<std::mutex> lock(mtx);
     cvtColor(img, frame_rsz, CV_BGR2RGB);
-    cvtColor(img,img_hls,CV_BGR2HLS);
+
     mtx.unlock();
 
     cv::resize(frame_rsz, frame, cv::Size(910,720));
+    cvtColor(frame,img_hls,CV_RGB2HLS);
 
     if(mode == MODE::MODE_AUTO){
-        //img = Vision::addCircle(frame,value_track);
-        std::lock_guard<std::mutex> lock(mtx);
-        QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
-        mtx.unlock();
-
-        ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         autodrive.updateDirection(Vision::filterRed(img_hls));
-        if(checkBlue && Vision::checkCenter(img_hls)){
-            num_average_lenght++;
-            lenght_blue += Vision::getLenghtFromCenter(img_hls);
-            if(num_average_lenght > 5){
+        //img = Vision::addCircle(frame,value_track);
+        if(ui->debugCheck->isChecked()){
+            cv::Mat filtered = Vision::filterBlue(img_hls);
+            QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+        }
+        else{
+            std::lock_guard<std::mutex> lock(mtx);
+            QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
+            mtx.unlock();
+
+            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+
+            if(snap_b){
+                lenght_blue = Vision::getLenghtFromCenter(img_hls);
                 autodrive.setBluePosition();
                 std::ostringstream strs;
                 strs << lenght_blue;
                 std::string text  = "CRACK LENGTH: " + strs.str() + " cm";
 
                 setMessageConsole(QString::fromStdString(text),0);
-                Mat filtered = autodrive.getGrid();
-                QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_RGB888);
-                ui->display_image_2->setPixmap(QPixmap::fromImage(cam1));
 
                 checkBlue = false;
+                num_average_lenght = 0;
+                snap_b = false;
             }
+
         }
     }
 
     else if(mode  == MODE::MODE_HOME){
         //VISION TEST:
         if(ui->debugCheck->isChecked()){
-            cv::Mat img_hls;
-
-            std::lock_guard<std::mutex> lock(mtx);
-            cvtColor(img, img_hls, CV_BGR2HLS);
-            mtx.unlock();
-
             cv::Mat filtered = Vision::filterRed(img_hls);
             QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
             ui->display_image->setPixmap(QPixmap::fromImage(cam1));
@@ -238,14 +284,17 @@ void MainWindow::DisplayImage(){
                 shape = Vision::getImageBlackShape(frame,value_track);
                 ui->display_image_2->setVisible(true);
                 //DRAW THE REGION OF INTEREST
-                rectangle( shape,Point(200,200),Point(800,600),Scalar( 255, 255, 255 ),1,LINE_4 );
+                if(previous){
+                    previous=false;
+                }
+                rectangle( shape,Point(200,300),Point(600,600),Scalar( 255, 255, 255 ),1,LINE_4 );
 
                 //SELECT ONLY THIS REGION OF THE IMAGE
                 Rect roi;
                 roi.x = 200;
-                roi.y = 200;
-                roi.width = (800-200);
-                roi.height=(600-200);
+                roi.y = 300;
+                roi.width = (600-200);
+                roi.height=(600-300);
                // shape = shape(roi);
 
                 if(!ui->debugCheck->isChecked()){
@@ -300,7 +349,7 @@ void MainWindow::DisplayImage(){
 
             str =  "images/cannon_mode"+std::to_string(i)+".png";
             i++;
-            imwrite(str,img);
+            imwrite(str,frame);
             max = i;
             cnt = 1;
             snap_b = false;
@@ -333,7 +382,8 @@ void MainWindow::DisplayImage(){
 
 
         if(cnt == 2){
-            rectangle( src,left,right,Scalar( 255, 255, 0 ),1,LINE_4 );
+            copy_src = src.clone();
+            rectangle( copy_src,left,right,Scalar( 255, 255, 0 ),1,LINE_4 );
             //ZOOM condition
             if(snap_a){
 
@@ -353,17 +403,21 @@ void MainWindow::DisplayImage(){
 
             }
             else{
-                QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);
+                QImage cam2((uchar*)copy_src.data, copy_src.cols, copy_src.rows, copy_src.step, QImage::Format_RGB888);
                 ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
 
             }
         }
         if(cnt == 3){
-            Mat src = imread(str);
+            src = imread(str);
+            cnt=4;
+        }
+        if(cnt == 4){
+            copy_src = src.clone();
 
-            line(src,left,right,Scalar(255,180,180),3,LINE_4);
+            line(copy_src,left,right,Scalar(255,180,180),3,LINE_4);
 
-            QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);
+            QImage cam2((uchar*)copy_src.data, copy_src.cols, copy_src.rows, copy_src.step, QImage::Format_RGB888);
             ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
 
         }
@@ -418,7 +472,7 @@ void MainWindow::setMessageConsole(QString msg,int type)
         color_yellow.append(label);
         color_yellow.append("</span>");
         color_yellow.append(msg);
-        ui->console->append(color_yellow);
+        ui->consoleSerialException e->append(color_yellow);
     }
 
     ui->console->scrollBarWidgets(Qt::AlignBottom);
@@ -440,10 +494,18 @@ void MainWindow::modeCannon()
     ui->shapes_recognize->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 }
 
+void MainWindow::getGrid()
+{
+    Mat res = autodrive.getGrid();
+    QImage cam1((uchar*)res.data, res.cols, res.rows, res.step,QImage::Format_RGB888);
+    ui->display_image_2->setPixmap(QPixmap::fromImage(cam1));
+}
+
 void MainWindow::modeAuto()
 {
     //autodrive.reset();
     mode = MODE::MODE_AUTO;
+    autodrive.init(img);
     checkBlue = true;
     ui->auto_drive->setIcon(auto_icon_w);
     ui->auto_drive->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
@@ -678,10 +740,14 @@ void MainWindow::setSensorsLabel()
 {
     for(Sensor<float> s : sensors_){
         if(s.getType() == sensor_t::PRESSURE){
-            ui->pressure_label->setText(QString::number(s.getValue()));
+            pressure = s.getValue();
+            ui->pressure_label->setText(QString::number((pressure - depth_off)/100) + QString::fromUtf8("m"));
         }
         else if(s.getType() == sensor_t::TEMPERATURE_INT){
-            ui->temperature_label->setText(QString::number(s.getValue()));
+            ui->temperature_label->setText(QString::number(s.getValue()) + QString::fromUtf8("°"));
+        }
+        else if(s.getType() == sensor_t::TEMPERATURE_PWR){
+            ui->temperature_label_2->setText(QString::number(s.getValue()) + QString::fromUtf8("°"));
         }
     }
 }
