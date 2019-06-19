@@ -1,11 +1,15 @@
 #include "mainwindow.h"
 #include "ui_design.h"
 #include <QTimer>
+#include "my_qlabel.h"
 #include "vision.h"
 #include "ipcamera.h"
+#include <QMouseEvent>
 #include <iostream>
 #include <sstream>
 #include "PolitoceanConstants.h"
+#include "Serial.hpp"
+#include "ComponentsManager.hpp"
 #include <mutex>
 
 #define sizeIconMenu 80
@@ -21,15 +25,15 @@ MainWindow::MainWindow(QWidget *parent) :
     camera( std::bind(&MainWindow::setFrame, this, std::placeholders::_1), 2 ),
     ui(new Ui::MainWindow)
 {
-
     /* SETUP UI*/
     ui->setupUi(this);
     
     //INIT PRIVATE VARIABLE
-    video = false;
+    video = true;
 
     /*TIMER DISPLAY CAMERAS*/
     connect(this, SIGNAL(frameArrived()), this, SLOT(DisplayImage()));
+    connect(this, SIGNAL(sensorsUpdating()),this, SLOT(setSensorsLabel()));
 
     /*CONNECTION BUTTONS*/
     connect(ui->startVideo,SIGNAL(clicked()),SLOT(setVideoStart()));
@@ -37,6 +41,21 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->home,SIGNAL(clicked()),SLOT(modeHome()));
     connect(ui->shapes_recognize,SIGNAL(clicked()),SLOT(modeShapes()));
     connect(ui->measure_button,SIGNAL(clicked()),SLOT(startMeasure()));
+
+    connect(ui->cannon_measure,SIGNAL(clicked()),SLOT(modeCannon()));
+    connect(ui->home_4,SIGNAL(clicked()),SLOT(calculate()));
+    connect(ui->home_5,SIGNAL(clicked()),SLOT(change_unit()));
+    connect(ui->home_6,SIGNAL(clicked()),SLOT(zoom()));
+    connect(ui->home_7,SIGNAL(clicked()),SLOT(scroll_left()));
+    connect(ui->home_8,SIGNAL(clicked()),SLOT(scroll_right()));
+
+
+    //Mouse Callback for cannon mode
+    connect(ui->display_image_2,SIGNAL(Mouse_Pos()),this,SLOT(Mouse_current_pos()));
+    connect(ui->display_image_2,SIGNAL(Mouse_Pressed()),this,SLOT(Mouse_Pressed()));
+    connect(ui->display_image_2,SIGNAL(Mouse_Left()),this,SLOT(Mouse_left()));
+    connect(ui->ph_button,SIGNAL(clicked()),SLOT(phRead()));
+
 
     /* WIDGET CONNECTIONS */
     connect(ui->trackbar_circle,SIGNAL(valueChanged(int)),this,SLOT(valueTrackbar(int)));
@@ -49,11 +68,15 @@ MainWindow::MainWindow(QWidget *parent) :
     auto_icon.addFile(QString::fromUtf8("images/robot-solid.png"), QSize(), QIcon::Normal, QIcon::Off);
     shapes_icon.addFile(QString::fromUtf8("images/shapes-solid.png"), QSize(), QIcon::Normal, QIcon::Off);
     home_icon.addFile(QString::fromUtf8("images/home.png"), QSize(), QIcon::Normal, QIcon::Off);
+    cannon_icon_w.addFile(QString::fromUtf8("images/cannon_w.png"), QSize(), QIcon::Normal, QIcon::Off);
     auto_icon_w.addFile(QString::fromUtf8("images/robot-solid_w.png"), QSize(), QIcon::Normal, QIcon::Off);
     shapes_icon_w.addFile(QString::fromUtf8("images/shapes-solid_w.png"), QSize(), QIcon::Normal, QIcon::Off);
     home_icon_w.addFile(QString::fromUtf8("images/home_w.png"), QSize(), QIcon::Normal, QIcon::Off);
     cannon_icon.addFile(QString::fromUtf8("images/cannon.png"), QSize(), QIcon::Normal, QIcon::Off);
     term_icon.addFile(QString::fromUtf8("images/thermometer.png"), QSize(), QIcon::Normal, QIcon::Off);
+    depth_icon.addFile(QString::fromUtf8("images/depth.png"), QSize(), QIcon::Normal, QIcon::Off);
+    ph_icon.addFile(QString::fromUtf8("images/ph_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
+    shoulder_icon.addFile(QString::fromUtf8("images/arm_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
 
     QPixmap pix;
     if(pix.load("images/LogoOcean.png")){
@@ -63,10 +86,12 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     //SET ICON
-    ui->atMega_status->setIcon(icon);
-    ui->atMega_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
     ui->joystick_status->setIcon(icon2);
     ui->joystick_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
+    ui->power_status->setIcon(icon);
+    ui->power_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
+    ui->shoulder_status->setIcon(shoulder_icon);
+    ui->shoulder_status->setIconSize(QSize(sizeIconComponent, sizeIconComponent));
     ui->error_video->setIcon(video_icon);
     ui->error_video->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     ui->auto_drive->setIcon(auto_icon);
@@ -79,12 +104,34 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->cannon_measure->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     ui->term_sensor->setIcon(term_icon);
     ui->term_sensor->setIconSize(QSize(sizeIconComponent,sizeIconComponent));
+    ui->depth_button->setIcon(depth_icon);
+    ui->depth_button->setIconSize(QSize(sizeIconComponent,sizeIconComponent));
+    ui->ph_button->setIcon(ph_icon);
+    ui->ph_button->setIconSize(QSize(sizeIconComponent,sizeIconComponent));
 
     //-> setting TRACKBAR
     ui->trackbar_circle->setMaximum(255);
 
-    value_track = 0;
+    value_track = 150;
     snap_b = false;
+    cnt = 0;
+    left = Point(0,0);
+    right = Point(0,0);
+    a = 0;
+    b = 0;
+    l = 0;
+    i = 0;
+    unit = 0;
+    turn = 0;
+    snap = false;
+    snap_a = false;
+
+    previous = false;
+    next = false;
+    lenght_blue = 0;
+    num_average_lenght = 0;
+    ph_read = false;
+    checkBlue = false;
 
     setVideoStart();
 }
@@ -95,6 +142,30 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::phMeasure(MainWindow* gui)
+{
+    std::string ph;
+    Serial serial("tty/ACM0");
+    while(gui->ph_read){
+        serial.readLine(ph);
+        std::string delimiter = ";";
+        std::string ph_string = ph.substr(1, ph.find(delimiter));
+        std::string temp_string = ph.substr(2, ph.find(delimiter));
+        gui->ui->ph_label->setText("PH: "+QString::fromStdString(ph_string));
+        gui->ui->temp_label->setText("Temp "+QString::fromStdString(temp_string));
+    }
+}
+
+void MainWindow::phRead()
+{
+    if(!ph_read){
+        ph_thread = new std::thread(phMeasure,this);
+    }
+    else{
+        ph_read = false;
+    }
+
+}
 void MainWindow::setFrame(const cv::Mat frame)
 {
     std::lock_guard<std::mutex> lock(mtx);
@@ -103,13 +174,15 @@ void MainWindow::setFrame(const cv::Mat frame)
 }
 
 void MainWindow::DisplayImage(){
+    Mat img_hls;
     if(!video || img.empty())
         return;
 
-    Mat frame, frame_rsz;
+    Mat frame, frame_rsz, res;
 
     std::lock_guard<std::mutex> lock(mtx);
     cvtColor(img, frame_rsz, CV_BGR2RGB);
+    cvtColor(img,img_hls,CV_BGR2HLS);
     mtx.unlock();
 
     cv::resize(frame_rsz, frame, cv::Size(1024,720));
@@ -121,6 +194,24 @@ void MainWindow::DisplayImage(){
         mtx.unlock();
 
         ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+        autodrive.updateDirection(img_hls);
+        if(checkBlue && Vision::checkCenter(img_hls)){
+            num_average_lenght++;
+            lenght_blue += Vision::getLenghtFromCenter(img_hls);
+            if(num_average_lenght > 5){
+                autodrive.setBluePosition();
+                std::ostringstream strs;
+                strs << lenght_blue;
+                std::string text  = "CRACK LENGTH: " + strs.str() + " cm";
+
+                setMessageConsole(QString::fromStdString(text),0);
+                Mat filtered = autodrive.getGrid();
+                QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
+                ui->display_image_2->setPixmap(QPixmap::fromImage(cam1));
+
+                checkBlue = false;
+            }
+        }
     }
 
     else if(mode  == MODE::MODE_HOME){
@@ -140,39 +231,143 @@ void MainWindow::DisplayImage(){
             QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
             ui->display_image->setPixmap(QPixmap::fromImage(cam1));
         }
-
-        /*
-        //Mat filtered = Vision::filterRed(img_hls);
-        Mat grid_mat = autodrive.getGrid();
-        //autodrive.updateDirection(filtered);
-        QImage grid((uchar*)grid_mat.data, grid_mat.cols, grid_mat.rows, grid_mat.step, QImage::Format_RGB888);
-        ui->gridLabel->setPixmap(QPixmap::fromImage(grid));
-        if(ui->debugCheck->isChecked()){
-            QImage cam1((uchar*)filtered.data, filtered.cols, filtered.rows, filtered.step, QImage::Format_Grayscale8);
-            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-        }
-        else{
-            QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
-            ui->display_image->setPixmap(QPixmap::fromImage(cam1));
-        }*/
     }
 
     else if(mode == MODE::MODE_SHAPES){
-        /*
-        //img = Vision::getImageBlackShape(frame,value_track);
-        QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_Grayscale8);
+
+                shape = Vision::getImageBlackShape(frame,value_track);
+                ui->display_image_2->setVisible(true);
+                //DRAW THE REGION OF INTEREST
+                rectangle( shape,Point(200,200),Point(800,600),Scalar( 255, 255, 255 ),1,LINE_4 );
+
+                //SELECT ONLY THIS REGION OF THE IMAGE
+                Rect roi;
+                roi.x = 200;
+                roi.y = 200;
+                roi.width = (800-200);
+                roi.height=(600-200);
+               // shape = shape(roi);
+
+                if(!ui->debugCheck->isChecked()){
+                     QImage cam1((uchar*)shape.data, shape.cols, shape.rows, shape.step, QImage::Format_Grayscale8);
+                     ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+                 }
+                 else if(ui->debugCheck->isChecked()){
+
+                     debug = true;
+                     res = Vision::getshape(shape,debug,mean,moda);
+                     QImage cam1((uchar*)res.data, res.cols, res.rows, res.step,QImage::Format_RGB888);
+                     ui->display_image->setPixmap(QPixmap::fromImage(cam1));
+                 }
+
+               if(snap_b){
+                   shape = shape(roi);
+                   debug = false;
+
+                   if(moda!=20){
+                        mean++;
+                        res = Vision::getshape(shape,debug,mean,moda);
+                    }
+
+                   if(mean == 20 ){
+                       mean=0;
+                       moda++;
+                       QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
+                       ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+                       //snap_b = false;
+                   }
+                   if(moda==10){
+                       res = Vision::getshape(shape,debug,mean,moda);
+                       QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
+                       ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+                       moda = 0;
+                       snap_b = false;
+                   }
+
+
+
+               }
+
+
+            }
+
+    else if(mode == MODE::MODE_CANNON){
+
+        QImage cam1((uchar*)img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
         ui->display_image->setPixmap(QPixmap::fromImage(cam1));
 
         if(snap_b){
-            cv::Mat res;
-            ui->display_image_2->setVisible(true);
-            //res = Vision::getshape(img,value_track);
-            QImage cam2((uchar*)res.data, res.cols, res.rows, res.step, QImage::Format_RGB888);
-            ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+
+            str =  "images/cannon_mode"+std::to_string(i)+".png";
+            i++;
+            imwrite(str,img);
+            max = i;
+            cnt = 1;
             snap_b = false;
+
         }
-        */
+        if(previous){
+            if(i!=0){
+                i--;
+                str =  "images/cannon_mode"+std::to_string(i)+".png";
+                cnt =1;
+            }
+
+            previous = false;
+        }
+        if(next){
+            if (i!=max){
+                i++;
+                str =  "images/cannon_mode"+std::to_string(i)+".png";
+                cnt =1;
+            }
+
+            next = false;
+        }
+
+
+        if(cnt == 1){
+            Mat src = imread(str);
+            //cv::resize(src,src,cv::Size(900,720));
+            rectangle( src,left,right,Scalar( 255, 255, 0 ),1,LINE_4 );
+
+
+            //ZOOM condition
+            if(snap_a){
+
+                Rect roi;
+                roi.x = left.x;
+                roi.y = left.y;
+                roi.width = (right.x - left.x);
+                roi.height= (right.x - left.x)*(900/720);
+
+                Mat zoom = src(roi);
+                cv::resize(zoom,zoom,cv::Size(900,720));
+                str =  "images/cannon_mode"+std::to_string(i)+".png";
+
+                imwrite( str, zoom );
+                cnt = 2;
+                snap_a = false;
+
+            }
+            else{
+                QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);
+                ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+
+            }
+        }
+        if(cnt == 2){
+            Mat src = imread(str);
+
+            line(src,left,right,Scalar(255,180,180),3,LINE_4);
+
+            QImage cam2((uchar*)src.data, src.cols, src.rows, src.step, QImage::Format_RGB888);
+            ui->display_image_2->setPixmap(QPixmap::fromImage(cam2));
+
+        }
     }
+
+    mtx.unlock();
 }
 
 void MainWindow::setVideoStart()
@@ -190,6 +385,8 @@ void MainWindow::setVideoStart()
     }
 }
 
+
+
 void MainWindow::setMessageConsole(QString msg,int type)
 {
     QString color_red,color_yellow,color_black;
@@ -205,7 +402,7 @@ void MainWindow::setMessageConsole(QString msg,int type)
     }
 
     else if(type == 0){
-        label = "[MESSAGE]: ";
+        label = "[INFO]: ";
         color_black = "<span style=\"font-weight:600;\">";
         color_black.append(label);
         color_black.append("</span>");
@@ -214,7 +411,7 @@ void MainWindow::setMessageConsole(QString msg,int type)
     }
 
     else if(type == 1){
-        label = "[COMPONENT]: ";
+        label = "[WARNING]: ";
         color_yellow = "<span style=\"font-weight:600;color:#204a87;\">";
         color_yellow.append(label);
         color_yellow.append("</span>");
@@ -225,10 +422,27 @@ void MainWindow::setMessageConsole(QString msg,int type)
     ui->console->scrollBarWidgets(Qt::AlignBottom);
 }
 
+
+void MainWindow::modeCannon()
+{
+    mode = MODE::MODE_CANNON;
+
+    /* Draw white icon */
+    ui->cannon_measure->setIcon(cannon_icon_w);
+    ui->cannon_measure->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+    ui->auto_drive->setIcon(auto_icon);
+    ui->auto_drive->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+    ui->home->setIcon(home_icon);
+    ui->home->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+    ui->shapes_recognize->setIcon(shapes_icon);
+    ui->shapes_recognize->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+}
+
 void MainWindow::modeAuto()
 {
     //autodrive.reset();
     mode = MODE::MODE_AUTO;
+    checkBlue = true;
     ui->auto_drive->setIcon(auto_icon_w);
     ui->auto_drive->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
@@ -238,7 +452,6 @@ void MainWindow::modeAuto()
     ui->shapes_recognize->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
     ui->gridLabel->setVisible(true);
-    ui->display_image_2->setVisible(false);
 }
 
 void MainWindow::modeShapes()
@@ -252,14 +465,19 @@ void MainWindow::modeShapes()
     ui->auto_drive->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     ui->home->setIcon(home_icon);
     ui->home->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+    ui->cannon_measure->setIcon(cannon_icon);
+    ui->cannon_measure->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
     ui->gridLabel->setVisible(false);
-    ui->display_image_2->setVisible(false);
+
 }
 
 void MainWindow::modeHome()
 {
     mode = MODE::MODE_HOME;
+
+    lenght_blue = 0;
+
     ui->home->setIcon(home_icon_w);
     ui->home->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
@@ -267,9 +485,11 @@ void MainWindow::modeHome()
     ui->shapes_recognize->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
     ui->auto_drive->setIcon(auto_icon);
     ui->auto_drive->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
+    ui->cannon_measure->setIcon(cannon_icon);
+    ui->cannon_measure->setIconSize(QSize(sizeIconMenu,sizeIconMenu));
 
     ui->gridLabel->setVisible(false);
-    ui->display_image_2->setVisible(false);
+
 
 }
 
@@ -288,13 +508,6 @@ void MainWindow::setJoystick(bool connected)
 void MainWindow::setAtMega(bool connected)
 {
 
-    if(connected){
-        ui->atMega_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
-    }
-    else{
-        ui->atMega_status->setStyleSheet("QPushButton{background-color: #c62828; }");
-    }
-
 }
 
 void MainWindow::valueTrackbar(int value)
@@ -306,37 +519,167 @@ void MainWindow::valueTrackbar(int value)
 void MainWindow::startMeasure()
 {
     snap_b = true;
+
+    if(mode  == MODE::MODE_HOME){
+    }
 }
 
 void MainWindow::messageArrived(const std::string& payload, const std::string& topic){
-  /*  std::cout << topic << ":\t" << payload << std::endl;
-    if(topic == "TOPIC_COMPONTENTS"){
-        if(payload == "JOYSTICK_ON"){
-            this->setJoystick(true);
-            this->messageArrived("Joystick connected",1);
 
-        }
-        else if(payload == "JOYSTICK_OFF"){
-            this->setJoystick(false);
-            this->messageArrived("Joystick disconnected",1);
-        }
-        if(payload == "ATMEGA_ON"){
-            this->setAtMega(true);
-            this->messageArrived("ATMega connected",1);
-        }
-        else if(payload == "ATMEGA_OFF"){
-            this->setAtMega(false);
-            this->messageArrived("ATMega disconnected",1);
-        }
-
-    }
-*/
     /* ERROR MESSAGE */
-    if(topic == Topics::ERRORS){
+    if(topic == Logger::LOGS_PATH + Logger::Levels::ERROR){
+        this->messageArrived(QString::fromStdString(payload),0);
+    }
+
+    else if(topic == Logger::LOGS_PATH + Logger::Levels::INFO){
         this->messageArrived(QString::fromStdString(payload),-1);
+    }
+
+    else if(topic == Logger::LOGS_PATH + Logger::Levels::WARNING){
+        this->messageArrived(QString::fromStdString(payload),1);
     }
 }
 
 void MainWindow::sensorArrived(Types::Vector<Sensor<float>> payload){
     this->sensors_ = payload;
+    sensorsUpdating();
+}
+
+
+void MainWindow::Mouse_current_pos()
+{
+    if(snap){
+       left = Point(ui->display_image_2->x,ui->display_image_2->y);
+    }
+}
+
+void MainWindow::Mouse_Pressed()
+{
+        snap = true;
+        right = Point(ui->display_image_2->x,ui->display_image_2->y);
+
+}
+
+void MainWindow::Mouse_left()
+{
+        snap = false;
+}
+
+void MainWindow::change_unit(){
+
+    if(change == 1){
+        base = 19;
+        change++;
+
+    }
+    else if(change==2){
+        base = 9;
+        change++;
+    }
+    else if(change==3){
+        base = 5.5;
+        change=1;
+    }
+
+    ui->unit_conv->setText(QString("Size = %1 cm").arg(base));
+}
+
+
+void MainWindow::zoom(){
+      snap_a = !snap_a;
+}
+
+void MainWindow::scroll_left()
+{
+    previous = true;
+
+}
+
+void MainWindow::scroll_right()
+{
+    next = true;
+
+}
+
+void MainWindow::calculate()
+{
+
+    a = abs(left.x-right.x);
+    b = abs(left.y-right.y);
+    l = sqrt(pow(a,2) + pow(b,2));
+    if(turn == 0){
+
+        ui->lblMouse_unit->setText(QString("1cm = 0"));
+        ui->lblMouse_R1->setText(QString("D1 = 0"));
+        ui->lblMouse_R2->setText(QString("D2 = 0"));
+        ui->lblMouse_L->setText(QString("L = 0"));
+        turn++;
+    }
+    else if(turn == 1){
+        //convesion pixel in cm
+        unit = base/l;
+
+        ui->lblMouse_unit->setText(QString("1cm = %1 px").arg(unit));
+        turn++;
+    }
+    else if(turn==2){
+        L = l*unit;
+        ui->lblMouse_L->setText(QString("L = %1 cm").arg(L));
+        turn++;
+    }
+    else if(turn==3){
+        R1 = l*unit;
+        ui->lblMouse_R1->setText(QString("D1 = %1 cm").arg(R1));
+        turn++;
+
+    }
+    else{
+        R2 = l*unit;
+        ui->lblMouse_R2->setText(QString("D2 = %1 cm").arg(R2));
+        turn = 0;
+
+    }
+}
+
+
+void MainWindow::componentArrived(const std::string& payload, const std::string& topic)
+{
+    this->componentChanged();
+}
+
+void MainWindow::setComponentStatus()
+{
+        if(ComponentsManager::GetComponentState(component_t::JOYSTICK) == Component::Status::ENABLED){
+            ui->joystick_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
+        }
+        else{
+            ui->joystick_status->setStyleSheet("QPushButton{background-color: #c62828; }");
+        }
+
+        if(ComponentsManager::GetComponentState(component_t::SHOULDER) == Component::Status::ENABLED){
+            ui->shoulder_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
+        }
+        else{
+            ui->shoulder_status->setStyleSheet("QPushButton{background-color: #c62828; }");
+        }
+
+        if(ComponentsManager::GetComponentState(component_t::POWER) == Component::Status::ENABLED){
+            ui->power_status->setStyleSheet("QPushButton{background-color: #64dd17; }");
+        }
+        else{
+            ui->power_status->setStyleSheet("QPushButton{background-color: #c62828; }");
+        }
+}
+
+
+void MainWindow::setSensorsLabel()
+{
+    for(Sensor<float> s : sensors_){
+        if(s.getType() == sensor_t::PRESSURE){
+            ui->pressure_label->setText(QString::number(s.getValue()));
+        }
+        else if(s.getType() == sensor_t::TEMPERATURE_INT){
+            ui->temperature_label->setText(QString::number(s.getValue()));
+        }
+    }
 }

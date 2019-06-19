@@ -11,10 +11,12 @@ find_package(Qt5 COMPONENTS REQUIRED Core Gui Widgets)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 qt5_wrap_ui(ui_wrap form/design.ui)
-qt5_wrap_cpp(moc_sources mainwindow.h)
+qt5_wrap_cpp(moc_sources mainwindow.h my_qlabel.h)
 
 add_library(mainwindow SHARED
         mainwindow.cpp
+        my_qlabel.cpp
+        my_qlabel.h
         ${ui_wrap}
         ${moc_sources})
 
@@ -33,13 +35,16 @@ target_link_libraries(mainwindow
                                 PolitoceanCommon::MqttClient
                                 PolitoceanCommon::mqttLogger
                                 PolitoceanCommon::Sensor
-				PolitoceanHmi::ipcamera
-				PolitoceanHmi::vision
+                                PolitoceanCommon::Component
+                                PolitoceanHmi::Serial
+                                PolitoceanHmi::ipcamera
+                                PolitoceanHmi::vision
+                                PolitoceanHmi::autodrive
                                 Qt5::Core
                                 Qt5::Gui
                                 Qt5::Widgets
                                 ${OpenCV_LIBS}
-				-lpthread)
+                                -lpthread)
 
 target_compile_features(mainwindow PRIVATE cxx_auto_type)
 target_compile_options(mainwindow PRIVATE $<$<CXX_COMPILER_ID:GNU>:-Wall>)
