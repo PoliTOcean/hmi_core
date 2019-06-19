@@ -211,9 +211,13 @@ int main(int argc, const char *argv[])
 			{
 				joystick.connect();
 			}
-			catch(const JoystickException& e)
+			catch(const std::exception& e)
 			{
 				mqttLogger::getInstance().log(logger::WARNING, e);
+			}
+			catch(...)
+			{
+				mqttLogger::getInstance().log(logger::WARNING, "Can't connect to joystick.");
 			}
 			
 			std::this_thread::sleep_for(std::chrono::seconds(1));

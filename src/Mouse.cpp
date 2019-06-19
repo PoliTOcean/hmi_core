@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
 
     int height = DisplayHeight(dpy, scr);
     int width  = DisplayWidth(dpy, scr);
-    mqttLogger::getInstance().log(logger::CONFIG, string("Screen width: ")+to_string(width)+"\theight: "+to_string(height)+"\n");
+    mqttLogger::getInstance().log(logger::CONFIG, string("Screen width: ")+to_string(width)+"\theight: "+to_string(height));
 
     bool click = false;
     while(1)
