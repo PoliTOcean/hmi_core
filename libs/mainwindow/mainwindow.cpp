@@ -220,7 +220,10 @@ void MainWindow::setDepthOffset()
 }
 
 void MainWindow::DisplayImage(){
+    Rect roi_square;
     Mat img_hls;
+    int lato = 100;
+
     if(!video || img.empty())
         return;
 
@@ -229,9 +232,30 @@ void MainWindow::DisplayImage(){
     std::lock_guard<std::mutex> lock(mtx);
     cvtColor(img, frame_rsz, CV_BGR2RGB);
 
+
     mtx.unlock();
 
-    cv::resize(frame_rsz, frame, cv::Size(910,720));
+    if(mode == MODE::MODE_AUTO){
+        Rect roi;
+        roi.width = frame_rsz.size().width * 0.6;
+        roi.height = frame_rsz.size().height * 0.6;;
+
+        roi.x = frame_rsz.size().width/2 - roi.width/2;
+        roi.y = frame_rsz.size().height/2 - roi.height/2;
+
+        cv::resize(frame_rsz(roi), frame, cv::Size(910,720));
+
+
+
+        roi_square.x = frame.size().width/2 - lato/2;
+        roi_square.y = frame.size().height/2 - lato/2;
+        roi_square.width = lato;
+        roi_square.height = lato;
+
+    }
+    else{
+        cv::resize(frame_rsz, frame, cv::Size(910,720));
+    }
     cvtColor(frame,img_hls,CV_RGB2HLS);
 
     if(mode == MODE::MODE_AUTO){
@@ -244,6 +268,7 @@ void MainWindow::DisplayImage(){
         }
         else{
             std::lock_guard<std::mutex> lock(mtx);
+            frame = Vision::addROI(frame,roi_square);
             QImage cam1((uchar*)frame.data, frame.cols, frame.rows, frame.step, QImage::Format_RGB888);
             mtx.unlock();
 
@@ -472,7 +497,7 @@ void MainWindow::setMessageConsole(QString msg,int type)
         color_yellow.append(label);
         color_yellow.append("</span>");
         color_yellow.append(msg);
-        ui->consoleSerialException e->append(color_yellow);
+        //ui->consoleSerialException e->append(color_yellow);
     }
 
     ui->console->scrollBarWidgets(Qt::AlignBottom);

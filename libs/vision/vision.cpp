@@ -171,9 +171,9 @@ Mat Vision::filterBlack(Mat src)
 double Vision::getLenghtFromCenter(Mat src)
 {
     int areaRed, areaBlue;
-    int lato = 80;
+    int lato = 100;
 
-    double lineTicknessPixel,length = 0,cmPerPixel;
+    double lineTicknessPixel,length = 0,lengthPixel,cmPerPixel;
     double max = 0;
 
     Mat red,blue;
@@ -196,10 +196,10 @@ double Vision::getLenghtFromCenter(Mat src)
     cmPerPixel = LINE_TICKNESS / lineTicknessPixel;
 
     /* FIRST ATTEMPT */
-    //lengthPixel = areaBlue / lineTicknessPixel;
-    //length = lengthPixel * cmPerPixel;
+    lengthPixel = areaBlue / lineTicknessPixel;
+    length = lengthPixel * cmPerPixel;
 
-    /* NEW TRY */
+    /* NEW TRY
     /// Detect edges using canny
     //Canny(blue, canny_output, 0, 255, 3 );
     /// Find contours
@@ -214,7 +214,7 @@ double Vision::getLenghtFromCenter(Mat src)
                 length = (perimeter - lineTicknessPixel*2) / 2 * cmPerPixel;
             }
          }
-
+    */
 
     return length;
 }
